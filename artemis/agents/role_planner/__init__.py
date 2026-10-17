@@ -73,10 +73,33 @@ async def plan_roles(ctx, request) -> RolePlan:
         for feature, value in (role.feature_requirements or {}).items():
             if feature not in request.feature_catalog:
                 raise ValueError(f"Unknown feature {feature!r} for role {role.id}")
-            if not request.role_bindings:
-                raise ValueError(f"Feature {feature!r} needs a verified device fixture for role {role.id}")
-            prepared = request.role_bindings[role.id].prepared_features
-            if feature not in prepared or prepared[feature] != value:
-                raise ValueError(f"Feature {feature!r} is not prepared for role {role.id}")
     logger.info(f"[multi-device] role_plan.complete roles={sorted(ids)} elapsed_ms={int((time.monotonic()-started)*1000)}")
     return plan
+
+
+def validate_role_preparation(plan, request, bindings=None):
+    """Validate provider attestations after resource selection, before any case actions."""
+    for role in plan.roles:
+        requirements = role.feature_requirements or {}
+        if not requirements:
+            continue
+        device = request.role_bindings.get(role.id)
+        prepared = device.prepared_features if device is not None else {}
+        pending = {
+            key: value
+            for key, value in requirements.items()
+            if key not in prepared or prepared[key] != value
+        }
+        supplied = bindings is not None and bindings.satisfies_requirements(role.id, pending)
+        if pending and not supplied:
+            logger.warning(
+                f"[bindings] preparation.rejected role_id={role.id} unmet_requirements={len(pending)}"
+            )
+            raise ValueError(f"Feature requirements are not prepared for role {role.id}")
+        logger.info(
+            "[bindings] preparation.verified role_id={} requirements={} source={}".format(
+                role.id,
+                len(requirements),
+                "provider" if pending else "fixture",
+            )
+        )

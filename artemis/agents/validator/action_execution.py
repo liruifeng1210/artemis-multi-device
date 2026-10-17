@@ -27,6 +27,7 @@ from artemis.context import ArtemisContext
 from artemis.graph.state import State
 from artemis.mcp.action_names import to_canonical_call
 from artemis.mcp.action_session import ActionSession
+from artemis.runtime.value_bindings import BindingError
 from third_party.mobile_use.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -79,7 +80,14 @@ async def exec_action(
     if action_name == "wait_for_delay":
         time_in_ms = action_item.get("time_in_ms", 0)
         logger.info(f"Validator performing wait_for_delay for {time_in_ms}ms...")
-        await asyncio.sleep(time_in_ms / 1000.0)
+        from artemis.runtime.action_bindings import record_local_action
+
+        status = "cancelled"
+        try:
+            await asyncio.sleep(time_in_ms / 1000.0)
+            status = "success"
+        finally:
+            record_local_action(ctx, action_item, status)
         return True, ""
 
     width = getattr(ctx.device, "device_width", 1080) if ctx.device else 1080
@@ -91,7 +99,16 @@ async def exec_action(
         return False, str(e)
 
     try:
-        res = await session.call(tool_name, wire_args)
+        from artemis.runtime.action_bindings import ActionIdentity, CURRENT_ACTION, new_action_id
+
+        action_id = action_item.setdefault("action_id", new_action_id())
+        token = CURRENT_ACTION.set(ActionIdentity(action_id, action_item.get("attempt", 1)))
+        try:
+            res = await session.call(tool_name, wire_args)
+        finally:
+            CURRENT_ACTION.reset(token)
+    except BindingError:
+        raise
     except Exception as e:
         return False, f"MCP call failed: {e}"
 

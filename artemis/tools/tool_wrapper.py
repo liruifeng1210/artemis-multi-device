@@ -25,7 +25,7 @@ from langchain_core.tools import BaseTool
 from langchain_core.tools.base import InjectedToolCallId
 from langgraph.prebuilt import InjectedState
 
-from artemis.core.tool_failure import is_tool_failure
+from artemis.core.tool_failure import ToolFailure, is_tool_failure
 from artemis.data_engine import engine as engine_mod
 from artemis.data_engine.trace import CURRENT_TRACE_ID, smart_serialize
 from artemis.graph.state import State
@@ -88,79 +88,144 @@ async def invoke_tool_with_injection(
             # If inspection fails, fall back to just using provided args
             pass
 
-        trace_id = uuid.uuid4()
-        parent_id = CURRENT_TRACE_ID.get()
-        token = CURRENT_TRACE_ID.set(trace_id)
-        start_time = time.time()
+    else:
+        tool_args = getattr(tool, "args", None)
+        if state is not None and isinstance(tool_args, dict) and "state" in tool_args:
+            final_args["state"] = state
 
-        from artemis.runtime.execution_scope import get_current_data_engine
-        live_engine = get_current_data_engine()
+    # The role guard is transparent: the guarded invocation owns the lifecycle.
+    if (tool.metadata or {}).get("artemis_passthrough"):
+        return await func(**final_args)
 
+    from artemis.runtime.execution_scope import get_current_data_engine, CURRENT_EXECUTION
+    from artemis.runtime.action_bindings import (
+        ActionIdentity,
+        CURRENT_ACTION,
+        input_references,
+        resolve_arguments,
+        tool_binding_contract,
+    )
+    from artemis.runtime.value_bindings import ValueBindings, BindingError
+    from third_party.mobile_use.utils.logger import get_logger
+
+    logger = get_logger(__name__)
+    trace_id = uuid.uuid4()
+    parent_id = CURRENT_TRACE_ID.get()
+    token = CURRENT_TRACE_ID.set(trace_id)
+    start_time = time.time()
+    live_engine = get_current_data_engine()
+    bindings = getattr(live_engine, "value_bindings", None)
+    binding_engine = live_engine if isinstance(bindings, ValueBindings) else None
+    scope = CURRENT_EXECUTION.get()
+    role_id = scope.role_id if scope else None
+    identity = ActionIdentity(str(trace_id))
+    action_token = CURRENT_ACTION.set(identity)
+    inputs, literals = {}, {}
+    protected = False
+    declared_action = bool((tool.metadata or {}).get("artemis_action"))
+    execution_status, execution_result, execution_error = "running", None, None
+    try:
+        inputs, literals = tool_binding_contract(tool)
+        if binding_engine is not None and (inputs or literals or declared_action):
+            bindings.register_operation(tool.name, inputs=inputs, literals=literals)
         if record_trace and live_engine:
-            step_id = getattr(live_engine, "current_step_id", None)
             live_engine.record_trace(
                 type="tool",
                 name=tool.name,
                 payload={"args": {k: smart_serialize(v) for k, v in args.items()}},
                 status="running",
                 parent_trace_id=parent_id,
-                step_id=step_id,
+                step_id=getattr(live_engine, "current_step_id", None),
                 trace_id=trace_id,
             )
-
-        execution_status = "running"
-        execution_result = None
-        execution_error = None
-        try:
-            # Call the function
-            if inspect.iscoroutinefunction(func):
-                result = await func(**final_args)
+        if binding_engine is not None:
+            resolved, protected = resolve_arguments(tool.name, args, bindings, role_id)
+            final_args.update(resolved)
+            identity = ActionIdentity(str(trace_id), input_refs=input_references(args))
+            CURRENT_ACTION.set(identity)
+        logger.debug(
+            f"[bindings] tool.started action_id={identity.action_id} role_id={role_id} inputs={len(inputs)}"
+        )
+        if func is None:
+            result = await tool.ainvoke(final_args)
+        elif inspect.iscoroutinefunction(func):
+            result = await func(**final_args)
+        else:
+            result = func(**final_args)
+        execution_result = result
+        execution_status = "failed" if is_tool_failure(result) else "success"
+        if execution_status == "failed":
+            execution_error = result
+        outputs = bindings.outputs_for(identity.action_id) if binding_engine is not None else {}
+        if outputs:
+            if execution_status == "success":
+                bindings.confirm_outputs(identity.action_id)
+                result = {"outputs": {key: {"ref": value_id} for key, value_id in outputs.items()}}
             else:
-                result = func(**final_args)
-            execution_result = result
-            if is_tool_failure(result):
-                # A structural failure is traced as one; the text is the error.
-                execution_status = "failed"
+                result = ToolFailure("Data-producing action failed")
                 execution_error = result
-            else:
-                execution_status = "success"
-            return result
-        except Exception as e:
-            execution_status = "failed"
-            execution_error = e
-            raise e
-        finally:
-            duration = time.time() - start_time
-            if record_trace and live_engine:
-                step_id = getattr(live_engine, "current_step_id", None)
-                payload = {"args": {k: smart_serialize(v) for k, v in args.items()}}
-
-                if execution_status == "success":
-                    payload["result"] = smart_serialize(get_tool_result_content(execution_result))
-                elif execution_status == "failed":
-                    payload["error"] = str(execution_error)
-                else:
-                    execution_status = "terminated"
-                    payload["error"] = "Execution terminated unexpectedly."
-
-                live_engine.record_trace(
-                    type="tool",
+            execution_result = result
+        elif protected:
+            result = (
+                {"ok": True} if execution_status == "success" else ToolFailure("Bound tool failed")
+            )
+            execution_result = result
+            if execution_status == "failed":
+                execution_error = result
+        return result
+    except Exception as e:
+        execution_status = "failed"
+        execution_error = e
+        logger.warning(
+            f"[bindings] tool.failed action_id={identity.action_id} role_id={role_id} error_type={type(e).__name__}"
+        )
+        if protected or (binding_engine is not None and bindings.outputs_for(identity.action_id)):
+            execution_error = BindingError("Data-producing or bound action failed")
+            raise execution_error from None
+        raise
+    finally:
+        duration = time.time() - start_time
+        CURRENT_ACTION.reset(action_token)
+        CURRENT_TRACE_ID.reset(token)
+        if execution_status == "running":
+            execution_status = "terminated"
+        if binding_engine is not None:
+            outputs = bindings.outputs_for(identity.action_id)
+            direct_device_tool = tool.name.split(":")[-1] in {"run_adb_command", "manage_task"}
+            if outputs or direct_device_tool or declared_action or inputs:
+                if outputs and bindings.operation(tool.name) is None:
+                    bindings.register_operation(tool.name, inputs=inputs, literals=literals)
+                if execution_status != "success":
+                    bindings.invalidate(list(outputs.values()))
+                binding_engine.record_action_binding(
+                    action_id=identity.action_id,
+                    attempt=1,
                     name=tool.name,
-                    payload=payload,
+                    arguments=args,
+                    outputs=outputs,
                     status=execution_status,
-                    duration=duration,
-                    parent_trace_id=parent_id,
-                    step_id=step_id,
-                    trace_id=trace_id,
                 )
-            CURRENT_TRACE_ID.reset(token)
-    else:
-        # Fallback to ainvoke if no direct func available; tools that declare
-        # a "state" argument still receive the graph state.
-        tool_args = getattr(tool, "args", None)
-        if state is not None and isinstance(tool_args, dict) and "state" in tool_args:
-            final_args["state"] = state
-        return await tool.ainvoke(final_args)
+        if record_trace and live_engine:
+            payload = {"args": {k: smart_serialize(v) for k, v in args.items()}}
+            if execution_status == "success":
+                payload["result"] = smart_serialize(get_tool_result_content(execution_result))
+            elif execution_status == "failed":
+                payload["error"] = str(execution_error)
+            else:
+                payload["error"] = "Execution terminated unexpectedly."
+            live_engine.record_trace(
+                type="tool",
+                name=tool.name,
+                payload=payload,
+                status=execution_status,
+                duration=duration,
+                parent_trace_id=parent_id,
+                step_id=getattr(live_engine, "current_step_id", None),
+                trace_id=trace_id,
+            )
+        logger.debug(
+            f"[bindings] tool.finished action_id={identity.action_id} role_id={role_id} status={execution_status} duration_ms={int(duration * 1000)}"
+        )
 
 
 def get_tool_result_content(result: Any) -> Any:

@@ -68,6 +68,7 @@ from pydantic import Field, create_model
 
 from artemis.core.tool_declaration import ToolDeclaration
 from artemis.mcp.action_types import ActionResult
+from artemis.runtime.value_bindings import ValueRef
 
 __all__ = [
     "ACTION_SPECS",
@@ -157,6 +158,8 @@ class ActionSpec:
     declaration: DeclarationDialect | None = None
     wire: WireDialect | None = None
     differences: str = ""
+    bindable: tuple[tuple[str, str], ...] = ()
+    replay_literals: tuple[str, ...] = ()
 
 
 # --- Shared type aliases -------------------------------------------------------------
@@ -246,6 +249,7 @@ async def _wire_focus_and_clear_text(actuator: Any, a: dict[str, Any]) -> Action
 _SPECS: tuple[ActionSpec, ...] = (
     ActionSpec(
         name="click",
+        replay_literals=("target", "times", "delay_ms"),
         operator=OperatorDialect(
             description=(
                 "[ACTION] Click on the target location on the screen (supports element"
@@ -301,6 +305,7 @@ _SPECS: tuple[ActionSpec, ...] = (
     ),
     ActionSpec(
         name="click_sequence",
+        replay_literals=("sequence", "delay_ms"),
         declaration=DeclarationDialect(
             description=(
                 "[ACTION] Executes a sequence of taps one by one in order on the"
@@ -362,6 +367,7 @@ _SPECS: tuple[ActionSpec, ...] = (
     ),
     ActionSpec(
         name="long_press",
+        replay_literals=("target", "duration_ms"),
         operator=OperatorDialect(
             description=(
                 "[ACTION] Long press on the target location on the screen (supports"
@@ -410,6 +416,8 @@ _SPECS: tuple[ActionSpec, ...] = (
     ),
     ActionSpec(
         name="input_text",
+        bindable=(("text", "string"),),
+        replay_literals=("target", "clear_exist"),
         operator=OperatorDialect(
             description=(
                 "[ACTION] Type text into the target input field (supports replacing"
@@ -419,7 +427,7 @@ _SPECS: tuple[ActionSpec, ...] = (
             params=(
                 ParamSpec(
                     "text",
-                    str,
+                    str | ValueRef,
                     "The text content to input. Supports multi-line content with '\\n'.",
                 ),
                 ParamSpec(
@@ -465,6 +473,7 @@ _SPECS: tuple[ActionSpec, ...] = (
     ),
     ActionSpec(
         name="swipe",
+        replay_literals=("start", "end", "duration_ms"),
         operator=OperatorDialect(
             description=(
                 "[ACTION] Perform a swipe, drag, or slider-adjustment gesture on the screen.\n"
@@ -562,6 +571,7 @@ _SPECS: tuple[ActionSpec, ...] = (
     ),
     ActionSpec(
         name="press_key",
+        replay_literals=("key",),
         operator=OperatorDialect(
             description=(
                 "[ACTION] Press a physical or virtual system button (e.g. ENTER, BACK,"
@@ -591,13 +601,15 @@ _SPECS: tuple[ActionSpec, ...] = (
     ),
     ActionSpec(
         name="manage_app",
+        bindable=(("app_name", "string"),),
+        replay_literals=("action",),
         operator=OperatorDialect(
             description="[ACTION] Launch or force stop a specified application.",
             params=(
                 ParamSpec("action", Literal["launch", "stop"], "The action type."),
                 ParamSpec(
                     "app_name",
-                    str,
+                    str | ValueRef,
                     "Display name or package name of the application.",
                 ),
             ),
@@ -613,6 +625,7 @@ _SPECS: tuple[ActionSpec, ...] = (
     ),
     ActionSpec(
         name="wait_for_delay",
+        replay_literals=("time_in_ms",),
         operator=OperatorDialect(
             description=(
                 "[ACTION] Pause execution and wait for a specified duration in milliseconds.\n"
@@ -639,6 +652,8 @@ _SPECS: tuple[ActionSpec, ...] = (
     ),
     ActionSpec(
         name="wait_for_text",
+        bindable=(("text", "string"),),
+        replay_literals=("wait_state", "timeout_ms"),
         declaration=None,  # Listed in the legacy tool-name sets but never declared to
         # any LLM; kept wire-reachable for executors and external MCP clients.
         wire=WireDialect(
@@ -653,6 +668,7 @@ _SPECS: tuple[ActionSpec, ...] = (
     ),
     ActionSpec(
         name="open_link",
+        bindable=(("url", "string"),),
         wire=WireDialect(
             description="Open a URL on the device.",
             params=(ParamSpec("url", str),),
@@ -669,6 +685,7 @@ _SPECS: tuple[ActionSpec, ...] = (
     ),
     ActionSpec(
         name="focus_and_clear_text",
+        replay_literals=("target",),
         wire=WireDialect(
             description=("Focus the field at a 0-1000 normalized [x, y] and clear its text."),
             params=(ParamSpec("target", list[int]),),
@@ -765,6 +782,8 @@ def _json_schema(annotation: Any) -> dict[str, Any]:
     ``required`` flag says so); they never appear in the projected schema, so
     the declaration carries no ``null`` alternatives or ``default`` noise.
     """
+    if annotation is ValueRef:
+        return ValueRef.model_json_schema()
     origin = get_origin(annotation)
     if origin in (Union, types.UnionType):
         members = [a for a in get_args(annotation) if a is not type(None)]

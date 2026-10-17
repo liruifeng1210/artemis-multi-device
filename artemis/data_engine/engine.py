@@ -30,6 +30,7 @@ from uuid import UUID, uuid4
 from artemis.config import PAUSE_FILE, get_ipc_port_file, read_ipc_port, settings
 from artemis.context import ArtemisContext
 from artemis.data_engine.models import (
+    ActionBindingRecord,
     BackgroundTaskRecord,
     FailedOutputRecord,
     HistoryChunkRecord,
@@ -424,6 +425,10 @@ class DataEngine:
         self.storage = StorageManager(self.db_path, self.global_base_dir)
 
         self.current_session_id: UUID | None = None
+        from artemis.runtime.value_bindings import ValueBindings
+
+        self.value_bindings = ValueBindings()
+        self._action_binding_records: list[dict] = []
         self.session_start_time: float | None = None
         self.current_step_id: UUID | None = None
         self.last_recorded_step_id: UUID | None = None
@@ -590,6 +595,11 @@ class DataEngine:
         session_id: UUID | str | None = None,
     ) -> UUID:
         """Start a new session."""
+        from artemis.runtime.value_bindings import ValueBindings
+
+        self.value_bindings.clear()
+        self.value_bindings = ValueBindings(goal)
+        self._action_binding_records = []
         global _CURRENT_DATA_ENGINE
         _CURRENT_DATA_ENGINE = self
 
@@ -1029,6 +1039,132 @@ class DataEngine:
 
         return step_id
 
+    def record_action_binding(
+        self, *, action_id, attempt, name, arguments, status, outputs=None, step_id=None
+    ):
+        """Persist only symbolic arguments, never the resolved transport payload."""
+        from copy import deepcopy
+        from artemis.runtime.action_bindings import symbolic_arguments
+
+        record = ActionBindingRecord(
+            action_id=action_id,
+            attempt=attempt,
+            name=name,
+            arguments=symbolic_arguments(arguments),
+            outputs=outputs or {},
+            status=status,
+        ).model_dump(mode="json")
+        scope = CURRENT_EXECUTION.get()
+        envelope = {
+            "action_binding": record,
+            "value_definitions": self.value_bindings.export_definitions(),
+            "execution": scope.metadata() if scope is not None else {},
+        }
+        if step_id is None:
+            step_id = self.current_step_id
+        envelope["step_id"] = str(step_id) if step_id else None
+        with self.lock:
+            envelope["sequence"] = len(self._action_binding_records) + 1
+            self._action_binding_records.append(deepcopy(envelope))
+        logger.debug(
+            "[bindings] action.recorded action_id={} attempt={} sequence={} status={} inputs={} outputs={} role_id={}".format(
+                action_id,
+                attempt,
+                envelope["sequence"],
+                status,
+                len(arguments),
+                len(outputs or {}),
+                envelope["execution"].get("role_id"),
+            )
+        )
+        self.record_trace(
+            type="action_binding",
+            name=name,
+            payload=deepcopy(envelope),
+            step_id=step_id,
+            status=status,
+        )
+
+    def publish_action_output(
+        self, output_name, value, *, allowed_roles, dependencies=(), description=""
+    ):
+        """Trusted producer hook; call inside a tool invocation or bound_operation."""
+        from artemis.runtime.action_bindings import CURRENT_ACTION
+        from artemis.runtime.value_bindings import BindingError
+
+        identity = CURRENT_ACTION.get()
+        if identity is None:
+            raise BindingError("Output publication requires an active action")
+        return self.value_bindings.publish_output(
+            action_id=identity.action_id,
+            output_name=output_name,
+            value=value,
+            allowed_roles=allowed_roles,
+            dependencies=tuple(dict.fromkeys((*identity.input_refs, *dependencies))),
+            description=description,
+            confirmed=False,
+        )
+
+    def bound_operation(self, name, arguments, *, inputs=None, literals=None):
+        """Context manager for trusted producer code outside the generic tool loop."""
+        from contextlib import contextmanager
+        from artemis.runtime.action_bindings import (
+            ActionIdentity,
+            BoundInvocation,
+            CURRENT_ACTION,
+            new_action_id,
+            input_references,
+            resolve_arguments,
+            symbolic_arguments,
+        )
+
+        arguments = symbolic_arguments(arguments)
+        self.value_bindings.register_operation(name, inputs=inputs, literals=literals)
+
+        @contextmanager
+        def operation():
+            identity = ActionIdentity(new_action_id(), input_refs=input_references(arguments))
+            token = CURRENT_ACTION.set(identity)
+            status = "failed"
+            try:
+                scope = CURRENT_EXECUTION.get()
+                resolved, _ = resolve_arguments(
+                    name, arguments, self.value_bindings, scope.role_id if scope else None
+                )
+                logger.debug(
+                    f"[bindings] operation.started action_id={identity.action_id} inputs={len(arguments)}"
+                )
+                yield BoundInvocation(identity.action_id, resolved)
+                self.value_bindings.confirm_outputs(identity.action_id)
+                status = "success"
+            finally:
+                CURRENT_ACTION.reset(token)
+                outputs = self.value_bindings.outputs_for(identity.action_id)
+                if status != "success":
+                    self.value_bindings.invalidate(list(outputs.values()))
+                self.record_action_binding(
+                    action_id=identity.action_id,
+                    attempt=identity.attempt,
+                    name=name,
+                    arguments=arguments,
+                    outputs=outputs,
+                    status=status,
+                )
+                logger.debug(
+                    f"[bindings] operation.finished action_id={identity.action_id} status={status} outputs={len(outputs)}"
+                )
+
+        return operation()
+
+    def build_replay_definition(self):
+        from copy import deepcopy
+        from artemis.runtime.action_bindings import build_replay_from_envelopes
+
+        with self.lock:
+            records = deepcopy(self._action_binding_records)
+        definitions = self.value_bindings.export_definitions()
+        return build_replay_from_envelopes(records, definitions if definitions["values"] else None)
+
     def record_trace(
         self,
         type: str,
@@ -1138,6 +1274,7 @@ class DataEngine:
                     pass
                 self.ipc_socket = None
 
+        self.value_bindings.clear()
         logger.info("DataEngine shutdown complete. All data persisted.")
 
     def stream_output(
@@ -1252,8 +1389,11 @@ class DataEngine:
                         self._pending_threads.remove(curr_thread)
 
             from contextvars import copy_context
+
             context = copy_context()
-            thread = threading.Thread(target=context.run, args=(run_and_cleanup,), name="artemis-storage", daemon=True)
+            thread = threading.Thread(
+                target=context.run, args=(run_and_cleanup,), name="artemis-storage", daemon=True
+            )
             self._pending_threads.append(thread)
             thread.start()
         else:
@@ -1541,9 +1681,15 @@ class DataEngine:
             return []
         steps_with_traces = self.storage.get_steps_with_traces(self.current_session_id)
         scope = CURRENT_EXECUTION.get()
-        if scope is not None and scope.engine is self and scope.role_id and scope.phase not in ("final", "planner"):
+        if (
+            scope is not None
+            and scope.engine is self
+            and scope.role_id
+            and scope.phase not in ("final", "planner")
+        ):
             steps_with_traces = [
-                (step, traces) for step, traces in steps_with_traces
+                (step, traces)
+                for step, traces in steps_with_traces
                 if (step.extra_metadata or {}).get("role_id") == scope.role_id
             ]
         describer = build_image_describer([step for step, _ in steps_with_traces])

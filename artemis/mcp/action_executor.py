@@ -172,6 +172,10 @@ class McpActionExecutor:
         target_semantics: dict[str, Any] = {}
         target_coordinates: list[int] | None = None
         with span:
+            from artemis.runtime.action_bindings import ActionIdentity, CURRENT_ACTION
+
+            action_identity = ActionIdentity(tool_call_id)
+            action_token = CURRENT_ACTION.set(action_identity)
             try:
                 session = await self._session_or_start()
                 wire_name, wire_args, finalize, target_semantics = self._translate(
@@ -214,6 +218,8 @@ class McpActionExecutor:
             except Exception as e:
                 message = f"{exception_prefix(raw_name)}: {e}"
                 res = ActionResult.failure(raw_name, message, detail=repr(e))
+            finally:
+                CURRENT_ACTION.reset(action_token)
 
             if shot_path:
                 state.latest_screenshot = shot_path
@@ -243,6 +249,7 @@ class McpActionExecutor:
             screenshot_path=shot_path,
             ui_elements_text=xml_list,
             metadata={
+                "action_id": tool_call_id,
                 "code": res.code.value,
                 "normalized_coordinates": res.normalized_coordinates,
                 "target_semantics": target_semantics,

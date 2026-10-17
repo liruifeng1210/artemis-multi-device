@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import time
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -94,6 +94,19 @@ class TraceRecord(BaseModel):
     duration: float | None = None
     status: str = "success"  # success, failed, running
     payload: dict[str, Any] = Field(default_factory=dict)
+
+
+class ActionBindingRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    schema_version: Literal[1] = 1
+    action_id: str
+    attempt: int = Field(ge=1)
+    name: str
+    arguments: dict[str, Any]
+    outputs: dict[str, str] = Field(default_factory=dict)
+    status: Literal[
+        "success", "failed", "running", "skipped", "intercepted", "terminated", "cancelled"
+    ]
 
 
 class FailedOutputRecord(BaseModel):

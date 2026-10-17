@@ -825,6 +825,10 @@ class OperatorNode:
                             )
                         )
                     else:
+                        from artemis.runtime.action_bindings import new_action_id
+
+                        for action in translated_actions:
+                            action["action_id"] = new_action_id()
                         actions_list.extend(translated_actions)
                         tool_outputs.append(
                             ToolMessage(
@@ -919,6 +923,11 @@ class OperatorNode:
         all_tools = [
             operator_shell_tool(name) for name in OPERATOR_SHELL_ORDER if name in available_actions
         ] + self.tools
+        from artemis.runtime.action_bindings import case_input_tool
+        from artemis.runtime.value_bindings import ValueBindings
+
+        if isinstance(getattr(self.ctx, "value_bindings", None), ValueBindings):
+            all_tools.append(case_input_tool(self.ctx))
 
         # 5. Mount the task-output analyzer and collect background ADB task state.
         # The analyzer is always available: the "output truncated, use
@@ -950,9 +959,21 @@ class OperatorNode:
         )
 
         runtime = getattr(self.ctx, "multi_device_runtime", None)
+        from artemis.runtime.action_bindings import render_bindings_prompt
+
+        binding_prompt = render_bindings_prompt(self.ctx)
+        if binding_prompt:
+            from langchain_core.messages import SystemMessage
+
+            messages.insert(0, SystemMessage(content=binding_prompt))
+            if self._transcript_turn_base is not None:
+                self._transcript_turn_base += 1
         if runtime is not None:
             from langchain_core.messages import SystemMessage
-            messages.insert(0, SystemMessage(content=runtime.operator_instructions(self.ctx.role_id)))
+
+            messages.insert(
+                0, SystemMessage(content=runtime.operator_instructions(self.ctx.role_id))
+            )
             if self._transcript_turn_base is not None:
                 self._transcript_turn_base += 1
             traced_tools = runtime.guard_tools(traced_tools, self.ctx.role_id)
@@ -1244,11 +1265,26 @@ class OperatorNode:
 
             if text is None:
                 return [], "Error: Missing required argument 'text'."
-            if not isinstance(text, str):
+            from artemis.runtime.value_bindings import as_ref, BindingError
+
+            try:
+                ref = as_ref(text)
+                if ref is not None:
+                    self.ctx.value_bindings.validate_ref(
+                        ref,
+                        expected_type="string",
+                        role_id=self.ctx.role_id,
+                    )
+                    text = ref.model_dump()
+            except BindingError as exc:
+                return [], f"Error: {exc}"
+            if not isinstance(text, (str, dict)):
                 return (
                     [],
                     (f"Error: 'text' must be a string, got {type(text).__name__}."),
                 )
+            if isinstance(text, dict) and ref is None:
+                return [], "Error: 'text' must be a string or value reference."
 
             el, err = resolve_target_element(target, args.get("target_description"))
             if err:
@@ -1396,8 +1432,19 @@ class OperatorNode:
                     [],
                     f"Error: Unsupported app management action '{action}'.",
                 )
-            if not app_name or not isinstance(app_name, str):
-                return [], "Error: 'app_name' must be a valid non-empty string."
+            from artemis.runtime.value_bindings import as_ref, BindingError
+
+            try:
+                ref = as_ref(app_name)
+                if ref is not None:
+                    self.ctx.value_bindings.validate_ref(
+                        ref, expected_type="string", role_id=self.ctx.role_id
+                    )
+                    app_name = ref.model_dump()
+            except BindingError as exc:
+                return [], f"Error: {exc}"
+            if ref is None and (not isinstance(app_name, str) or not app_name):
+                return [], "Error: 'app_name' must be a valid non-empty string or value reference."
             action_str = "launch_app" if action == "launch" else "stop_app"
             return [{"action": action_str, "app_name": app_name}], None
 

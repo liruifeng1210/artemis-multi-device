@@ -179,7 +179,7 @@ class MultiDeviceRuntime:
                     args,
                     tool_call_id or "",
                     state,
-                    record_trace=False,
+                    record_trace=True,
                 )
 
             return StructuredTool.from_function(
@@ -187,6 +187,7 @@ class MultiDeviceRuntime:
                 name=tool.name,
                 description=tool.description,
                 args_schema=tool.args_schema,
+                metadata={**(tool.metadata or {}), "artemis_passthrough": True},
             )
 
         return [guarded(tool) for tool in tools]

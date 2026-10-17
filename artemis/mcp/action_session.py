@@ -48,12 +48,23 @@ actions.
 """
 
 import asyncio
+from contextlib import nullcontext
+from copy import deepcopy
 from typing import Any
 
 import anyio
 from mcp.shared.memory import create_connected_server_and_client_session
 
 from artemis.mcp.action_types import ActionResult, ObserveResult
+from artemis.runtime.action_bindings import (
+    ActionIdentity,
+    CURRENT_ACTION,
+    new_action_id,
+    resolve_arguments,
+    symbolic_arguments,
+)
+from artemis.runtime.value_bindings import BindingError, ValueBindings
+from artemis.runtime.execution_scope import execution_scope
 from third_party.mobile_use.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -95,32 +106,126 @@ class ActionSession:
             item = await self._requests.get()
             if item is _SHUTDOWN:
                 return
-            fut, name, args, scope = item
+            fut, name, args, scope, identity = item
             if fut.cancelled():
                 continue  # caller gave up before we started; nothing was sent
+            protected = False
+            status = "failed"
+            ctx = getattr(self, "device_context", None)
+            if identity is not None:
+                with execution_scope(scope) if scope is not None else nullcontext():
+                    logger.debug(
+                        "[bindings] dispatch.started action_id={} attempt={} role_id={}".format(
+                            identity.action_id,
+                            identity.attempt,
+                            getattr(ctx, "role_id", None),
+                        )
+                    )
             try:
-                from contextlib import nullcontext
-                from artemis.runtime.execution_scope import execution_scope
                 with execution_scope(scope) if scope is not None else nullcontext():
                     ctx = getattr(self, "device_context", None)
                     runtime = getattr(ctx, "multi_device_runtime", None)
                     if runtime is not None:
                         runtime.require_device_scope(ctx.role_id)
-                    result = await session.call_tool(name, args)
+                    bindings = getattr(ctx, "value_bindings", None)
+                    if not isinstance(bindings, ValueBindings):
+                        bindings = ValueBindings()
+                    resolved, protected = resolve_arguments(
+                        name,
+                        args,
+                        bindings,
+                        getattr(ctx, "role_id", None),
+                    )
+                    # References are revalidated after queueing, immediately before dispatch.
+                    protected = protected or any(
+                        isinstance(v, dict) and "ref" in v for v in args.values()
+                    )
+                    result = await session.call_tool(name, resolved)
+                    if protected:
+                        from mcp.types import TextContent
+
+                        data = dict(result.structuredContent or {})
+                        if "message" in data:
+                            data["message"] = (
+                                "Bound action dispatched"
+                                if data.get("ok")
+                                else "Bound action failed"
+                            )
+                            data["detail"] = None
+                        result = result.model_copy(
+                            update={
+                                "content": [
+                                    TextContent(type="text", text="Bound action completed")
+                                ],
+                                "structuredContent": data,
+                            }
+                        )
+                    data = result.structuredContent or {}
+                    status = "failed" if result.isError or data.get("ok") is False else "success"
             except BaseException as e:
+                if identity is not None:
+                    with execution_scope(scope) if scope is not None else nullcontext():
+                        logger.warning(
+                            "[bindings] dispatch.failed action_id={} attempt={} role_id={} error_type={} reason={}".format(
+                                identity.action_id,
+                                identity.attempt,
+                                getattr(ctx, "role_id", None),
+                                type(e).__name__,
+                                str(e)
+                                if isinstance(e, BindingError)
+                                else "transport_or_scope_failure",
+                            )
+                        )
                 if not fut.cancelled():
-                    fut.set_exception(e)
+                    fut.set_exception(
+                        BindingError("Bound action transport failed")
+                        if protected and not isinstance(e, (BindingError, asyncio.CancelledError))
+                        else e
+                    )
                 if isinstance(e, asyncio.CancelledError):
                     raise
                 if isinstance(e, (anyio.ClosedResourceError, anyio.BrokenResourceError)):
                     # The transport is dead; no future call on this session can
                     # succeed. Exit so `started` flips False and the next
                     # get_action_session() builds a fresh session.
-                    logger.error("Action session transport failed (%r); retiring this session.", e)
+                    logger.error(
+                        f"Action session transport failed; retiring this session ({type(e).__name__})."
+                    )
                     return
-            else:
-                if not fut.cancelled():
+            finally:
+                engine = getattr(ctx, "data_engine", None)
+                recorder = getattr(engine, "record_action_binding", None)
+                if identity is not None and callable(recorder):
+                    recorded = False
+                    try:
+                        with execution_scope(scope) if scope is not None else nullcontext():
+                            recorder(
+                                action_id=identity.action_id,
+                                attempt=identity.attempt,
+                                name=name,
+                                arguments=symbolic_arguments(args),
+                                status=status,
+                                step_id=scope.step_id
+                                if scope
+                                else getattr(engine, "current_step_id", None),
+                            )
+                        recorded = True
+                    finally:
+                        if not recorded and not fut.done():
+                            fut.set_exception(BindingError("Action recording failed"))
+                if not fut.done():
                     fut.set_result(result)
+                if identity is not None:
+                    with execution_scope(scope) if scope is not None else nullcontext():
+                        logger.debug(
+                            "[bindings] dispatch.finished action_id={} attempt={} role_id={} status={} protected={}".format(
+                                identity.action_id,
+                                identity.attempt,
+                                getattr(ctx, "role_id", None),
+                                status,
+                                protected,
+                            )
+                        )
 
     def _fail_pending(self, reason: str) -> None:
         while not self._requests.empty():
@@ -164,7 +269,14 @@ class ActionSession:
             raise RuntimeError("ActionSession is not started.")
         fut: asyncio.Future = asyncio.get_running_loop().create_future()
         from artemis.runtime.execution_scope import CURRENT_EXECUTION
-        self._requests.put_nowait((fut, name, args, CURRENT_EXECUTION.get()))
+        from artemis.mcp.action_manifest import INTERNAL_ACTIONS
+
+        identity = None
+        if name not in INTERNAL_ACTIONS:
+            identity = CURRENT_ACTION.get() or ActionIdentity(new_action_id())
+        self._requests.put_nowait(
+            (fut, name, deepcopy(symbolic_arguments(args)), CURRENT_EXECUTION.get(), identity)
+        )
         result = await fut
         if getattr(result, "isError", False):
             # Protocol-level failure (unknown tool, schema violation) -- a programming

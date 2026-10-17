@@ -120,6 +120,20 @@ class ArtemisContext(DeviceClientAccessors, BaseModel):
     multi_device_runtime: Any | None = None
     role_id: str | None = None
     owns_data_engine: bool = True
+    _value_bindings: Any = PrivateAttr(default=None)
+
+    @property
+    def value_bindings(self):
+        """Case-owned bindings; no runtime values participate in model_dump."""
+        from artemis.runtime.value_bindings import ValueBindings
+
+        engine_bindings = getattr(self.data_engine, "value_bindings", None)
+        if isinstance(engine_bindings, ValueBindings):
+            return engine_bindings
+        if self._value_bindings is None:
+            self._value_bindings = ValueBindings()
+        return self._value_bindings
+
     llm_config: LLMConfig | None = None
     agent_config: Any = None
     adb_client: Any | None = None

@@ -686,6 +686,7 @@ class FlashRunner:
             given = None  # An element index is not a coordinate.
         action_dict = {
             "action": name,
+            **({"action_id": metadata["action_id"]} if metadata.get("action_id") else {}),
             "coordinates": given or norm_coords,
             COORDINATE_SPACE_KEY: COORDINATE_SPACE_NORMALIZED,
             "args": args,

@@ -30,7 +30,7 @@ logger = get_logger(__name__)
 class MultiDeviceAgent:
     """Run a role-bound Pro case. Call ``stop_current_task`` to cancel the whole case."""
 
-    def __init__(self, *, config=None, session_id=None):
+    def __init__(self, *, config=None, session_id=None, binding_preparer=None):
         if session_id is not None:
             from uuid import UUID
 
@@ -45,6 +45,8 @@ class MultiDeviceAgent:
             ).build()
         self.config = config
         self.session_id = session_id
+        # Trusted host callback, deliberately absent from serializable case requests.
+        self.binding_preparer = binding_preparer
         self._task = None
         self._lock = asyncio.Lock()
 
@@ -101,6 +103,10 @@ class MultiDeviceAgent:
                 role_plan = await plan_roles(planning_ctx, request)
             logger.info(f"[multi-device] case.roles_ready run_id={run_id} roles={[role.id for role in role_plan.roles]}")
             result["role_plan"] = role_plan.model_dump()
+            from artemis.agents.role_planner import validate_role_preparation
+
+            if self.binding_preparer is None:
+                validate_role_preparation(role_plan, request)
             if not request.role_bindings:
                 from artemis.runtime.multi_device.allocation import allocate_roles
 
@@ -172,7 +178,30 @@ class MultiDeviceAgent:
                                 request.case, {"profile": "pro", "multi_device": True}, run_id
                             )
                         ctx.data_engine = engine
-                        logger.info(f"[multi-device] device.init_complete run_id={run_id} role_id={role.id} device_id={ctx.device.device_id}")
+                        logger.info(
+                            f"[multi-device] device.init_complete run_id={run_id} role_id={role.id} device_id={ctx.device.device_id}"
+                        )
+                    if self.binding_preparer is not None:
+                        import inspect
+
+                        stage = "binding_preparation"
+                        with execution_scope(ExecutionScope(engine=engine, phase=stage)):
+                            logger.info(
+                                f"[bindings] preparation.started run_id={run_id} roles={len(role_plan.roles)}"
+                            )
+                            prepared = self.binding_preparer(
+                                engine.value_bindings, role_plan, request
+                            )
+                            if inspect.isawaitable(prepared):
+                                await prepared
+                            validate_role_preparation(role_plan, request, engine.value_bindings)
+                            logger.info(
+                                "[bindings] preparation.completed run_id={} resources={}".format(
+                                    run_id,
+                                    len(engine.value_bindings.export_definitions()["resources"]),
+                                )
+                            )
+                    stage = "initializing_runtime"
                     runtime = MultiDeviceRuntime(role_plan, contexts, max_turns=request.max_turns)
                     runtime.save_manifest(request)
                     runtime.save_progress("preparing_devices")
@@ -358,12 +387,21 @@ class MultiDeviceAgent:
             async with asyncio.timeout(request.timeout_seconds):
                 await execute()
         except asyncio.CancelledError:
-            logger.warning(f"[multi-device] case.cancelled run_id={run_id} stage={stage} elapsed_ms={int((time.monotonic()-started)*1000)}")
+            logger.warning(
+                f"[multi-device] case.cancelled run_id={run_id} stage={stage} elapsed_ms={int((time.monotonic() - started) * 1000)}"
+            )
             result.update(status="cancelled", error="Case cancelled")
             raise
         except Exception as exc:
-            logger.error(f"[multi-device] case.failed run_id={run_id} stage={stage} error_type={type(exc).__name__} elapsed_ms={int((time.monotonic()-started)*1000)}")
-            result.update(status="failed", error=f"{type(exc).__name__}: {exc}")
+            logger.error(
+                f"[multi-device] case.failed run_id={run_id} stage={stage} error_type={type(exc).__name__} elapsed_ms={int((time.monotonic() - started) * 1000)}"
+            )
+            error = (
+                "Case binding preparation failed"
+                if stage == "binding_preparation"
+                else f"{type(exc).__name__}: {exc}"
+            )
+            result.update(status="failed", error=error)
             from artemis.utils.startup_progress import publish_startup_progress
 
             publish_startup_progress("failed", result["error"], session_id=run_id)
@@ -373,6 +411,16 @@ class MultiDeviceAgent:
             directory = engine.base_dir if engine is not None else case_directory(run_id)
             result["trace_path"] = str(directory)
             if engine is not None:
+                replay_builder = getattr(engine, "build_replay_definition", None)
+                if callable(replay_builder):
+                    try:
+                        replay = replay_builder()
+                        result["replay_ready"] = replay["replay_ready"]
+                        result["replay_issues"] = replay["issues"]
+                    except (ValueError, TypeError, KeyError, RuntimeError):
+                        # Artifact validation must never bypass device/engine finalization.
+                        result["replay_ready"] = False
+                        result["replay_issues"] = [{"reason": "binding_validation_failed"}]
                 try:
                     engine.end_session(
                         result["status"]

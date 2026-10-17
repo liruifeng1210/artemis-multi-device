@@ -51,6 +51,7 @@ from artemis.agents.validator.incidents import (
 )
 from artemis.data_engine.trace import CURRENT_TRACE_ID
 from artemis.graph.state import State
+from artemis.runtime.value_bindings import BindingError
 from artemis.utils.coordinates import normalize_action_dict
 from artemis.utils.task_tree import format_action_clean
 from third_party.mobile_use.utils.logger import get_logger
@@ -134,8 +135,12 @@ async def _attempt_local_execution(
     success = False
     error_msg = ""
     for attempt in range(max_local_retries):
+        action_item["attempt"] = attempt + 1
         try:
             exec_success, exec_error = await node._exec_action(session, action_item)
+        except BindingError as exc:
+            attempts_log.append(str(exc))
+            return False, str(exc)
         except Exception as e:
             exec_success = False
             exec_error = str(e)
@@ -198,6 +203,11 @@ async def _process_action(
             outcome.error_msg = f"Pre-execution validation failed: {validation_error}"
             outcome.error_category = validation_category
             attempts_log.append(outcome.error_msg)
+            from artemis.runtime.action_bindings import record_local_action
+
+            record_local_action(
+                node.ctx, action_item, "intercepted", getattr(state, "current_step_id", None)
+            )
 
     if validation_passed:
         # 2. Local execution: a vetted action gets a short retry loop, a burst
@@ -454,6 +464,9 @@ async def run_validation_loop(node, state: State) -> dict:
         skipped_copy = dict(skipped)
         skipped_copy["attempts"] = [BURST_SKIPPED_MARKER if burst else "Skipped"]
         execution.append(skipped_copy)
+        from artemis.runtime.action_bindings import record_local_action
+
+        record_local_action(ctx, skipped_copy, "skipped", step_id)
 
     report = {
         "execution": execution,
