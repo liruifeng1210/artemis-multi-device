@@ -82,6 +82,8 @@ class CheckVerdict(BaseModel):
 
     item_text: str = Field(description="The check line's text, quoted verbatim.")
     kind: Literal["verify", "assert"]
+    check_key: str | None = Field(default=None, description="Copy the declared check_key exactly; required when identical text appears more than once.")
+    role_id: str | None = None
     status: Literal["passed", "failed", "inconclusive"]
     evidence: str = Field(
         description=(
@@ -377,7 +379,9 @@ def _format_history(ctx: ArtemisContext, limit: int = 60, steps: list[dict] | No
             except Exception:
                 action_str = str(action)[:160]
         label = _step_offset_label(s, session_start)
-        lines.append(f"- Step {num} ({label}): {summary or action_str}".rstrip())
+        role = (s.get("extra_metadata") or {}).get("role_id")
+        role_label = f" [role:{role}]" if role else ""
+        lines.append(f"- Step {num}{role_label} ({label}): {summary or action_str}".rstrip())
     return "\n".join(lines) or "No execution history available."
 
 
@@ -400,7 +404,8 @@ def _format_user_guidance(ctx: ArtemisContext, steps: list[dict] | None = None) 
 def _format_check_items(check_items: list) -> str:
     lines = []
     for ci in check_items:
-        lines.append(f"- [{ci.kind}] ({ci.when}) {ci.text}")
+        role = f" [role:{ci.role_id}]" if getattr(ci, "role_id", None) else ""
+        lines.append(f"- [{ci.kind}] ({ci.when}) {ci.text}{role} [check_key={ci.key}]")
     return "\n".join(lines) if lines else "(none)"
 
 
@@ -432,6 +437,24 @@ async def _structured_report(llm, messages) -> CheckReport:
 def _normalize_report(report: CheckReport, check_items: list) -> CheckReport:
     """Node-side hygiene: vague failed verdicts downgrade to inconclusive; every
     expected item gets a verdict (missing ones are inconclusive)."""
+    if any(getattr(ci, "role_id", None) for ci in check_items):
+        normalized = []
+        for ci in check_items:
+            candidates = [v for v in report.verdicts if v.check_key == ci.key
+                          and v.kind == ci.kind and v.item_text == ci.text]
+            if not candidates and sum(c.kind == ci.kind and c.text == ci.text for c in check_items) == 1:
+                candidates = [v for v in report.verdicts if not v.check_key
+                              and v.kind == ci.kind and v.item_text == ci.text]
+            if candidates:
+                v = candidates[-1].model_copy(update={"check_key": ci.key, "role_id": ci.role_id})
+                if v.status == "failed" and not v.evidence.strip():
+                    v = v.model_copy(update={"status": "inconclusive", "evidence": "failed verdict lacked concrete evidence"})
+            else:
+                v = CheckVerdict(item_text=ci.text, kind=ci.kind, status="inconclusive",
+                                 evidence="No unambiguous verdict produced for this role's check",
+                                 check_key=ci.key, role_id=ci.role_id)
+            normalized.append(v)
+        return CheckReport(verdicts=normalized, unmet_subgoals=list(report.unmet_subgoals))
     verdicts: list[CheckVerdict] = []
     for v in report.verdicts:
         if v.status == "failed" and not v.evidence.strip():
@@ -822,7 +845,11 @@ async def run_final_check(
         if s
     )
 
-    screenshot_b64, minimal_list = await _capture_final_screen(ctx)
+    runtime = getattr(ctx, "multi_device_runtime", None)
+    if runtime is not None:
+        screenshot_b64, minimal_list = None, "See explicitly labelled role observations below."
+    else:
+        screenshot_b64, minimal_list = await _capture_final_screen(ctx)
     steps = _load_steps(ctx)
 
     human_text = (
@@ -837,6 +864,8 @@ async def run_final_check(
     )
 
     content: list = [{"type": "text", "text": human_text}]
+    if runtime is not None:
+        content.extend(await runtime.final_observations())
     if screenshot_b64:
         content.append({"type": "text", "text": "--- Final Screenshot ---"})
         content.append(

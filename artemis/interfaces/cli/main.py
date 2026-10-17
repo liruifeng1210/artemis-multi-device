@@ -23,6 +23,7 @@ from artemis.interfaces.cli.commands.helper import helper_app
 from artemis.interfaces.cli.commands.init import init_command
 from artemis.interfaces.cli.commands.mcp import mcp_command
 from artemis.interfaces.cli.commands.run import run_command
+from artemis.interfaces.cli.commands.run_case import run_case_command
 from artemis.interfaces.cli.commands.server import server_app
 from artemis.interfaces.cli.commands.server_lifecycle import (
     restart_command,
@@ -54,6 +55,7 @@ app.command(name="restart", help="Restart running Artemis Web UI & server.")(res
 app.command(name="stop", help="Stop running Artemis Web UI & server.")(stop_command)
 app.command(name="status", help="Display Artemis Web UI & server status.")(status_command)
 app.command(name="run", help="Execute an autonomous task on a mobile device.")(run_command)
+app.command(name="run-case", help="Execute a Pro test case across role-bound Android devices.")(run_case_command)
 app.command(name="init", help="Interactive quickstart wizard to configure API keys & device.")(
     init_command
 )

@@ -15,7 +15,6 @@
 import asyncio
 import inspect
 import os
-import re
 
 import uuid
 from pathlib import Path
@@ -220,13 +219,11 @@ class Agent(AgentBase):
             logger.warning(f"Could not inspect Android keyguard state: {exc}")
             return
 
-        # The first deviceLocked value belongs to the current Android user;
-        # later entries may describe a separately locked work profile.
-        match = re.search(r"\bdeviceLocked=(?:true|1|false|0)\b", trust_state, re.IGNORECASE)
-        if match is None:
-            return
-        value = match.group(0).split("=", 1)[1].lower()
-        if value in {"true", "1"}:
+        # Owner may be listed first even when Guest is the active, unlocked user.
+        # Share the readiness parser, which prefers the explicit (current) entry.
+        from artemis.core.diagnostics.probes.adb_probe import AdbDeviceProbe
+
+        if AdbDeviceProbe._parse_device_lock_state("", trust_state) is True:
             raise AgentError(
                 "Android secure keyguard is locked. Unlock the device manually before "
                 "running Artemis; automation will not guess a PIN, password, or pattern."

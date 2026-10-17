@@ -118,6 +118,7 @@ class PendingCheckpoint:
     check_items: tuple[CheckItem, ...]
     plan_text: str
     trigger_ts: float
+    role_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -436,6 +437,9 @@ def revert_subgoal_status(ctx, subgoal_key: str) -> bool:
     This is a forward-looking state change (never a rollback of history) and is
     written directly to the file, bypassing the wrapped note tools.
     """
+    runtime = getattr(ctx, "multi_device_runtime", None)
+    if runtime is not None:
+        return runtime.reopen_milestone(subgoal_key)
     if not getattr(ctx, "data_engine", None):
         return False
     path = get_note_file_path(ctx.data_engine.base_dir, "task_plan")
@@ -527,12 +531,19 @@ def _finding_items(ctx) -> dict:
     return items
 
 
-def _register_finding(ctx, checkpoint_id: str, verify_failures: list) -> None:
+def _register_finding(ctx, checkpoint_id: str, verify_failures: list, check_items=()) -> None:
     _finding_registry(ctx)[checkpoint_id] = _render_finding_headline(checkpoint_id, verify_failures)
-    _finding_items(ctx)[checkpoint_id] = {
-        (str(getattr(v, "kind", "") or ""), str(getattr(v, "item_text", "") or ""))
-        for v in verify_failures
-    }
+    if getattr(ctx, "multi_device_runtime", None) is not None:
+        _finding_items(ctx)[checkpoint_id] = {
+            _verdict_check_key(check_items, v)
+            for v in verify_failures
+            if _verdict_check_key(check_items, v)
+        }
+    else:
+        _finding_items(ctx)[checkpoint_id] = {
+            (str(getattr(v, "kind", "") or ""), str(getattr(v, "item_text", "") or ""))
+            for v in verify_failures
+        }
 
 
 def _clear_finding(ctx, checkpoint_id: str) -> bool:
@@ -546,20 +557,42 @@ def _retired_checks(ctx) -> set[tuple[str, str]]:
     return retired if isinstance(retired, set) else set()
 
 
-def retire_check_items(ctx, items) -> None:
-    """Records ``(kind, text)`` check items the Operator dropped under user
-    guidance and withdraws their already-materialized findings.
+def _retired_check_keys(ctx) -> set[str]:
+    retired = getattr(ctx, "guidance_retired_check_keys", None)
+    return retired if isinstance(retired, set) else set()
 
-    Recording feeds the harvest gate (:func:`_active_verdicts`) and the run
-    outcome. Cleanup: every standing headline produced *only* by now-retired
-    items is popped and the plan's finding lines are re-projected; a headline
-    that still names a live item stays untouched.
+
+def _verdict_check_key(check_items, verdict) -> str | None:
+    key = getattr(verdict, "check_key", None)
+    if key and any(ci.key == key for ci in check_items):
+        return str(key)
+    matches = [
+        ci.key for ci in check_items
+        if ci.kind == getattr(verdict, "kind", None)
+        and ci.text == getattr(verdict, "item_text", None)
+    ]
+    return matches[0] if len(matches) == 1 else None
+
+
+def retire_check_items(ctx, items) -> None:
+    """Records withdrawn checks and clears findings backed only by them.
+
+    Single-device checks retain the legacy ``(kind, text)`` identity; multi-
+    device checks use their role-anchored ``check_key``.
     """
-    incoming = {(str(kind), str(text)) for kind, text in items}
+    multi = getattr(ctx, "multi_device_runtime", None) is not None
+    incoming = (
+        {str(item.key) for item in items}
+        if multi
+        else {(str(kind), str(text)) for kind, text in items}
+    )
     if not incoming:
         return
-    retired = _retired_checks(ctx) | incoming
-    ctx.guidance_retired_checks = retired
+    retired = (_retired_check_keys(ctx) if multi else _retired_checks(ctx)) | incoming
+    if multi:
+        ctx.guidance_retired_check_keys = retired
+    else:
+        ctx.guidance_retired_checks = retired
     registry = _finding_registry(ctx)
     produced_by = _finding_items(ctx)
     stale = [cid for cid in list(registry) if produced_by.get(cid) and produced_by[cid] <= retired]
@@ -578,13 +611,21 @@ def reinstate_check_items(ctx, items) -> None:
     declared them in the plan again, so their verdicts drive side effects
     once more and the run outcome counts them normally. A no-op when none of
     the given items is retired."""
-    retired = _retired_checks(ctx)
+    multi = getattr(ctx, "multi_device_runtime", None) is not None
+    retired = _retired_check_keys(ctx) if multi else _retired_checks(ctx)
     if not retired:
         return
-    back = {(str(kind), str(text)) for kind, text in items} & retired
+    back = (
+        {str(item.key) for item in items}
+        if multi
+        else {(str(kind), str(text)) for kind, text in items}
+    ) & retired
     if not back:
         return
-    ctx.guidance_retired_checks = retired - back
+    if multi:
+        ctx.guidance_retired_check_keys = retired - back
+    else:
+        ctx.guidance_retired_checks = retired - back
     logger.info(
         "Check line(s) retired under user guidance are declared again and"
         f" reinstated: {sorted(back)}"
@@ -592,16 +633,19 @@ def reinstate_check_items(ctx, items) -> None:
 
 
 def _active_verdicts(ctx, checkpoint, verdicts: list) -> list:
-    """The verdicts still allowed to drive side effects: those whose
-    ``(kind, item_text)`` was not retired by user guidance. Ledger recording is
-    never filtered — this gate only protects execution state."""
-    retired = _retired_checks(ctx)
+    """Return verdicts still allowed to affect execution after user guidance."""
+    multi = getattr(ctx, "multi_device_runtime", None) is not None
+    retired = _retired_check_keys(ctx) if multi else _retired_checks(ctx)
     if not retired:
         return list(verdicts)
     active: list = []
     dropped: list = []
     for v in verdicts:
-        key = (str(getattr(v, "kind", "") or ""), str(getattr(v, "item_text", "") or ""))
+        key = (
+            _verdict_check_key(checkpoint.check_items, v)
+            if multi
+            else (str(getattr(v, "kind", "") or ""), str(getattr(v, "item_text", "") or ""))
+        )
         (dropped if key in retired else active).append(v)
     if dropped:
         logger.info(
@@ -647,7 +691,13 @@ def sync_finding_lines(ctx) -> None:
         findings = dict(registry) if isinstance(registry, dict) else {}
         projected = apply_finding_lines(content, findings)
         if projected != content:
-            path.write_text(projected, encoding="utf-8")
+            runtime = getattr(ctx, "multi_device_runtime", None)
+            if runtime is None:
+                path.write_text(projected, encoding="utf-8")
+            else:
+                from artemis.runtime.execution_scope import ExecutionScope
+
+                runtime.commit_plan(path, content, projected, ExecutionScope(phase="system"))
     except Exception as e:
         logger.error(f"Failed to project finding lines into task plan: {e}")
 
@@ -729,6 +779,7 @@ def queue_checkpoints(
                 check_items=check_items,
                 plan_text=plan_text,
                 trigger_ts=time.time(),
+                role_id=item.role_id,
             )
         )
         logger.info(f"Queued checkpoint for completed subgoal: {text}")
@@ -753,6 +804,8 @@ def _record_verdicts(
                 "checkpoint_id": run.checkpoint.checkpoint_id,
                 "subgoal_text": run.checkpoint.subgoal_text,
                 "trace_id": attempt_trace_id(ctx, run.attempt_id),
+                "role_id": run.checkpoint.role_id,
+                "check_key": _verdict_check_key(run.checkpoint.check_items, v),
                 "item_text": v.item_text,
                 "kind": v.kind,
                 "when": when_by_text.get((v.kind, v.item_text), "on_complete"),
@@ -769,6 +822,9 @@ def _annotate_history_chunks(ctx, run: CheckpointRun, verdicts) -> None:
     segment was chunk-compressed is appended to that chunk and bumps its
     version. Best-effort — history annotation never gates checkpoint booking."""
     try:
+        runtime = getattr(ctx, "multi_device_runtime", None)
+        if runtime is not None and run.checkpoint.role_id in runtime.contexts:
+            ctx = runtime.contexts[run.checkpoint.role_id]
         chunker = getattr(getattr(ctx, "transcript_ledger", None), "chunker", None)
         if chunker is None:
             return
@@ -796,6 +852,8 @@ def _record_attempt_failure(ctx, run: CheckpointRun, status: str, evidence: str)
                 "checkpoint_id": run.checkpoint.checkpoint_id,
                 "subgoal_text": run.checkpoint.subgoal_text,
                 "trace_id": attempt_trace_id(ctx, run.attempt_id),
+                "role_id": run.checkpoint.role_id,
+                "check_key": ci.key,
                 "item_text": ci.text,
                 "kind": ci.kind,
                 "when": ci.when,
@@ -835,6 +893,8 @@ def harvest_run(
                 "attempt_id": run.attempt_id,
                 "checkpoint_id": checkpoint.checkpoint_id,
                 "subgoal_text": checkpoint.subgoal_text,
+                **({"role_id": checkpoint.role_id, "subgoal_hash": checkpoint.checkpoint_id}
+                   if checkpoint.role_id else {}),
                 "trace_id": attempt_trace_id(ctx, run.attempt_id),
                 "status": status,
                 "verdicts": verdicts_payload,
@@ -919,7 +979,9 @@ def harvest_run(
             reverted = revert_subgoal_status(ctx, checkpoint.checkpoint_id)
             # Layer 2: register the standing plan headline for this unresolved
             # finding; the projection below renders it under the subgoal.
-            _register_finding(ctx, checkpoint.checkpoint_id, verify_failures)
+            _register_finding(
+                ctx, checkpoint.checkpoint_id, verify_failures, checkpoint.check_items
+            )
             registry_changed = True
             for v in verify_failures:
                 suggestion = getattr(v, "suggestion", "") or ""
@@ -973,9 +1035,13 @@ def harvest_run(
         applicable=bool(applicable),
         reverted=bool(reverted),
         retired=[
-            {"kind": p["kind"], "item_text": p["item_text"]}
-            for p in verdict_payloads(verdicts)
-            if (p["kind"], p["item_text"]) in _retired_checks(ctx)
+            {"kind": v.kind, "item_text": v.item_text}
+            for v in verdicts
+            if (
+                _verdict_check_key(checkpoint.check_items, v) in _retired_check_keys(ctx)
+                if getattr(ctx, "multi_device_runtime", None) is not None
+                else (v.kind, v.item_text) in _retired_checks(ctx)
+            )
         ],
         repairs_used=int(ctx.checkpoint_repairs.get(checkpoint.checkpoint_id, 0)),
     )
@@ -1049,19 +1115,18 @@ async def spawn_pending_checkpoints(ctx, state, anchor_step_id: str | None) -> l
             trigger_ts=pending.trigger_ts,
             plan_text=pending.plan_text,
         )
-        task = asyncio.create_task(
-            asyncio.wait_for(
-                run_checkpoint_check(
-                    ctx,
-                    check_items=pending.check_items,
-                    anchor=anchor,
-                    goal=goal,
-                    subgoal_text=pending.subgoal_text,
-                    attempt_id=attempt_id,
-                ),
-                timeout=timeout,
-            )
+        from functools import partial
+        check = partial(
+            run_checkpoint_check, check_items=pending.check_items, anchor=anchor,
+            goal=goal, subgoal_text=pending.subgoal_text, attempt_id=attempt_id,
         )
+        runtime = getattr(ctx, "multi_device_runtime", None)
+        work = (
+            runtime.run_checkpoint(pending.role_id, check, step_id=anchor_step_id,
+                                   subgoal_hash=pending.checkpoint_id)
+            if runtime is not None and pending.role_id else check(ctx)
+        )
+        task = asyncio.create_task(asyncio.wait_for(work, timeout=timeout))
         ctx.checkpoint_tasks[cid] = CheckpointRun(
             attempt_id=attempt_id, task=task, checkpoint=pending
         )
@@ -1139,7 +1204,7 @@ def resolve_item_status(kind: str, records: list[dict]) -> str:
 def compute_test_summary(
     check_items: list[CheckItem],
     records: list[dict],
-    retired: set[tuple[str, str]] | None = None,
+    retired: set[tuple[str, str]] | set[str] | None = None,
 ) -> TestSummary:
     """Folds the verdict ledger into pass/fail counts over the declared items.
 
@@ -1148,6 +1213,8 @@ def compute_test_summary(
     ``retired`` with its last recorded verdict, not as a pass or a failure —
     the user withdrew that requirement.
     """
+    if any(getattr(ci, "role_id", None) for ci in check_items) or any(r.get("role_id") for r in records):
+        return _multi_device_test_summary(check_items, records, retired)
     summary = TestSummary()
     retired = retired or set()
     by_item: dict[tuple[str, str], list[dict]] = {}
@@ -1194,12 +1261,49 @@ def compute_test_summary(
     return summary
 
 
+def _multi_device_test_summary(check_items, records, retired=None):
+    summary = TestSummary()
+    declared = {ci.key: ci for ci in check_items}
+    grouped = {}
+    for row in records:
+        key = row.get("check_key")
+        if not key:
+            matches = [ci.key for ci in check_items if ci.kind == row.get("kind")
+                       and ci.text == row.get("item_text") and ci.role_id == row.get("role_id")
+                       and (not ci.parent_key or row.get("checkpoint_id") in (ci.parent_key, "final"))]
+            key = matches[0] if len(matches) == 1 else None
+        if key:
+            grouped.setdefault(key, []).append(row)
+    for key in set(declared) | set(grouped):
+        rows = grouped.get(key, [])
+        ci = declared.get(key)
+        kind = ci.kind if ci else rows[-1].get("kind")
+        text = ci.text if ci else rows[-1].get("item_text")
+        role = ci.role_id if ci else rows[-1].get("role_id")
+        status = resolve_item_status(kind, rows)
+        if ci is None and key in (retired or set()):
+            summary.retired += 1
+            summary.retired_items.append({"kind": kind, "item_text": text, "role_id": role, "last_status": status})
+        elif status == "passed":
+            summary.passed += 1
+        elif status == "failed":
+            summary.failed += 1
+            failures = [r for r in rows if r.get("status") == "failed"]
+            summary.failed_items.append({"kind": kind, "item_text": text, "role_id": role,
+                                         "evidence": failures[-1].get("evidence", "") if failures else ""})
+        elif status == "inconclusive":
+            summary.inconclusive += 1
+        else:
+            summary.unchecked += 1
+    return summary
+
+
 def compute_run_outcome(
     snapshot: PlanSnapshot,
     records: list[dict],
     *,
     verify_blocked: bool,
-    retired: set[tuple[str, str]] | None = None,
+    retired: set[tuple[str, str]] | set[str] | None = None,
 ) -> RunOutcome:
     """Assembles the machine-readable run outcome.
 

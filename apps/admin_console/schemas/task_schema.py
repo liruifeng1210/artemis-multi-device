@@ -12,10 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 class RunRequest(BaseModel):
+    @model_validator(mode="before")
+    @classmethod
+    def reject_multi_device_fields(cls, data):
+        if isinstance(data, dict) and any(
+            data.get(key) is not None for key in ("role_bindings", "role_plan")
+        ):
+            raise ValueError(
+                "Submit the case as goal with profile='pro'; RolePlan creates roles before allocation. "
+                "Explicit SDK fixtures remain available through /api/cases."
+            )
+        return data
+
     goal: str | None = None
     goals: list[str] | None = None
     profile: str | None = "flash"

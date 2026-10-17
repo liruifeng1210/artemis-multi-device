@@ -27,6 +27,11 @@ import threading
 from colorama import Fore, Style, init
 
 from artemis.data_engine.context_vars import CURRENT_TRACE_ID
+from artemis.runtime.execution_scope import (
+    CURRENT_EXECUTION,
+    execution_scope,
+    get_current_data_engine,
+)
 
 init(autoreset=True)
 
@@ -52,31 +57,35 @@ class DataEngineHandler(logging.Handler):
             item = self._log_queue.get()
             if item is None:
                 break
-            engine_mod = sys.modules.get("artemis.data_engine.engine")
-            if engine_mod and getattr(engine_mod, "_CURRENT_DATA_ENGINE", None):
-                _CURRENT_DATA_ENGINE = engine_mod._CURRENT_DATA_ENGINE
-                if _CURRENT_DATA_ENGINE and _CURRENT_DATA_ENGINE.current_session_id:
-                    record_name, message, level_name, formatted, parent_id = item
-                    _CURRENT_DATA_ENGINE.record_trace(
-                        type="log",
-                        name=record_name,
-                        payload={
-                            "message": message,
-                            "level": level_name,
-                            "formatted": formatted,
-                        },
-                        status="success",
-                        parent_trace_id=parent_id,
-                    )
-            self._log_queue.task_done()
+            engine, scope, step_id, record_name, message, level_name, formatted, parent_id = item
+            try:
+                if engine and engine.current_session_id:
+                    from contextlib import nullcontext
+
+                    with execution_scope(scope) if scope is not None else nullcontext():
+                        engine.record_trace(
+                            type="log",
+                            name=record_name,
+                            payload={
+                                "message": message,
+                                "level": level_name,
+                                "formatted": formatted,
+                            },
+                            status="success",
+                            parent_trace_id=parent_id,
+                            step_id=step_id,
+                        )
+            finally:
+                self._log_queue.task_done()
 
     def emit(self, record):
-        engine_mod = sys.modules.get("artemis.data_engine.engine")
-        if not engine_mod or not getattr(engine_mod, "_CURRENT_DATA_ENGINE", None):
-            return
-        _CURRENT_DATA_ENGINE = engine_mod._CURRENT_DATA_ENGINE
+        _CURRENT_DATA_ENGINE = get_current_data_engine()
 
-        if _CURRENT_DATA_ENGINE and _CURRENT_DATA_ENGINE.current_session_id:
+        if (
+            _CURRENT_DATA_ENGINE
+            and getattr(_CURRENT_DATA_ENGINE, "current_session_id", None)
+            and callable(getattr(_CURRENT_DATA_ENGINE, "record_trace", None))
+        ):
             log_entry = self.format(record)
             log_level = getattr(record, "log_level", None)
             if log_level and hasattr(log_level, "value"):
@@ -89,6 +98,9 @@ class DataEngineHandler(logging.Handler):
             try:
                 self._log_queue.put_nowait(
                     (
+                        _CURRENT_DATA_ENGINE,
+                        CURRENT_EXECUTION.get(),
+                        getattr(_CURRENT_DATA_ENGINE, "current_step_id", None),
                         record.name,
                         record.getMessage(),
                         level_name,

@@ -244,7 +244,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
                     taps = [f"input tap {x} {y}"] * times
                     cmd = f" && sleep {delay_ms / 1000.0:.3f} && ".join(taps)
 
-            logger.info(f"[ADB] {cmd}")
+            logger.info(f"[ADB device={self._device_id}] {cmd}")
             await asyncio.to_thread(self.device.shell, cmd)
             return True
         except Exception as e:
@@ -264,7 +264,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
     ) -> bool:
         try:
             cmd = f"input swipe {start_x} {start_y} {end_x} {end_y} {duration_ms}"
-            logger.info(f"[ADB] {cmd}")
+            logger.info(f"[ADB device={self._device_id}] {cmd}")
             await asyncio.to_thread(self.device.shell, cmd)
             return True
         except Exception as e:

@@ -116,6 +116,12 @@ def _notify_history_chunker(ctx: ArtemisContext, method: str, *args) -> None:
     swallowed — history compression must never gate the execution path.
     """
     try:
+        runtime = getattr(ctx, "multi_device_runtime", None)
+        if runtime is not None:
+            from artemis.runtime.execution_scope import CURRENT_EXECUTION
+            scope = CURRENT_EXECUTION.get()
+            if scope is not None and scope.role_id in runtime.contexts:
+                ctx = runtime.contexts[scope.role_id]
         chunker = getattr(getattr(ctx, "transcript_ledger", None), "chunker", None)
         if chunker is not None:
             getattr(chunker, method)(*args)
@@ -153,6 +159,9 @@ async def execution_check_node(state: State, ctx: ArtemisContext):
                     logger.warning(f"Failed to parse structured decisions: {e}")
 
             subgoal_hash_val, sub_subgoal_hash = _get_active_subgoal_hashes(ctx)
+            if getattr(ctx, "multi_device_runtime", None) is not None:
+                subgoal_hash_val = ctx.multi_device_runtime.origin_hash
+                sub_subgoal_hash = None
             # The user's injected instruction is stamped verbatim on the step
             # it reached: the chunk ledger (band ③) preserves it as a
             # never-evicted line at every compression level (§3.3).
@@ -287,6 +296,7 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
     verify_blocked = False
     blocked_findings: list[str] = []
     if final_check_enabled(ctx):
+        runtime = getattr(ctx, "multi_device_runtime", None)
         attempt_no = ctx.final_check_attempts + 1
         ctx.final_check_attempts = attempt_no
         final_attempt_id = f"final#{attempt_no}"
@@ -324,6 +334,8 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
         except Exception as e:
             # Fail-open: release, but the verdict value stays inconclusive.
             logger.warning(f"Final check errored ({e}); releasing fail-open.")
+            if runtime is not None:
+                runtime.final_review_status = "inconclusive"
             error_verdicts: list[dict] = []
             for ci in snapshot.all_check_items:
                 append_ledger_record(
@@ -333,6 +345,8 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                         "checkpoint_id": FINAL_CHECKPOINT_ID,
                         "subgoal_text": FINAL_SUBGOAL_TEXT,
                         "trace_id": attempt_trace_id(ctx, final_attempt_id),
+                        "check_key": ci.key,
+                        "role_id": ci.role_id,
                         "item_text": ci.text,
                         "kind": ci.kind,
                         "when": ci.when,
@@ -360,6 +374,7 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                         ci.when
                         for ci in snapshot.all_check_items
                         if ci.kind == v.kind and ci.text == v.item_text
+                        and (not getattr(v, "check_key", None) or ci.key == v.check_key)
                     ),
                     "at_end",
                 )
@@ -370,6 +385,8 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                         "checkpoint_id": FINAL_CHECKPOINT_ID,
                         "subgoal_text": FINAL_SUBGOAL_TEXT,
                         "trace_id": attempt_trace_id(ctx, final_attempt_id),
+                        "check_key": getattr(v, "check_key", None),
+                        "role_id": getattr(v, "role_id", None),
                         "item_text": v.item_text,
                         "kind": v.kind,
                         "when": when,
@@ -381,6 +398,8 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                 )
 
             passed = verdicts_allow_release(report) and not report.unmet_subgoals
+            if runtime is not None:
+                runtime.final_review_status = "passed" if passed else "failed"
             if not passed:
                 if user_stopped or halted or attempt_no >= max_attempts:
                     verify_blocked = True
@@ -438,7 +457,12 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
 
     # END path: assemble the machine-readable run outcome.
     records = read_ledger(base_dir)
-    retired = getattr(ctx, "guidance_retired_checks", None)
+    runtime = getattr(ctx, "multi_device_runtime", None)
+    retired = getattr(
+        ctx,
+        "guidance_retired_check_keys" if runtime is not None else "guidance_retired_checks",
+        None,
+    )
     outcome = compute_run_outcome(
         snapshot,
         records,
@@ -618,13 +642,26 @@ async def _process_plan_write(
     new top-level completions. ``declared_intent`` marks surgical update_note
     edits, which are exempt from the full-rewrite hand-slip check.
     """
+    runtime = getattr(ctx, "multi_device_runtime", None)
+    if runtime is not None:
+        ctx = runtime.control_ctx
+
+    def write_system_plan(expected: str, replacement: str) -> None:
+        if runtime is None:
+            task_plan_path.write_text(replacement, encoding="utf-8")
+        else:
+            from artemis.runtime.execution_scope import ExecutionScope
+
+            runtime.commit_plan(
+                task_plan_path, expected, replacement, ExecutionScope(phase="system")
+            )
     rejection_message = check_plan_mutation_rejections(content_before, content_after, state)
     if rejection_message is None and not declared_intent:
         rejection_message = check_unintended_rewrite(content_before, content_after)
     if rejection_message:
         logger.info(f"Rejected task plan update: {rejection_message}")
         if task_plan_path.exists():
-            task_plan_path.write_text(content_before, encoding="utf-8")
+            write_system_plan(content_after, content_before)
 
         # Guidance, not a tool failure: status stays "success" so the Operator
         # loop treats it as feedback content (matching the legacy envelope
@@ -643,25 +680,35 @@ async def _process_plan_write(
     # surgical edits, turns after the guidance landed. Lines added after the
     # instruction are protected again until the next one.
     #
-    # ``missing_check_items`` diffs on the full signature (kind, when, text,
-    # parent hash), so rewording a milestone re-signs every check line under
-    # it. Such a line has merely moved: it is still declared, so it is neither
-    # merged back (that would duplicate it as a task-level ``@end`` orphan)
-    # nor retired (the ledger, the harvest gate and the run outcome all key a
-    # check item by ``(kind, text)``). Only a line whose ``(kind, text)`` is
-    # gone from the new plan counts as dropped.
+    # Rewording a milestone changes the parent hash of its checks. Match such
+    # moves only to the same role at the same milestone position. An identical
+    # check on another role or another milestone must never protect a deletion.
     before_snapshot = parse_plan(content_before)
     after_snapshot = parse_plan(content_after)
     missing = missing_check_items(before_snapshot, after_snapshot)
     unprotected = getattr(ctx, "guidance_unprotected_checks", None)
     if not isinstance(unprotected, set):
         unprotected = set()
-    still_declared = Counter((ci.kind, ci.text) for ci in after_snapshot.check_items)
+    old_top = before_snapshot.top_level
+    new_top = after_snapshot.top_level
+    new_keys = {item.key for item in new_top}
+    moved_parents = {}
+    for index, old_item in enumerate(old_top):
+        if old_item.key in new_keys or index >= len(new_top):
+            continue
+        new_item = new_top[index]
+        if old_item.role_id == new_item.role_id:
+            moved_parents[old_item.key] = new_item.key
+    still_declared = Counter(
+        (ci.kind, ci.text, ci.parent_key) for ci in after_snapshot.check_items
+    )
     dropped: list = []
     for ci in missing:
-        if still_declared.get((ci.kind, ci.text), 0) > 0:
-            still_declared[(ci.kind, ci.text)] -= 1
-            continue  # moved under a reworded milestone / re-timed: still declared
+        parent = moved_parents.get(ci.parent_key, ci.parent_key)
+        same_check = (ci.kind, ci.text, parent)
+        if still_declared.get(same_check, 0) > 0:
+            still_declared[same_check] -= 1
+            continue  # same milestone, reworded or re-timed
         dropped.append(ci)
     waived = [ci for ci in dropped if (ci.kind, ci.text) in unprotected]
     protected = [ci for ci in dropped if (ci.kind, ci.text) not in unprotected]
@@ -672,10 +719,17 @@ async def _process_plan_write(
         )
         # Records the retirement (harvest gate + run outcome) and withdraws any
         # standing finding headline those lines had already produced.
-        retire_check_items(ctx, [(ci.kind, ci.text) for ci in waived])
+        retire_check_items(
+            ctx, waived if runtime is not None else [(ci.kind, ci.text) for ci in waived]
+        )
     # A retired line the Operator declares again is live again: the harvest
     # gate and the run outcome must agree with the plan on disk.
-    reinstate_check_items(ctx, [(ci.kind, ci.text) for ci in after_snapshot.check_items])
+    reinstate_check_items(
+        ctx,
+        after_snapshot.check_items
+        if runtime is not None
+        else [(ci.kind, ci.text) for ci in after_snapshot.check_items],
+    )
     if protected:
         merged = restore_missing_check_items(content_before, content_after, items=protected)
         if merged is not None:
@@ -684,11 +738,14 @@ async def _process_plan_write(
                 " back (check standards are protected deterministically):"
                 f" {[render_check_line(ci).strip() for ci in protected]}"
             )
+            candidate_before_merge = content_after
             content_after = merged
             try:
-                task_plan_path.write_text(content_after, encoding="utf-8")
+                write_system_plan(candidate_before_merge, content_after)
             except Exception as e:
                 logger.error(f"Failed to write merged check lines: {e}")
+                if runtime is not None:
+                    raise
 
     # Deterministic finding-line projection: unresolved verify findings are
     # re-rendered from the checkpoint repair state on every plan write, so a
@@ -773,6 +830,9 @@ async def _intercept_plan_write(
     content_after_fallback: str = "",
 ):
     """Run a note write and process any resulting task-plan changes."""
+    key = args["key"]
+    if key.lower().removesuffix(".md") == "task_plan":
+        args = {**args, "key": "task_plan"}
     rejection = _reject_checker_note_write(args["key"], tool_call_id)
     if rejection is not None:
         return rejection
@@ -945,8 +1005,11 @@ def convergence_gate(
     return "continue"
 
 
-async def get_graph(ctx: ArtemisContext) -> CompiledStateGraph:
-    graph_builder = StateGraph(State)
+def build_pro_nodes(ctx: ArtemisContext):
+    nodes = {}
+
+    def register(name, node):
+        nodes[name] = node
 
     # Get native tools
     native_wrappers = [
@@ -960,7 +1023,7 @@ async def get_graph(ctx: ArtemisContext) -> CompiledStateGraph:
     native_tools = get_tools_from_wrappers(ctx, native_wrappers)
 
     ## Define nodes
-    graph_builder.add_node("planner", PlannerNode(ctx, tools=native_tools))
+    register("planner", PlannerNode(ctx, tools=native_tools))
 
     # Wrap native tools for Operator
     operator_native_tools = []
@@ -1013,22 +1076,43 @@ async def get_graph(ctx: ArtemisContext) -> CompiledStateGraph:
     if ctx.execution_setup and ctx.execution_setup.video_recording_tools_enabled:
         operator_tools.append(get_video_analyzer_tool(ctx, role="operator"))
 
-    graph_builder.add_node("operator", OperatorNode(ctx, tools=operator_tools))
-    graph_builder.add_node("validator", ValidatorNode(ctx))
+    register("operator", OperatorNode(ctx, tools=operator_tools))
+    register("validator", ValidatorNode(ctx))
 
-    graph_builder.add_node("summarizer", SummarizerNode(ctx))
-    graph_builder.add_node("execution_check", functools.partial(execution_check_node, ctx=ctx))
-    graph_builder.add_node("perception", functools.partial(perception_node, ctx=ctx))
+    register("summarizer", SummarizerNode(ctx))
+    register("execution_check", functools.partial(execution_check_node, ctx=ctx))
+    register("perception", functools.partial(perception_node, ctx=ctx))
+    return nodes
+
+
+async def get_graph(ctx: ArtemisContext, runtime=None) -> CompiledStateGraph:
+    graph_builder = StateGraph(State)
+    nodes = build_pro_nodes(ctx)
+    if runtime is not None:
+        runtime.nodes = {role: build_pro_nodes(role_ctx) for role, role_ctx in runtime.contexts.items()}
+        for name, node in nodes.items():
+            graph_builder.add_node(name, runtime.wrap_node(name, node))
+    else:
+        for name, node in nodes.items():
+            graph_builder.add_node(name, node)
     add_convergence_node(graph_builder)
-    graph_builder.add_node("exit_settlement", functools.partial(exit_settlement_node, ctx=ctx))
+    settlement = functools.partial(exit_settlement_node, ctx=ctx)
+    graph_builder.add_node("exit_settlement", runtime.wrap_node("exit_settlement", settlement) if runtime is not None else settlement)
 
     ## Linking nodes
     graph_builder.add_edge(START, "planner")
     graph_builder.add_edge("planner", CONVERGENCE_NODE)
-    graph_builder.add_edge("operator", "execution_check")
+    if runtime is not None:
+        graph_builder.add_node("role_route", runtime.begin_turn)
+        graph_builder.add_node("role_boundary", runtime.boundary)
+        graph_builder.add_edge("role_route", "perception")
+        graph_builder.add_edge("operator", "role_boundary")
+        graph_builder.add_edge("role_boundary", "execution_check")
+    else:
+        graph_builder.add_edge("operator", "execution_check")
     graph_builder.add_conditional_edges(
         "execution_check",
-        execution_check_edge,
+        runtime.execution_edge if runtime is not None else execution_check_edge,
         {
             "review_subgoals": CONVERGENCE_NODE,
             "execute_decisions": "validator",
@@ -1040,13 +1124,13 @@ async def get_graph(ctx: ArtemisContext) -> CompiledStateGraph:
     add_convergence_edges(
         graph_builder,
         functools.partial(convergence_gate, ctx=ctx),
-        {"continue": "perception", "exit_settlement": "exit_settlement", "end": END},
+        {"continue": "role_route" if runtime is not None else "perception", "exit_settlement": "exit_settlement", "end": END},
     )
     graph_builder.add_conditional_edges(
         source="exit_settlement",
         path=exit_settlement_gate,
         path_map={
-            "continue": "perception",
+            "continue": "role_route" if runtime is not None else "perception",
             "end": END,
         },
     )

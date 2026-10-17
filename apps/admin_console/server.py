@@ -77,7 +77,7 @@ try:
     from admin_console.database.repositories.session_repository import session_repo
     from admin_console.database.repositories.step_repository import step_repo
     from admin_console.database.repositories.trace_repository import trace_repo
-    from admin_console.routers import media, replay, sessions, steps, stream, system, tasks
+    from admin_console.routers import cases, media, replay, sessions, steps, stream, system, tasks
     from admin_console.routers.replay import replay_manager
     from admin_console.services.ipc_service import ipc_service
     from admin_console.services.media_service import media_service
@@ -87,7 +87,7 @@ except ImportError:
     from apps.admin_console.core.security import SameOriginBoundaryMiddleware
     from apps.admin_console.core.state import state
     from apps.admin_console.database.repositories.session_repository import session_repo
-    from apps.admin_console.routers import media, replay, sessions, steps, stream, system, tasks
+    from apps.admin_console.routers import cases, media, replay, sessions, steps, stream, system, tasks
     from apps.admin_console.routers.replay import replay_manager
     from apps.admin_console.services.ipc_service import ipc_service
     from apps.admin_console.services.model_service import model_service
@@ -222,6 +222,7 @@ app.include_router(media.router)
 app.include_router(sessions.router)
 app.include_router(steps.router)
 app.include_router(tasks.router)
+app.include_router(cases.router)
 app.include_router(replay.router)
 app.include_router(system.router)
 
@@ -272,6 +273,19 @@ def _resolve_static_file(root: Path, relative_path: str) -> Path | None:
     return None
 
 
+def _static_response(path: Path) -> FileResponse:
+    # Windows MIME registry entries can map .js to text/plain. Browsers reject
+    # ES modules with that type, leaving the entire Angular application blank.
+    media_type = {
+        ".js": "text/javascript",
+        ".mjs": "text/javascript",
+        ".css": "text/css",
+        ".svg": "image/svg+xml",
+        ".json": "application/json",
+    }.get(path.suffix.lower())
+    return FileResponse(path, media_type=media_type)
+
+
 @app.get("/", include_in_schema=False)
 async def serve_showcase_root():
     """Explicitly serve the Showcase UI at the root path by default."""
@@ -314,13 +328,13 @@ async def serve_showcase_spa(full_path: str):
     if clean_path:
         target_file = _resolve_static_file(showcase_dist, clean_path)
         if target_file is not None:
-            return FileResponse(target_file)
+            return _static_response(target_file)
 
         # Fallback for icons/logos if showcase UI hasn't been built yet
         public_root = _workspace_root / "apps" / "showcase_ui" / "public"
         public_file = _resolve_static_file(public_root, clean_path)
         if public_file is not None:
-            return FileResponse(public_file)
+            return _static_response(public_file)
 
     # Serve Showcase UI Angular SPA index.html
     index_file = showcase_dist / "index.html"

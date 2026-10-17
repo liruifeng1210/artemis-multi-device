@@ -23,5 +23,6 @@ export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'workspace', component: WorkspaceComponent },
   { path: 'check', component: LegacyWorkspaceComponent },
+  { path: 'cases', redirectTo: 'workspace', pathMatch: 'full' },
   { path: '**', redirectTo: '' }
 ];

@@ -96,7 +96,11 @@ def _unprotect_current_check_lines(ctx: ArtemisContext) -> None:
     """Record the plan's current check lines as editable under user guidance."""
     from artemis.utils.notes import get_note_file_path
     from artemis.utils.plan_grammar import parse_plan
+    from artemis.runtime.multi_device.runtime import MultiDeviceRuntime
 
+    runtime = getattr(ctx, "multi_device_runtime", None)
+    if isinstance(runtime, MultiDeviceRuntime):
+        ctx = runtime.control_ctx
     unprotected = getattr(ctx, "guidance_unprotected_checks", None)
     if not isinstance(unprotected, set):
         unprotected = set()

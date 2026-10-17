@@ -172,6 +172,21 @@ class ArtemisClient:
             devices.append(Device.from_payload(item))
         return tuple(devices)
 
+    async def submit_case(self, request: Mapping[str, Any]) -> Mapping[str, Any]:
+        """Start a role-bound Pro case; returns a run_id for get_case/stop_case."""
+        payload = await self._request("POST", "/api/cases", json_body=request)
+        return self._mapping(payload, endpoint="/api/cases")
+
+    async def get_case(self, run_id: str) -> Mapping[str, Any]:
+        run_id = str(uuid.UUID(run_id))
+        payload = await self._request("GET", f"/api/cases/{run_id}")
+        return self._mapping(payload, endpoint="/api/cases/{run_id}")
+
+    async def stop_case(self, run_id: str) -> Mapping[str, Any]:
+        run_id = str(uuid.UUID(run_id))
+        payload = await self._request("POST", f"/api/cases/{run_id}/cancel")
+        return self._mapping(payload, endpoint="/api/cases/{run_id}/cancel")
+
     async def submit(
         self,
         goal: str,

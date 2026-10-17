@@ -19,8 +19,12 @@ from mcp_server.tools.diagnose import mobile_diagnose
 from mcp_server.tools.inspect_trace import mobile_inspect_trace
 from mcp_server.tools.task_manager import mobile_manage_task
 from mcp_server.tools.task_runner import mobile_run_task
+from mcp_server.tools.multi_device import mobile_run_case, mobile_get_case, mobile_cancel_case
 
 __all__ = [
+    "mobile_run_case",
+    "mobile_get_case",
+    "mobile_cancel_case",
     "mobile_run_task",
     "mobile_manage_task",
     "mobile_get_device_state",

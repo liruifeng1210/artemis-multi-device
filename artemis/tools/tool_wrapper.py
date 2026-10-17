@@ -93,7 +93,8 @@ async def invoke_tool_with_injection(
         token = CURRENT_TRACE_ID.set(trace_id)
         start_time = time.time()
 
-        live_engine = getattr(engine_mod, "_CURRENT_DATA_ENGINE", None)
+        from artemis.runtime.execution_scope import get_current_data_engine
+        live_engine = get_current_data_engine()
 
         if record_trace and live_engine:
             step_id = getattr(live_engine, "current_step_id", None)

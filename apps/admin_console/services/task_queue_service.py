@@ -1080,7 +1080,7 @@ class TaskQueueService:
             return rejection_response
 
         single_session_id = session_id if (session_id and len(goals) == 1) else None
-        if not device_serial:
+        if not device_serial and profile != "pro":
             # Device enumeration may block on ADB.
             from artemis.runtime import device_pool
 

@@ -117,6 +117,9 @@ class ArtemisContext(DeviceClientAccessors, BaseModel):
     )
 
     device: DeviceContext
+    multi_device_runtime: Any | None = None
+    role_id: str | None = None
+    owns_data_engine: bool = True
     llm_config: LLMConfig | None = None
     agent_config: Any = None
     adb_client: Any | None = None
@@ -169,6 +172,8 @@ class ArtemisContext(DeviceClientAccessors, BaseModel):
     that waiver. A verdict recorded for such a line before it was retired is a
     result for a requirement the user withdrew: the run outcome reports it as
     retired instead of counting it as a pass or failure."""
+    guidance_retired_check_keys: set[str] = Field(default_factory=set)
+    """Multi-device check identities withdrawn under user guidance."""
 
     _genai_client: Any | None = PrivateAttr(default=None)
     _video_blackboard: Any | None = PrivateAttr(default=None)
@@ -277,7 +282,7 @@ class ArtemisContext(DeviceClientAccessors, BaseModel):
                 self.mcp_client_ctx = None
                 self.mcp_session = None
 
-        if self.data_engine:
+        if self.data_engine and self.owns_data_engine:
             try:
                 await self.data_engine.shutdown()
             except Exception as exc:

@@ -50,6 +50,8 @@ from third_party.mobile_use.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+from artemis.runtime.execution_scope import CURRENT_EXECUTION, set_scoped_step
+
 _CURRENT_DATA_ENGINE = None
 
 # Overlay packages that never identify the app the user is working in.
@@ -392,6 +394,21 @@ def friendly_step(
 class DataEngine:
     """Core engine for managing runtime data, storage, and streaming."""
 
+    @property
+    def current_step_id(self):
+        scope = CURRENT_EXECUTION.get()
+        if scope is not None and scope.engine is self:
+            return scope.step_id
+        return getattr(self, "_current_step_id", None)
+
+    @current_step_id.setter
+    def current_step_id(self, value):
+        scope = CURRENT_EXECUTION.get()
+        if scope is not None and scope.engine is self:
+            set_scoped_step(value)
+        else:
+            self._current_step_id = value
+
     def __init__(self, ctx: ArtemisContext):
         self.ctx = ctx
 
@@ -528,6 +545,9 @@ class DataEngine:
 
     def _publish(self, event_type: str, data: Any):
         """Publish event to all subscribers."""
+        scope = CURRENT_EXECUTION.get()
+        if isinstance(data, dict) and scope is not None and scope.engine is self:
+            data = {**scope.metadata(), **data}
         if isinstance(data, dict) and "session_id" not in data and self.current_session_id:
             data["session_id"] = str(self.current_session_id)
 
@@ -903,6 +923,9 @@ class DataEngine:
         # parameter wins; otherwise it is derived best-effort from the UI
         # tree's package attributes — a pure string scan, no device call.
         extra_metadata = dict(extra_metadata or {})
+        scope = CURRENT_EXECUTION.get()
+        if scope is not None and scope.engine is self:
+            extra_metadata.update(scope.metadata())
         try:
             app = foreground_app or _derive_foreground_app(ui_tree)
             if app:
@@ -1021,6 +1044,9 @@ class DataEngine:
         if not self.current_session_id:
             raise ValueError("No active session. Call start_session first.")
 
+        scope = CURRENT_EXECUTION.get()
+        if scope is not None and scope.engine is self:
+            payload = {**payload, "execution": scope.metadata()}
         trace_id = trace_id or uuid4()
 
         with self.lock:
@@ -1225,7 +1251,9 @@ class DataEngine:
                     if curr_thread in self._pending_threads:
                         self._pending_threads.remove(curr_thread)
 
-            thread = threading.Thread(target=run_and_cleanup, name="artemis-storage", daemon=True)
+            from contextvars import copy_context
+            context = copy_context()
+            thread = threading.Thread(target=context.run, args=(run_and_cleanup,), name="artemis-storage", daemon=True)
             self._pending_threads.append(thread)
             thread.start()
         else:
@@ -1512,6 +1540,12 @@ class DataEngine:
         if not self.current_session_id:
             return []
         steps_with_traces = self.storage.get_steps_with_traces(self.current_session_id)
+        scope = CURRENT_EXECUTION.get()
+        if scope is not None and scope.engine is self and scope.role_id and scope.phase not in ("final", "planner"):
+            steps_with_traces = [
+                (step, traces) for step, traces in steps_with_traces
+                if (step.extra_metadata or {}).get("role_id") == scope.role_id
+            ]
         describer = build_image_describer([step for step, _ in steps_with_traces])
         return [self._friendly_step(step, traces, describer) for step, traces in steps_with_traces]
 

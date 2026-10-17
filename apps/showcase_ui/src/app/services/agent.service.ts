@@ -794,6 +794,7 @@ export class AgentService {
       'task_resumed',
       'llm_retrying',
       'startup_progress',
+      'role_activated',
       'session_started',
       'session_ended',
       'recording_ready',
@@ -897,6 +898,18 @@ export class AgentService {
               ) {
                 this.beginRecordingFinalization(endedId);
               }
+            }
+            return;
+          }
+
+          if (eventType === 'role_activated') {
+            const targetSid = evtSessionId || this.currentSessionId();
+            if (targetSid) {
+              this.appendStartupProgress({
+                ...parsedData,
+                stage: 'role_activated',
+                message: `Active role: ${parsedData.role_id} · Device: ${parsedData.device_id}`
+              }, targetSid);
             }
             return;
           }

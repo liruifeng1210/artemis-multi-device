@@ -134,6 +134,29 @@ async def execute_task(
             pro_mode=explorer_pro_mode,
         )
 
+    if graph_config_callbacks:
+        config.with_graph_config_callbacks(graph_config_callbacks)
+
+    if profile == "pro" and os.environ.get("ARTEMIS_CLOUD_MODE") != "1":
+        from artemis.sdk.multi_device_agent import MultiDeviceAgent
+        from artemis.runtime.multi_device.models import MultiDeviceRequest, AppProfile
+
+        publish_startup_progress("role_planning", "Planning case participants before allocating devices",
+                                 session_id=effective_sid)
+        result = await MultiDeviceAgent(config=config.build(), session_id=effective_sid).run_case(
+            MultiDeviceRequest(
+                case=goal,
+                preferred_device=device_serial,
+                app_profile=AppProfile(package=locked_app_package, apk_path=app_path)
+                if locked_app_package else None,
+                output_description=output_description,
+                record_video=video_recording_tools_enabled is not False,
+            )
+        )
+        if result["status"] != "completed":
+            raise RuntimeError(result.get("error") or f"Pro case ended: {result['status']}")
+        return
+
     target_serial = (
         device_serial or settings.ADB_DEVICE_SERIAL or os.environ.get("ADB_DEVICE_SERIAL")
     )
@@ -149,9 +172,6 @@ async def execute_task(
         from artemis.context import DevicePlatform
 
         config.for_device(DevicePlatform.ANDROID, target_serial)
-
-    if graph_config_callbacks:
-        config.with_graph_config_callbacks(graph_config_callbacks)
 
     await run_automation(
         config,

@@ -743,6 +743,11 @@ class OperatorNode:
 
                         action_calls = []
 
+            runtime = getattr(self.ctx, "multi_device_runtime", None)
+            if runtime is not None and runtime.handoff_requested():
+                action_result = None
+                break
+
             if action_calls:
                 logger.info(
                     f"Operator requested {len(action_calls)} action(s)."
@@ -943,6 +948,21 @@ class OperatorNode:
             active_background_tasks=active_background_tasks,
             newly_finished_tasks=newly_finished_tasks,
         )
+
+        runtime = getattr(self.ctx, "multi_device_runtime", None)
+        if runtime is not None:
+            from langchain_core.messages import SystemMessage
+            messages.insert(0, SystemMessage(content=runtime.operator_instructions(self.ctx.role_id)))
+            if self._transcript_turn_base is not None:
+                self._transcript_turn_base += 1
+            traced_tools = runtime.guard_tools(traced_tools, self.ctx.role_id)
+        else:
+            from langchain_core.messages import SystemMessage
+            from artemis.runtime.device_contract import single_device_instructions
+
+            messages.insert(0, SystemMessage(content=single_device_instructions(self.ctx)))
+            if self._transcript_turn_base is not None:
+                self._transcript_turn_base += 1
 
         # 8. Invoke LLM Loop
         new_subagent_calls = []
