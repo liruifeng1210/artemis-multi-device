@@ -8,8 +8,9 @@ from artemis.runtime.multi_device import jobs
 
 @mcp.tool()
 async def mobile_run_case(request_json: str) -> dict:
-    """Start a Pro multi-device case. JSON requires case and role_bindings {role: {serial}};
-    optionally app_profile, role_plan, feature_catalog, budgets and record_video.
+    """Start a Pro multi-device case. JSON requires case; optional role_bindings
+    map roles to devices. Also accepts app_profile, feature_catalog and budgets.
+    The role plan is generated internally from the case before device allocation.
     Returns a run_id immediately; use mobile_get_case to inspect progress/results.
     """
     request = MultiDeviceRequest.model_validate_json(request_json)

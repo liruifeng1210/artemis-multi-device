@@ -14,11 +14,7 @@ class DeviceSetLease:
     def __init__(
         self, serials, session_id, *, timeout=60, max_concurrency=None, concurrency_mode=None
     ):
-        mode = (
-            concurrency_mode
-            if concurrency_mode == "global" or not max_concurrency
-            else None
-        )
+        mode = concurrency_mode if concurrency_mode == "global" or not max_concurrency else None
         self.locks = [
             DeviceExecutionLock(
                 serial,
@@ -39,14 +35,18 @@ class DeviceSetLease:
         started = time.monotonic()
         next_report = started
         attempts = 0
-        logger.info(f"[multi-device] lease.wait run_id={self.session_id} devices={[lock.device_id for lock in self.locks]} timeout_s={self.timeout}")
+        logger.info(
+            f"[multi-device] lease.wait run_id={self.session_id} devices={[lock.device_id for lock in self.locks]} timeout_s={self.timeout}"
+        )
         while not self.cancelled.is_set():
             attempts += 1
             try:
                 for lock in self.locks:
                     lock.acquire(blocking=False)
                     self.held.append(lock)
-                logger.info(f"[multi-device] lease.acquired run_id={self.session_id} device_count={len(self.held)} attempts={attempts} elapsed_ms={int((time.monotonic()-started)*1000)}")
+                logger.info(
+                    f"[multi-device] lease.acquired run_id={self.session_id} device_count={len(self.held)} attempts={attempts} elapsed_ms={int((time.monotonic() - started) * 1000)}"
+                )
                 return
             except Exception as exc:
                 self.release()
@@ -57,13 +57,19 @@ class DeviceSetLease:
                     lock.queue_ticket = None
                     lock._initial_queue_ticket = None
                 if time.monotonic() >= deadline:
-                    logger.error(f"[multi-device] lease.timeout run_id={self.session_id} attempts={attempts} error_type={type(exc).__name__}")
+                    logger.error(
+                        f"[multi-device] lease.timeout run_id={self.session_id} attempts={attempts} error_type={type(exc).__name__}"
+                    )
                     raise
                 if time.monotonic() >= next_report:
-                    logger.info(f"[multi-device] lease.pending run_id={self.session_id} attempts={attempts} elapsed_ms={int((time.monotonic()-started)*1000)} error_type={type(exc).__name__}")
+                    logger.info(
+                        f"[multi-device] lease.pending run_id={self.session_id} attempts={attempts} elapsed_ms={int((time.monotonic() - started) * 1000)} error_type={type(exc).__name__}"
+                    )
                     next_report = time.monotonic() + 5
                 self.cancelled.wait(min(0.2, max(0, deadline - time.monotonic())))
-        logger.warning(f"[multi-device] lease.cancelled run_id={self.session_id} attempts={attempts}")
+        logger.warning(
+            f"[multi-device] lease.cancelled run_id={self.session_id} attempts={attempts}"
+        )
         raise RuntimeError("Multi-device reservation cancelled")
 
     def release(self):
@@ -75,7 +81,9 @@ class DeviceSetLease:
             except Exception as exc:
                 errors.append(exc)
         if errors:
-            logger.error(f"[multi-device] lease.release_failed run_id={self.session_id} count={count} errors={len(errors)}")
+            logger.error(
+                f"[multi-device] lease.release_failed run_id={self.session_id} count={count} errors={len(errors)}"
+            )
             raise ExceptionGroup("Failed to release device leases", errors)
         if count:
             logger.info(f"[multi-device] lease.released run_id={self.session_id} count={count}")
@@ -87,10 +95,27 @@ class DeviceSetLease:
         except BaseException:
             self.cancelled.set()
             try:
-                await task
-            except Exception:
-                pass
-            self.release()
+                # The worker owns any locks it has appended to `held`.
+                # Additional cancellation must not detach that thread before
+                # it finishes and all of its leases can be released.
+                while not task.done():
+                    try:
+                        await asyncio.shield(task)
+                    except asyncio.CancelledError:
+                        continue
+                    except Exception:
+                        # The worker has settled with an error; the original
+                        # cancellation/entry failure remains the caller result.
+                        break
+                try:
+                    task.result()
+                except (Exception, asyncio.CancelledError) as exc:
+                    logger.debug(
+                        f"[multi-device] lease.worker_settled run_id={self.session_id} "
+                        f"error_type={type(exc).__name__}"
+                    )
+            finally:
+                self.release()
             raise
         return self
 

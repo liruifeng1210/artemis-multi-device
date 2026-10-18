@@ -645,6 +645,9 @@ class RunAdbCommandTool(ArtemisTool):
         Interactive: bool = False,
         **kwargs: Any,
     ) -> str:
+        from artemis.runtime.action_bindings import require_shell_allowed
+
+        require_shell_allowed(ctx, self.name, kwargs)
         # Extract command line supporting alternative key formats
         cmd_line = (
             CommandLine
@@ -916,6 +919,9 @@ class ManageTaskTool(ArtemisTool):
         **kwargs: Any,
     ) -> str:
         action = Action or kwargs.get("action", "list")
+        from artemis.runtime.action_bindings import require_shell_allowed
+
+        require_shell_allowed(ctx, self.name, {"Action": action})
         task_id = TaskId if TaskId is not None else kwargs.get("task_id")
         input_str = Input if Input is not None else kwargs.get("input")
         registry = get_adb_task_registry(ctx)
@@ -1058,6 +1064,9 @@ class RunShortAdbCommandTool(ArtemisTool):
         CommandLine: str | None = None,
         **kwargs: Any,
     ) -> str:
+        from artemis.runtime.action_bindings import require_shell_allowed
+
+        require_shell_allowed(ctx, self.name, kwargs)
         cmd_line = (
             CommandLine
             if CommandLine is not None

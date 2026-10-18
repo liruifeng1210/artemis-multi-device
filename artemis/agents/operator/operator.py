@@ -745,6 +745,21 @@ class OperatorNode:
 
             runtime = getattr(self.ctx, "multi_device_runtime", None)
             if runtime is not None and runtime.handoff_requested():
+                # The model's tool-call message is already in the transcript. Pair
+                # every call before handing the conversation to another role.
+                for tc in action_calls:
+                    tool_outputs.append(
+                        ToolMessage(
+                            tool_call_id=tc["id"],
+                            name=normalize_name(tc["name"]),
+                            content=(
+                                "Not executed: the current milestone changed. "
+                                "Wait for a fresh observation before issuing this action."
+                            ),
+                            status="error",
+                        )
+                    )
+                current_messages.extend(tool_outputs)
                 action_result = None
                 break
 
@@ -923,10 +938,16 @@ class OperatorNode:
         all_tools = [
             operator_shell_tool(name) for name in OPERATOR_SHELL_ORDER if name in available_actions
         ] + self.tools
+        if getattr(self.ctx, "business_bindings_required", False):
+            from artemis.runtime.action_bindings import unbound_shell_input
+
+            all_tools = [t for t in all_tools if not unbound_shell_input(t.name, {})]
         from artemis.runtime.action_bindings import case_input_tool
         from artemis.runtime.value_bindings import ValueBindings
 
-        if isinstance(getattr(self.ctx, "value_bindings", None), ValueBindings):
+        if getattr(self.ctx, "business_bindings_required", False) and isinstance(
+            getattr(self.ctx, "value_bindings", None), ValueBindings
+        ):
             all_tools.append(case_input_tool(self.ctx))
 
         # 5. Mount the task-output analyzer and collect background ADB task state.
@@ -1269,6 +1290,11 @@ class OperatorNode:
 
             try:
                 ref = as_ref(text)
+                if getattr(self.ctx, "business_bindings_required", False) and ref is None:
+                    return [], (
+                        "Error: input_text.text requires a value reference. "
+                        "Use bind_case_input for exact case text or an available fixture/output ref."
+                    )
                 if ref is not None:
                     self.ctx.value_bindings.validate_ref(
                         ref,
@@ -1436,6 +1462,11 @@ class OperatorNode:
 
             try:
                 ref = as_ref(app_name)
+                if getattr(self.ctx, "business_bindings_required", False) and ref is None:
+                    return [], (
+                        "Error: manage_app.app_name requires a value reference. "
+                        "Use bind_case_input for exact case text or an available fixture/output ref."
+                    )
                 if ref is not None:
                     self.ctx.value_bindings.validate_ref(
                         ref, expected_type="string", role_id=self.ctx.role_id

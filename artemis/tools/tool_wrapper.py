@@ -102,7 +102,9 @@ async def invoke_tool_with_injection(
         ActionIdentity,
         CURRENT_ACTION,
         input_references,
+        require_shell_allowed,
         resolve_arguments,
+        safe_symbolic_arguments,
         tool_binding_contract,
     )
     from artemis.runtime.value_bindings import ValueBindings, BindingError
@@ -117,6 +119,7 @@ async def invoke_tool_with_injection(
     bindings = getattr(live_engine, "value_bindings", None)
     binding_engine = live_engine if isinstance(bindings, ValueBindings) else None
     scope = CURRENT_EXECUTION.get()
+    require_refs = scope is not None and scope.runtime is not None
     role_id = scope.role_id if scope else None
     identity = ActionIdentity(str(trace_id))
     action_token = CURRENT_ACTION.set(identity)
@@ -126,20 +129,29 @@ async def invoke_tool_with_injection(
     execution_status, execution_result, execution_error = "running", None, None
     try:
         inputs, literals = tool_binding_contract(tool)
+        if require_refs:
+            require_shell_allowed(None, tool.name, args, binding_required=True)
+        if require_refs and binding_engine is None:
+            raise BindingError("Shared case value bindings are unavailable")
         if binding_engine is not None and (inputs or literals or declared_action):
             bindings.register_operation(tool.name, inputs=inputs, literals=literals)
         if record_trace and live_engine:
+            trace_args = safe_symbolic_arguments(
+                tool.name, args, bindings, require_refs=require_refs
+            )
             live_engine.record_trace(
                 type="tool",
                 name=tool.name,
-                payload={"args": {k: smart_serialize(v) for k, v in args.items()}},
+                payload={"args": {k: smart_serialize(v) for k, v in trace_args.items()}},
                 status="running",
                 parent_trace_id=parent_id,
                 step_id=getattr(live_engine, "current_step_id", None),
                 trace_id=trace_id,
             )
         if binding_engine is not None:
-            resolved, protected = resolve_arguments(tool.name, args, bindings, role_id)
+            resolved, protected = resolve_arguments(
+                tool.name, args, bindings, role_id, require_refs=require_refs
+            )
             final_args.update(resolved)
             identity = ActionIdentity(str(trace_id), input_refs=input_references(args))
             CURRENT_ACTION.set(identity)
@@ -201,12 +213,17 @@ async def invoke_tool_with_injection(
                     action_id=identity.action_id,
                     attempt=1,
                     name=tool.name,
-                    arguments=args,
+                    arguments=safe_symbolic_arguments(
+                        tool.name, args, bindings, require_refs=require_refs
+                    ),
                     outputs=outputs,
                     status=execution_status,
                 )
         if record_trace and live_engine:
-            payload = {"args": {k: smart_serialize(v) for k, v in args.items()}}
+            trace_args = safe_symbolic_arguments(
+                tool.name, args, bindings, require_refs=require_refs
+            )
+            payload = {"args": {k: smart_serialize(v) for k, v in trace_args.items()}}
             if execution_status == "success":
                 payload["result"] = smart_serialize(get_tool_result_content(execution_result))
             elif execution_status == "failed":

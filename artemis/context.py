@@ -119,6 +119,7 @@ class ArtemisContext(DeviceClientAccessors, BaseModel):
     device: DeviceContext
     multi_device_runtime: Any | None = None
     role_id: str | None = None
+    business_bindings_required: bool = False
     owns_data_engine: bool = True
     _value_bindings: Any = PrivateAttr(default=None)
 

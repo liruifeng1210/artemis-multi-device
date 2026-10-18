@@ -111,6 +111,10 @@ class Diagnoser:
             *get_history_tools(self.ctx),
             get_submit_answer_tool(self.ctx),
         ]
+        if getattr(self.ctx, "business_bindings_required", False):
+            from artemis.runtime.action_bindings import unbound_shell_input
+
+            all_tools = [t for t in all_tools if not unbound_shell_input(t.name, {})]
         if not self.is_device_online:
             logger.info(
                 "Diagnoser running in OFFLINE environment: stripping adb short"

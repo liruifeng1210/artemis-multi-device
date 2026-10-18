@@ -14,5 +14,4 @@ async def allocate_roles(plan, preferred_device=None):
             f"Case requires {len(plan.roles)} distinct devices; only {len(devices)} are online"
         )
     # Busy devices may wait for leases; never collapse two roles onto one phone.
-    return {role.id: DeviceSpec(serial=device.serial)
-            for role, device in zip(plan.roles, devices)}
+    return {role.id: DeviceSpec(serial=device.serial) for role, device in zip(plan.roles, devices)}

@@ -27,6 +27,32 @@ class BoundInvocation:
 
 CURRENT_ACTION: ContextVar[ActionIdentity | None] = ContextVar("artemis_action", default=None)
 
+_FREE_SHELL_TOOLS = frozenset({"run_adb_command", "run_short_adb_command"})
+
+
+def unbound_shell_input(name: str, args: dict) -> bool:
+    """Identify free-form model shell inputs that have no provenance contract."""
+    tool_name = name.rsplit(":", 1)[-1]
+    return tool_name in _FREE_SHELL_TOOLS or (
+        tool_name == "manage_task" and (args.get("Action") or args.get("action")) == "send_input"
+    )
+
+
+def require_shell_allowed(ctx, name: str, args: dict, *, binding_required: bool = False) -> None:
+    from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+    scope = CURRENT_EXECUTION.get()
+    scoped_role_action = (
+        scope is not None and scope.runtime is not None and scope.phase != "preparation"
+    )
+    if (
+        binding_required or getattr(ctx, "business_bindings_required", False) or scoped_role_action
+    ) and unbound_shell_input(name, args):
+        raise BindingError(
+            "Free-form shell input is unavailable in a bound case; use declared device and "
+            "diagnostic tools with value references"
+        )
+
 
 def new_action_id() -> str:
     return str(uuid4())
@@ -44,18 +70,30 @@ def record_local_action(ctx, action_item: dict, status: str, step_id=None):
         name, args = to_canonical_call(action_item)
     except ValueError:
         name, args = action_item.get("action", "unknown"), {}
+    require_refs = bool(getattr(ctx, "business_bindings_required", False))
+    bindings = getattr(getattr(ctx, "data_engine", None), "value_bindings", None)
     recorder(
         action_id=action_id,
         attempt=action_item.get("attempt", 1),
         name=name,
-        arguments=args,
+        arguments=safe_symbolic_arguments(
+            name,
+            args,
+            bindings if isinstance(bindings, ValueBindings) else None,
+            require_refs=require_refs,
+        ),
         status=status,
         step_id=step_id,
     )
 
 
 def resolve_arguments(
-    name: str, args: dict, bindings: ValueBindings, role_id: str | None
+    name: str,
+    args: dict,
+    bindings: ValueBindings,
+    role_id: str | None,
+    *,
+    require_refs: bool = False,
 ) -> tuple[dict, bool]:
     from artemis.mcp.action_specs import ACTION_SPECS
 
@@ -74,6 +112,11 @@ def resolve_arguments(
             protected |= definition.persistence == "reference"
         elif isinstance(value, (dict, list)) and _contains_ref(value):
             raise BindingError("Nested references are not supported by this parameter")
+        elif require_refs and key in bindable:
+            raise BindingError(
+                f"{name}.{key} requires a value reference; bind a fixed case input with "
+                "bind_case_input or use an available fixture/output reference"
+            )
     return result, protected
 
 
@@ -151,9 +194,45 @@ def symbolic_arguments(args: dict) -> dict:
     return result
 
 
+def safe_symbolic_arguments(
+    name: str, args: dict, bindings: ValueBindings | None, *, require_refs: bool
+) -> dict:
+    """Keep rejected business literals out of traces and action records."""
+    from artemis.mcp.action_specs import ACTION_SPECS
+
+    if not require_refs:
+        return symbolic_arguments(args)
+    if unbound_shell_input(name, args):
+        return {key: {"unresolved": True} for key in args}
+    if bindings is None:
+        return {key: {"unresolved": True} for key in args}
+    spec = ACTION_SPECS.get(name)
+    contract = bindings.operation(name) or {}
+    bindable = dict(spec.bindable) if spec else contract.get("inputs", {})
+    result = {}
+    for key, value in args.items():
+        malformed = False
+        try:
+            ref = as_ref(value)
+        except BindingError:
+            ref = None
+            malformed = True
+        if key in bindable:
+            result[key] = ref.model_dump() if ref is not None else {"unresolved": True}
+        elif malformed:
+            result[key] = {"unresolved": True}
+        elif ref is not None:
+            result[key] = ref.model_dump()
+        else:
+            result[key] = deepcopy(value)
+    return result
+
+
 def render_bindings_prompt(ctx) -> str:
     import json
 
+    if not getattr(ctx, "business_bindings_required", False):
+        return ""
     bindings = getattr(ctx, "value_bindings", None)
     if not isinstance(bindings, ValueBindings):
         return ""

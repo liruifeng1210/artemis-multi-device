@@ -53,7 +53,7 @@ class MultiDeviceRequest(BaseModel):
     preferred_device: str | None = None
     output_description: str | None = None
     app_profile: AppProfile | None = None
-    role_plan: RolePlan | None = None
+    apk_path: str | None = None
     feature_catalog: dict[str, Any] = Field(default_factory=dict)
     max_turns: int = Field(default=200, ge=1)
     timeout_seconds: float = Field(default=1800, gt=0)
@@ -64,6 +64,8 @@ class MultiDeviceRequest(BaseModel):
     def devices_are_distinct(self):
         if not self.case.strip():
             raise ValueError("The case cannot be blank")
+        if self.apk_path and self.app_profile and self.app_profile.apk_path:
+            raise ValueError("Specify an APK in either apk_path or app_profile.apk_path")
         if any(not re.fullmatch(r"[a-z][a-z0-9_]*", role) for role in self.role_bindings):
             raise ValueError("Role binding IDs must use lowercase letters, numbers and underscores")
         serials = [d.serial.strip() for d in self.role_bindings.values()]

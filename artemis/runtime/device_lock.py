@@ -634,9 +634,9 @@ class DeviceExecutionLock:
                             )
                         )
                     ]
-                    active_other_owners = list({
-                        (o.pid, o.session_id or o.token): o for o in active_other_owners
-                    }.values())
+                    active_other_owners = list(
+                        {(o.pid, o.session_id or o.token): o for o in active_other_owners}.values()
+                    )
                     if len(active_other_owners) >= effective_concurrency:
                         if not blocking:
                             owner_desc = (

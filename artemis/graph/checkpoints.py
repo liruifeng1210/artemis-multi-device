@@ -296,7 +296,7 @@ def read_ledger(base_dir: str | Path) -> list[dict]:
                 continue
             try:
                 records.append(json.loads(line))
-            except Exception:
+            except json.JSONDecodeError:
                 logger.warning(f"Skipping malformed ledger line: {line[:120]}")
     except Exception as e:
         logger.error(f"Failed to read check ledger: {e}")
@@ -398,7 +398,7 @@ def read_attempt_streams(base_dir: str | Path) -> list[dict]:
                 continue
             try:
                 loaded = json.loads(line)
-            except Exception:
+            except json.JSONDecodeError:
                 logger.warning(f"Skipping malformed check stream line: {line[:120]}")
                 continue
             if isinstance(loaded, dict):
@@ -567,7 +567,8 @@ def _verdict_check_key(check_items, verdict) -> str | None:
     if key and any(ci.key == key for ci in check_items):
         return str(key)
     matches = [
-        ci.key for ci in check_items
+        ci.key
+        for ci in check_items
         if ci.kind == getattr(verdict, "kind", None)
         and ci.text == getattr(verdict, "item_text", None)
     ]
@@ -893,8 +894,11 @@ def harvest_run(
                 "attempt_id": run.attempt_id,
                 "checkpoint_id": checkpoint.checkpoint_id,
                 "subgoal_text": checkpoint.subgoal_text,
-                **({"role_id": checkpoint.role_id, "subgoal_hash": checkpoint.checkpoint_id}
-                   if checkpoint.role_id else {}),
+                **(
+                    {"role_id": checkpoint.role_id, "subgoal_hash": checkpoint.checkpoint_id}
+                    if checkpoint.role_id
+                    else {}
+                ),
                 "trace_id": attempt_trace_id(ctx, run.attempt_id),
                 "status": status,
                 "verdicts": verdicts_payload,
@@ -1116,15 +1120,22 @@ async def spawn_pending_checkpoints(ctx, state, anchor_step_id: str | None) -> l
             plan_text=pending.plan_text,
         )
         from functools import partial
+
         check = partial(
-            run_checkpoint_check, check_items=pending.check_items, anchor=anchor,
-            goal=goal, subgoal_text=pending.subgoal_text, attempt_id=attempt_id,
+            run_checkpoint_check,
+            check_items=pending.check_items,
+            anchor=anchor,
+            goal=goal,
+            subgoal_text=pending.subgoal_text,
+            attempt_id=attempt_id,
         )
         runtime = getattr(ctx, "multi_device_runtime", None)
         work = (
-            runtime.run_checkpoint(pending.role_id, check, step_id=anchor_step_id,
-                                   subgoal_hash=pending.checkpoint_id)
-            if runtime is not None and pending.role_id else check(ctx)
+            runtime.run_checkpoint(
+                pending.role_id, check, step_id=anchor_step_id, subgoal_hash=pending.checkpoint_id
+            )
+            if runtime is not None and pending.role_id
+            else check(ctx)
         )
         task = asyncio.create_task(asyncio.wait_for(work, timeout=timeout))
         ctx.checkpoint_tasks[cid] = CheckpointRun(
@@ -1213,7 +1224,9 @@ def compute_test_summary(
     ``retired`` with its last recorded verdict, not as a pass or a failure —
     the user withdrew that requirement.
     """
-    if any(getattr(ci, "role_id", None) for ci in check_items) or any(r.get("role_id") for r in records):
+    if any(getattr(ci, "role_id", None) for ci in check_items) or any(
+        r.get("role_id") for r in records
+    ):
         return _multi_device_test_summary(check_items, records, retired)
     summary = TestSummary()
     retired = retired or set()
@@ -1268,9 +1281,14 @@ def _multi_device_test_summary(check_items, records, retired=None):
     for row in records:
         key = row.get("check_key")
         if not key:
-            matches = [ci.key for ci in check_items if ci.kind == row.get("kind")
-                       and ci.text == row.get("item_text") and ci.role_id == row.get("role_id")
-                       and (not ci.parent_key or row.get("checkpoint_id") in (ci.parent_key, "final"))]
+            matches = [
+                ci.key
+                for ci in check_items
+                if ci.kind == row.get("kind")
+                and ci.text == row.get("item_text")
+                and ci.role_id == row.get("role_id")
+                and (not ci.parent_key or row.get("checkpoint_id") in (ci.parent_key, "final"))
+            ]
             key = matches[0] if len(matches) == 1 else None
         if key:
             grouped.setdefault(key, []).append(row)
@@ -1283,14 +1301,22 @@ def _multi_device_test_summary(check_items, records, retired=None):
         status = resolve_item_status(kind, rows)
         if ci is None and key in (retired or set()):
             summary.retired += 1
-            summary.retired_items.append({"kind": kind, "item_text": text, "role_id": role, "last_status": status})
+            summary.retired_items.append(
+                {"kind": kind, "item_text": text, "role_id": role, "last_status": status}
+            )
         elif status == "passed":
             summary.passed += 1
         elif status == "failed":
             summary.failed += 1
             failures = [r for r in rows if r.get("status") == "failed"]
-            summary.failed_items.append({"kind": kind, "item_text": text, "role_id": role,
-                                         "evidence": failures[-1].get("evidence", "") if failures else ""})
+            summary.failed_items.append(
+                {
+                    "kind": kind,
+                    "item_text": text,
+                    "role_id": role,
+                    "evidence": failures[-1].get("evidence", "") if failures else "",
+                }
+            )
         elif status == "inconclusive":
             summary.inconclusive += 1
         else:

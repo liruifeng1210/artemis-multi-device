@@ -61,6 +61,7 @@ from artemis.runtime.action_bindings import (
     CURRENT_ACTION,
     new_action_id,
     resolve_arguments,
+    safe_symbolic_arguments,
     symbolic_arguments,
 )
 from artemis.runtime.value_bindings import BindingError, ValueBindings
@@ -112,6 +113,8 @@ class ActionSession:
             protected = False
             status = "failed"
             ctx = getattr(self, "device_context", None)
+            require_refs = bool(getattr(ctx, "business_bindings_required", False))
+            bindings = None
             if identity is not None:
                 with execution_scope(scope) if scope is not None else nullcontext():
                     logger.debug(
@@ -127,14 +130,26 @@ class ActionSession:
                     runtime = getattr(ctx, "multi_device_runtime", None)
                     if runtime is not None:
                         runtime.require_device_scope(ctx.role_id)
-                    bindings = getattr(ctx, "value_bindings", None)
-                    if not isinstance(bindings, ValueBindings):
-                        bindings = ValueBindings()
+                    # Preparation uses trusted app configuration. Business inputs
+                    # emitted by model tools must remain symbolic through dispatch.
+                    if scope is not None and scope.phase == "preparation":
+                        require_refs = False
+                    if require_refs:
+                        bindings = getattr(
+                            getattr(ctx, "data_engine", None), "value_bindings", None
+                        )
+                        if not isinstance(bindings, ValueBindings):
+                            raise BindingError("Shared case value bindings are unavailable")
+                    else:
+                        bindings = getattr(ctx, "value_bindings", None)
+                        if not isinstance(bindings, ValueBindings):
+                            bindings = ValueBindings()
                     resolved, protected = resolve_arguments(
                         name,
                         args,
                         bindings,
                         getattr(ctx, "role_id", None),
+                        require_refs=require_refs,
                     )
                     # References are revalidated after queueing, immediately before dispatch.
                     protected = protected or any(
@@ -203,7 +218,9 @@ class ActionSession:
                                 action_id=identity.action_id,
                                 attempt=identity.attempt,
                                 name=name,
-                                arguments=symbolic_arguments(args),
+                                arguments=safe_symbolic_arguments(
+                                    name, args, bindings, require_refs=require_refs
+                                ),
                                 status=status,
                                 step_id=scope.step_id
                                 if scope
@@ -325,16 +342,39 @@ class ActionSession:
 
     async def aclose(self) -> None:
         """Shuts the session down; safe to call from any task."""
-        if self._owner is None:
+        owner = self._owner
+        if owner is None:
             return
         self._requests.put_nowait(_SHUTDOWN)
+        interrupted = False
         try:
-            await asyncio.wait_for(asyncio.shield(self._owner), timeout=5.0)
-        except (TimeoutError, asyncio.CancelledError, Exception) as e:
+            await asyncio.wait_for(asyncio.shield(owner), timeout=5.0)
+        except asyncio.CancelledError:
+            interrupted = True
+        except Exception as e:
             logger.warning(f"Action session owner task did not exit cleanly: {e!r}")
         finally:
+            # The owner runs the MCP transport and its anyio context. A lease
+            # cannot be released while it may still dispatch a device action.
+            if not owner.done():
+                owner.cancel()
+            while not owner.done():
+                try:
+                    await asyncio.shield(owner)
+                except asyncio.CancelledError:
+                    if not owner.done():
+                        interrupted = True
+                        owner.cancel()
+                except Exception:
+                    break
+            if not owner.cancelled():
+                error = owner.exception()
+                if error is not None:
+                    logger.warning(f"Action session owner task failed on close: {error!r}")
             self._owner = None
             self._ready = asyncio.Event()
+        if interrupted:
+            raise asyncio.CancelledError
 
 
 async def get_action_session(ctx: Any, actuator: Any = None) -> ActionSession:

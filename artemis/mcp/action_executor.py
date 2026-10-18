@@ -162,7 +162,21 @@ class McpActionExecutor:
         index_elements: list[dict[str, Any]] | None = None,
     ) -> ToolExecutionResult:
         span = TraceSpan(name=raw_name, trace_type="action", ctx=self.ctx)
-        span.payload = {"args": args}
+        if getattr(self.ctx, "business_bindings_required", False):
+            from artemis.runtime.action_bindings import safe_symbolic_arguments
+            from artemis.runtime.value_bindings import ValueBindings
+
+            bindings = getattr(getattr(self.ctx, "data_engine", None), "value_bindings", None)
+            span.payload = {
+                "args": safe_symbolic_arguments(
+                    raw_name,
+                    args,
+                    bindings if isinstance(bindings, ValueBindings) else None,
+                    require_refs=True,
+                )
+            }
+        else:
+            span.payload = {"args": args}
 
         message = ""
         res: ActionResult | None = None

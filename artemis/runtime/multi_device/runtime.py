@@ -58,6 +58,7 @@ class MultiDeviceRuntime:
         for role_id, ctx in contexts.items():
             ctx.role_id = role_id
             ctx.multi_device_runtime = self
+            ctx.business_bindings_required = True
 
     @property
     def engine(self):
@@ -76,24 +77,37 @@ class MultiDeviceRuntime:
         )
 
     def operator_instructions(self, role_id):
+        snapshot = parse_plan(self.read_plan())
+        current = next((item for item in snapshot.top_level if item.key == self.origin_hash), None)
+        milestone = current.text if current is not None else "Read the current task plan"
         return self.planning_instructions() + (
             f"\nYou currently control ONLY role {role_id}. Current milestone hash: {self.origin_hash}. "
+            f"Current milestone: {milestone}. "
+            "All earlier milestones in the written plan must be complete before this one runs. "
+            "Perform only this milestone and its children during this turn. Do not start work "
+            "from a later milestone, even when it has the same role or the app offers that path. "
+            "Do not batch a role's future tasks with the current task. "
             "Other roles' facts are available in shared notes, but their coordinates are not yours. "
             f"Use this case token when correlating messages or invitations across devices: "
-            f"{self.correlation_token}. Record confirmed values in shared notes.\n"
+            f"{self.correlation_token}. Put shared references and necessary non-sensitive "
+            "confirmed facts in notes; keep runtime-bound values in their bindings.\n"
         )
 
     def commit_plan(self, path: Path, before, after, scope):
         with self.plan_lock:
             current = path.read_text(encoding="utf-8") if path.exists() else ""
             if current != before:
-                logger.warning(f"[multi-device] plan.conflict run_id={self.run_id} phase={scope.phase} role_id={scope.role_id} revision={self.plan_revision}")
+                logger.warning(
+                    f"[multi-device] plan.conflict run_id={self.run_id} phase={scope.phase} role_id={scope.role_id} revision={self.plan_revision}"
+                )
                 raise ValueError("The plan changed; read it again before updating")
             actor = scope.role_id if scope.phase == "operator" else None
             try:
                 self.policy.validate(after, before, actor)
-            except Exception as exc:
-                logger.warning(f"[multi-device] plan.rejected run_id={self.run_id} phase={scope.phase} role_id={actor} error_type={type(exc).__name__}")
+            except ValueError as exc:
+                logger.warning(
+                    f"[multi-device] plan.rejected run_id={self.run_id} phase={scope.phase} role_id={actor} error_type={type(exc).__name__}"
+                )
                 raise
             temporary = path.with_suffix(".pending")
             temporary.write_text(after, encoding="utf-8")
@@ -101,7 +115,9 @@ class MultiDeviceRuntime:
             if before != after:
                 self.plan_revision += 1
                 snapshot = parse_plan(after)
-                logger.info(f"[multi-device] plan.committed run_id={self.run_id} phase={scope.phase} role_id={actor} revision={self.plan_revision} milestone_count={len(snapshot.top_level)} check_count={len(snapshot.check_items)}")
+                logger.info(
+                    f"[multi-device] plan.committed run_id={self.run_id} phase={scope.phase} role_id={actor} revision={self.plan_revision} milestone_count={len(snapshot.top_level)} check_count={len(snapshot.check_items)}"
+                )
 
     def reopen_milestone(self, subgoal_key: str) -> bool:
         """Reopen a failed check and suspend its successor in one plan commit."""
@@ -120,9 +136,7 @@ class MultiDeviceRuntime:
                 if match is None:
                     continue
                 if not match.group("indent"):
-                    owner = next(
-                        (i for i in snapshot.top_level if i.line_no == index), None
-                    )
+                    owner = next((i for i in snapshot.top_level if i.line_no == index), None)
                 status = match.group("status")
                 if owner is target and not match.group("indent"):
                     replacement = STATUS_ACTIVE
@@ -131,13 +145,13 @@ class MultiDeviceRuntime:
                 else:
                     continue
                 lines[index] = (
-                    line[: match.start("status")]
-                    + replacement
-                    + line[match.end("status") :]
+                    line[: match.start("status")] + replacement + line[match.end("status") :]
                 )
             after = "\n".join(lines) + ("\n" if before.endswith("\n") else "")
             self.commit_plan(self.plan_path, before, after, ExecutionScope(phase="checkpoint"))
-            logger.info(f"[multi-device] milestone.reopened run_id={self.run_id} milestone_hash={subgoal_key} revision={self.plan_revision}")
+            logger.info(
+                f"[multi-device] milestone.reopened run_id={self.run_id} milestone_hash={subgoal_key} revision={self.plan_revision}"
+            )
             return True
 
     def handoff_requested(self):
@@ -149,15 +163,21 @@ class MultiDeviceRuntime:
     def require_device_scope(self, role_id):
         scope = CURRENT_EXECUTION.get()
         if self.closed:
-            logger.warning(f"[multi-device] scope.rejected run_id={self.run_id} role_id={role_id} reason=closed")
+            logger.warning(
+                f"[multi-device] scope.rejected run_id={self.run_id} role_id={role_id} reason=closed"
+            )
             raise RuntimeError("The case has ended; device operations are no longer allowed")
         if scope is None or scope.runtime is not self or scope.role_id != role_id:
-            logger.warning(f"[multi-device] scope.rejected run_id={self.run_id} role_id={role_id} reason=role_mismatch")
+            logger.warning(
+                f"[multi-device] scope.rejected run_id={self.run_id} role_id={role_id} reason=role_mismatch"
+            )
             raise RuntimeError("Device operation has no matching role scope")
         if scope.phase in ("planner", "preparation", "checkpoint"):
             return
         if scope.turn_id != self.turn_id or role_id != self.active_role or self.handoff_requested():
-            logger.warning(f"[multi-device] scope.rejected run_id={self.run_id} role_id={role_id} active_role={self.active_role} turn_id={scope.turn_id} current_turn_id={self.turn_id} reason=stale_turn_or_handoff")
+            logger.warning(
+                f"[multi-device] scope.rejected run_id={self.run_id} role_id={role_id} active_role={self.active_role} turn_id={scope.turn_id} current_turn_id={self.turn_id} reason=stale_turn_or_handoff"
+            )
             raise RuntimeError(
                 "Milestone changed; defer device operations until a fresh observation"
             )
@@ -171,6 +191,9 @@ class MultiDeviceRuntime:
                 state: Annotated[State, InjectedState] = None,
                 **args,
             ):
+                from artemis.runtime.action_bindings import require_shell_allowed
+
+                require_shell_allowed(self.contexts[role_id], tool.name, args)
                 # Read-only plan access can finish a handoff; all other calls yield.
                 if tool.name not in ("read_note", "list_notes"):
                     self.require_device_scope(role_id)
@@ -198,7 +221,9 @@ class MultiDeviceRuntime:
         # All checkpoints belong to the case control context, including checks from past roles.
         findings = []
         pending_count = len(self.control_ctx.checkpoint_tasks)
-        logger.info(f"[multi-device] turn.select run_id={self.run_id} previous_role={self.active_role} previous_turn_id={self.turn_id} checkpoint_tasks={pending_count} revision={self.plan_revision}")
+        logger.info(
+            f"[multi-device] turn.select run_id={self.run_id} previous_role={self.active_role} previous_turn_id={self.turn_id} checkpoint_tasks={pending_count} revision={self.plan_revision}"
+        )
         if self.control_ctx.checkpoint_tasks:
             tasks = [entry.task for entry in self.control_ctx.checkpoint_tasks.values()]
             timeout = self.control_ctx.execution_setup.settlement_timeout
@@ -236,13 +261,17 @@ class MultiDeviceRuntime:
                 and row.get("status") in ("failed", "inconclusive", "error", "timeout", "unchecked")
             ):
                 self.halt_reason = "A completion check could not establish the handoff precondition"
-                logger.error(f"[multi-device] turn.blocked run_id={self.run_id} checkpoint_id={row.get('checkpoint_id')} check_key={row.get('check_key')} status={row.get('status')}")
+                logger.error(
+                    f"[multi-device] turn.blocked run_id={self.run_id} checkpoint_id={row.get('checkpoint_id')} check_key={row.get('check_key')} status={row.get('status')}"
+                )
                 raise RuntimeError(self.halt_reason)
         if self.control_ctx.assert_halt:
             raise RuntimeError("The test halted after an assertion failure")
         target = self.policy.target(self.read_plan())
         if target is None:
-            logger.info(f"[multi-device] turn.no_target run_id={self.run_id} findings={len(findings)} revision={self.plan_revision}")
+            logger.info(
+                f"[multi-device] turn.no_target run_id={self.run_id} findings={len(findings)} revision={self.plan_revision}"
+            )
             return {}
         self.turns += 1
         if self.turns > self.max_turns:
@@ -257,7 +286,9 @@ class MultiDeviceRuntime:
         )
         update = {}
         if changed:
-            logger.info(f"[multi-device] role.handoff run_id={self.run_id} from_role={self.active_role} to_role={role} milestone_hash={target.key}")
+            logger.info(
+                f"[multi-device] role.handoff run_id={self.run_id} from_role={self.active_role} to_role={role} milestone_hash={target.key}"
+            )
             previous_ctx = self.contexts[self.active_role]
             from artemis.tools.command_tool import (
                 get_adb_task_registry,
@@ -318,12 +349,16 @@ class MultiDeviceRuntime:
             },
         )
         self.save_progress("running")
-        logger.info(f"[multi-device] turn.started run_id={self.run_id} turn={self.turns} turn_id={self.turn_id} role_id={role} device_id={self.contexts[role].device.device_id} milestone_hash={target.key} revision={self.plan_revision} findings={len(findings)}")
+        logger.info(
+            f"[multi-device] turn.started run_id={self.run_id} turn={self.turns} turn_id={self.turn_id} role_id={role} device_id={self.contexts[role].device.device_id} milestone_hash={target.key} revision={self.plan_revision} findings={len(findings)}"
+        )
         return update
 
     async def boundary(self, state):
         if self.handoff_requested():
-            logger.info(f"[multi-device] turn.deferred run_id={self.run_id} turn_id={self.turn_id} role_id={self.active_role} milestone_hash={self.origin_hash}")
+            logger.info(
+                f"[multi-device] turn.deferred run_id={self.run_id} turn_id={self.turn_id} role_id={self.active_role} milestone_hash={self.origin_hash}"
+            )
             return {
                 "structured_decisions": None,
                 "operator_feedback": [
@@ -362,7 +397,9 @@ class MultiDeviceRuntime:
             if name in ("perception", "operator", "validator", "summarizer"):
                 node = self.nodes[role][name]
             with execution_scope(self.scope(phase=phase, role_id=role, step_id=self.step_id)):
-                logger.debug(f"[multi-device] node.start run_id={self.run_id} node={name} role_id={role} turn_id={self.turn_id} step_id={self.step_id}")
+                logger.debug(
+                    f"[multi-device] node.start run_id={self.run_id} node={name} role_id={role} turn_id={self.turn_id} step_id={self.step_id}"
+                )
                 if name == "validator":
                     self.require_device_scope(role)
                 result = node(state)
@@ -379,7 +416,9 @@ class MultiDeviceRuntime:
                     from uuid import UUID
 
                     self.step_id = UUID(result["current_step_id"])
-                logger.debug(f"[multi-device] node.complete run_id={self.run_id} node={name} role_id={role} turn_id={self.turn_id} elapsed_ms={int((time.monotonic()-started)*1000)}")
+                logger.debug(
+                    f"[multi-device] node.complete run_id={self.run_id} node={name} role_id={role} turn_id={self.turn_id} elapsed_ms={int((time.monotonic() - started) * 1000)}"
+                )
                 return result
 
         return invoke
@@ -403,7 +442,8 @@ class MultiDeviceRuntime:
             and latest.get(ci.key, {}).get("status") == "failed"
         }
         case_checks = [
-            ci for ci in snapshot.check_items
+            ci
+            for ci in snapshot.check_items
             if ci.kind == "verify"
             and ci.parent_key is None
             and latest.get(ci.key, {}).get("status") == "failed"
@@ -440,7 +480,9 @@ class MultiDeviceRuntime:
                 "Final review requested a retry without identifying a role-bound milestone"
             )
         self.final_retry_role = role_of(self.policy.target(after))
-        logger.info(f"[multi-device] final.retry run_id={self.run_id} role_id={self.final_retry_role} failed_milestones={sorted(failed)} revision={self.plan_revision}")
+        logger.info(
+            f"[multi-device] final.retry run_id={self.run_id} role_id={self.final_retry_role} failed_milestones={sorted(failed)} revision={self.plan_revision}"
+        )
 
     async def run_checkpoint(self, role_id, callback, *, step_id=None, subgoal_hash=None):
         from uuid import UUID

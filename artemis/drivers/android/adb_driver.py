@@ -15,6 +15,7 @@
 """Concrete Android Device Driver implementation using ADB and UIAutomator2."""
 
 import asyncio
+import anyio
 import base64
 from io import BytesIO
 from pathlib import Path
@@ -24,6 +25,7 @@ from adbutils import AdbClient, AdbDevice
 from artemis.config.paths import get_temp_dir
 from artemis.drivers.base import BaseDeviceDriver, KeyCode, ScreenData, SwipeDirection
 from artemis.toolchain import find_ffmpeg, find_scrcpy
+from artemis.toolchain import toolchain
 from artemis.utils.video import build_scrcpy_record_command
 from artemis.utils.ui_filter import filter_ui_hierarchy
 from third_party.mobile_use.clients.ui_automator_client import (
@@ -102,6 +104,80 @@ class AndroidAdbDriver(BaseDeviceDriver):
         if self._device is None:
             self._device = self._adb_client.device(serial=self._device_id)
         return self._device
+
+    async def _shell_command(self, command: str, timeout_seconds: float = 15.0) -> str:
+        """Run a bounded ADB client that is terminated before cancellation returns."""
+        if not isinstance(self._adb_client, AdbClient):
+            # Cloud gateway clients implement the AdbDevice API but do not
+            # expose a local ADB server. Preserve their legacy caller timeout;
+            # this path cannot terminate a provider-owned blocking thread.
+            return await asyncio.wait_for(
+                asyncio.to_thread(self.device.shell, command), timeout_seconds
+            )
+
+        launch = asyncio.create_task(
+            asyncio.create_subprocess_exec(
+                toolchain.resolve("adb"),
+                "-H",
+                self._adb_client.host,
+                "-P",
+                str(self._adb_client.port),
+                "-s",
+                self._device_id,
+                "shell",
+                command,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+        )
+        try:
+            process = await asyncio.shield(launch)
+        except asyncio.CancelledError:
+            # A cancelled process creation can still finish after this task is
+            # cancelled. Keep its handle so no client escapes cleanup.
+            process = await self._await_owned(launch)
+            await self._await_owned(asyncio.create_task(self._stop_shell_process(process)))
+            raise
+        communicate = asyncio.create_task(process.communicate())
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                asyncio.shield(communicate), timeout=timeout_seconds
+            )
+        except BaseException:
+            await self._await_owned(
+                asyncio.create_task(self._stop_shell_process(process, communicate))
+            )
+            raise
+        if process.returncode:
+            raise RuntimeError(
+                f"ADB shell failed ({process.returncode}): "
+                + stderr.decode(errors="replace").strip()
+            )
+        return stdout.decode(errors="replace").rstrip()
+
+    @staticmethod
+    async def _stop_shell_process(process, communicate=None) -> None:
+        if process.returncode is None:
+            try:
+                process.kill()
+            except ProcessLookupError:
+                pass
+        if communicate is None:
+            await process.communicate()
+        else:
+            await communicate
+
+    @staticmethod
+    async def _await_owned(task):
+        """Finish an owned launch/cleanup despite outer cancellation."""
+        with anyio.CancelScope(shield=True):
+            while not task.done():
+                try:
+                    await asyncio.shield(task)
+                except asyncio.CancelledError:
+                    # Another cancellation may arrive during finalization.
+                    continue
+            return task.result()
 
     async def connect(self) -> None:
         """Verify device availability."""
@@ -245,7 +321,12 @@ class AndroidAdbDriver(BaseDeviceDriver):
                     cmd = f" && sleep {delay_ms / 1000.0:.3f} && ".join(taps)
 
             logger.info(f"[ADB device={self._device_id}] {cmd}")
-            await asyncio.to_thread(self.device.shell, cmd)
+            expected_seconds = (
+                duration_ms / 1000
+                if duration_ms >= 500
+                else max(1, times) * (1 + max(0, delay_ms) / 1000)
+            )
+            await self._shell_command(cmd, max(15.0, expected_seconds + 5.0))
             return True
         except Exception as e:
             logger.error(f"Tap failed at ({x}, {y}): {e}")
@@ -265,7 +346,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
         try:
             cmd = f"input swipe {start_x} {start_y} {end_x} {end_y} {duration_ms}"
             logger.info(f"[ADB device={self._device_id}] {cmd}")
-            await asyncio.to_thread(self.device.shell, cmd)
+            await self._shell_command(cmd, max(15.0, duration_ms / 1000 + 5.0))
             return True
         except Exception as e:
             logger.error(f"Swipe failed from ({start_x},{start_y}) to ({end_x},{end_y}): {e}")
@@ -314,13 +395,10 @@ class AndroidAdbDriver(BaseDeviceDriver):
                     "input keyevent 67 && "
                     "input keyevent 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67"
                 )
-                await asyncio.to_thread(self.device.shell, clear_cmd)
+                await self._shell_command(clear_cmd)
             else:
                 # Append mode: move cursor to the very end of existing text
-                await asyncio.to_thread(
-                    self.device.shell,
-                    "input keyevent 123",  # KEYCODE_MOVE_END
-                )
+                await self._shell_command("input keyevent 123")  # KEYCODE_MOVE_END
 
             # Normalize literal escaped newlines from LLM / tool call serialization
             norm_text = text.replace(r"\r\n", "\n").replace(r"\n", "\n").replace(r"\r", "\n")
@@ -336,20 +414,18 @@ class AndroidAdbDriver(BaseDeviceDriver):
                         set_clip_ok = True
 
                     if set_clip_ok:
-                        await asyncio.to_thread(self.device.shell, "input keyevent 279")
+                        await self._shell_command("input keyevent 279")
                         return True
                 except Exception as e:
                     logger.debug("Clipboard paste fallback to ADB input: %s", type(e).__name__)
 
             # 2. Tier 2: Check if ADBKeyboard is currently active
             try:
-                default_ime = await asyncio.to_thread(
-                    self.device.shell, "settings get secure default_input_method"
-                )
+                default_ime = await self._shell_command("settings get secure default_input_method")
                 if "adbkeyboard" in str(default_ime).lower():
                     b64_text = base64.b64encode(norm_text.encode("utf-8")).decode("utf-8")
                     broadcast_cmd = f"am broadcast -a ADB_INPUT_B64 --es msg '{b64_text}'"
-                    await asyncio.to_thread(self.device.shell, broadcast_cmd)
+                    await self._shell_command(broadcast_cmd)
                     return True
             except Exception as e:
                 # ADBKeyboard probe/broadcast failed; fall through to native input.
@@ -362,10 +438,10 @@ class AndroidAdbDriver(BaseDeviceDriver):
             for i, line in enumerate(lines):
                 if i > 0:
                     # Send Enter key between lines
-                    await asyncio.to_thread(self.device.shell, "input keyevent 66")
+                    await self._shell_command("input keyevent 66")
                 if line:
                     escaped = _escape_for_adb_text(line)
-                    await asyncio.to_thread(self.device.shell, f"input text {escaped}")
+                    await self._shell_command(f"input text {escaped}")
             return True
         except Exception as e:
             logger.error("Input text failed: %s", type(e).__name__)
@@ -378,7 +454,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
                 key_name = str(key).lower().replace("keycode.", "")
                 keycode_val = ANDROID_KEYCODE_MAP.get(key_name, key)
 
-            await asyncio.to_thread(self.device.shell, f"input keyevent {keycode_val}")
+            await self._shell_command(f"input keyevent {keycode_val}")
             return True
         except Exception as e:
             logger.error(f"Press key failed for '{key}': {e}")
@@ -387,7 +463,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
     async def launch_app(self, package_name: str) -> bool:
         try:
             cmd = f"monkey -p {package_name} -c android.intent.category.LAUNCHER 1"
-            await asyncio.to_thread(self.device.shell, cmd)
+            await self._shell_command(cmd)
             return True
         except Exception as e:
             logger.error(f"Launch app failed for '{package_name}': {e}")
@@ -395,7 +471,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
 
     async def stop_app(self, package_name: str) -> bool:
         try:
-            await asyncio.to_thread(self.device.shell, f"am force-stop {package_name}")
+            await self._shell_command(f"am force-stop {package_name}")
             return True
         except Exception as e:
             logger.error(f"Stop app failed for '{package_name}': {e}")
@@ -430,10 +506,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
 
     async def execute_shell(self, command: str, timeout_seconds: float = 15.0) -> str:
         try:
-            return await asyncio.wait_for(
-                asyncio.to_thread(self.device.shell, command),
-                timeout=timeout_seconds,
-            )
+            return await self._shell_command(command, timeout_seconds)
         except Exception as e:
             return f"Error: {e}"
 
