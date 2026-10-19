@@ -5,7 +5,7 @@ window.Artemis = (() => {
   const clone = value => JSON.parse(JSON.stringify(value));
   const modules = ['账号与登录', '会议体验', '音视频', '消息与通知', '未分类'];
   const devices = {Android:['Pixel 8 · Android 15','Galaxy S24 · Android 14'],iOS:['iPhone 16 · iOS 18'],macOS:['QA Mac mini'],Windows:['QA Windows desktop'],Linux:['QA Linux desktop']};
-  const defaults = {platform:'Android',device:devices.Android[0],version:'6.6.0',build:'45121',environment:'Staging',account:'tester@example.com',accountMode:'system',tool:'HappyCoding',mode:'auto',model:'系统默认',batch:'',recording:'always',logs:'always'};
+  const defaults = {appName:'',platform:'Android',device:devices.Android[0],version:'6.6.0',build:'45121',environment:'Staging',account:'tester@example.com',accountMode:'system',tool:'HappyCoding',mode:'auto',model:'系统默认',batch:'',recording:'always',logs:'always'};
   const plan = ['打开登录页','输入邮箱','进入密码页','完成登录','验证首页'];
   function makeSteps(email) {
     return [
@@ -87,7 +87,7 @@ window.Artemis = (() => {
   // Local simulated work only advances while this page is open.
   for(const r of data.runs) if(r.status==='running') {r.status='waiting';r.resumeRequired=true;}
   // Additive migration: retain all original run IDs, snapshots, timestamps and results.
-  for(const c of data.cases){c.notes ||= [];c.tags ||= [];c.pending ||= null;}
+  for(const c of data.cases){c.notes ||= [];c.tags ||= [];c.pending ||= null;c.config ||= clone(defaults);c.config.appName ??= '';}
   for(const r of data.runs){
     const explicitPairs={1:0,3:2,5:4,7:6,9:8,11:10};
     for(const step of r.steps) for(const event of step.events){
@@ -146,7 +146,7 @@ window.Artemis = (() => {
     if(!pending||!device||device.state!=='ready'||active(c.id))return null;
     const definition=clone(pending.snapshot);definition.objective=pending.text;
     definition.scenario=/邮箱/.test(definition.name+' '+pending.text)&&/登录/.test(definition.name+' '+pending.text)?'email-login':'custom';
-    const config={...clone(defaults),platform:device.platform,device:device.configName};
+    const config={...clone(defaults),appName:definition.config?.appName||'',environment:definition.config?.environment??defaults.environment,platform:device.platform,device:device.configName};
     const run=start(definition,config);
     run.intent={id:pending.id,at:pending.at,text:pending.text};run.deviceId=device.id;
     run.planVersions=[];c.pending=null;save();return run;
