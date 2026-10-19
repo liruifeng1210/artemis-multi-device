@@ -96,7 +96,8 @@ async def test_input_text_append_moves_cursor_and_preserves_text(actuator, monke
     monkeypatch.setattr("asyncio.sleep", _instant_sleep)
     res = await actuator.input_text("hello", (500, 300), clear_exist=False)
     assert res.ok
-    assert res.message == "Typed 'hello' at [500, 300] (normalized)."
+    assert res.message == "Text input dispatched at [500, 300] (normalized)."
+    assert "hello" not in res.message
     actions = [h["action"] for h in actuator.action_history]
     # Append semantics: focus tap, cursor-to-end (KEYCODE_MOVE_END), then type without
     # clearing — matching the historical adb_server focus_and_input_text contract.

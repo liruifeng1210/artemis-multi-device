@@ -57,6 +57,7 @@ def _ctx(tmp_path):
     ctx.data_engine.current_step_id = "step_1"
     ctx.device = MagicMock()
     ctx.guidance_unprotected_checks = set()
+    ctx.plan_owner = None
     plan_path = get_note_file_path(tmp_path, "task_plan")
     plan_path.parent.mkdir(parents=True, exist_ok=True)
     plan_path.write_text(PLAN, encoding="utf-8")

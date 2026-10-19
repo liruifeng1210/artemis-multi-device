@@ -141,7 +141,13 @@ async def run_task(request: RunRequest):
     # prefers the diagnostics target preference, then any unlocked ready
     # device); the verified serial is bound below.
     target_serial = request.device_serial
-    device_probe = await readiness_engine.run_device_submission_probe(target_serial=target_serial)
+    # Pro plans participants in its worker before allocating physical devices.
+    # An admission-time default device must not become the whole execution scope.
+    device_probe = (
+        await readiness_engine.run_device_submission_probe(target_serial=target_serial)
+        if request.profile != "pro"
+        else None
+    )
     if device_probe and device_probe.summary in {"Device Locked", "Lock State Unknown"}:
         locked_serial = (
             device_probe.metadata.get("active_device", {}).get("serial") or target_serial or ""

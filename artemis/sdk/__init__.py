@@ -20,7 +20,23 @@ tasks.
 
 from artemis.sdk import builders, types
 from artemis.sdk.agent import Agent
+from artemis.sdk.multi_device_agent import MultiDeviceAgent
+from artemis.runtime.multi_device.models import (
+    AppProfile,
+    DeviceSpec,
+    MultiDeviceRequest,
+    RolePlan,
+    RoleSpec,
+)
 
-__all__ = ["Agent"]
+__all__ = [
+    "Agent",
+    "MultiDeviceAgent",
+    "AppProfile",
+    "DeviceSpec",
+    "MultiDeviceRequest",
+    "RolePlan",
+    "RoleSpec",
+]
 __all__ += types.__all__
 __all__ += builders.__all__

@@ -113,6 +113,11 @@ _MAX_TOTAL_RETRY_ATTEMPTS = 8
 
 
 def _get_current_data_engine():
+    from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+    scope = CURRENT_EXECUTION.get()
+    if scope is not None:
+        return scope.engine
     if _CURRENT_DATA_ENGINE is not None:
         return _CURRENT_DATA_ENGINE
     engine_module = sys.modules.get("artemis.data_engine.engine")

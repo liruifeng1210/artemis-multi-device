@@ -220,13 +220,13 @@ class AdbActuator:
         ):
             return ActionResult.failure(
                 "input_text",
-                f"Failed typing '{text}'.",
+                "Text input failed.",
                 normalized_coordinates=coords,
             )
 
         return ActionResult.success(
             "input_text",
-            f"Typed '{text}'"
+            "Text input dispatched"
             + (f" at [{coords[0]}, {coords[1]}] (normalized)." if coords else "."),
             normalized_coordinates=coords,
         )

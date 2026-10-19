@@ -82,6 +82,11 @@ class CheckVerdict(BaseModel):
 
     item_text: str = Field(description="The check line's text, quoted verbatim.")
     kind: Literal["verify", "assert"]
+    check_key: str | None = Field(
+        default=None,
+        description="Copy the declared check_key exactly; required when identical text appears more than once.",
+    )
+    role_id: str | None = None
     status: Literal["passed", "failed", "inconclusive"]
     evidence: str = Field(
         description=(
@@ -377,7 +382,9 @@ def _format_history(ctx: ArtemisContext, limit: int = 60, steps: list[dict] | No
             except Exception:
                 action_str = str(action)[:160]
         label = _step_offset_label(s, session_start)
-        lines.append(f"- Step {num} ({label}): {summary or action_str}".rstrip())
+        role = (s.get("extra_metadata") or {}).get("role_id")
+        role_label = f" [role:{role}]" if role else ""
+        lines.append(f"- Step {num}{role_label} ({label}): {summary or action_str}".rstrip())
     return "\n".join(lines) or "No execution history available."
 
 
@@ -400,7 +407,8 @@ def _format_user_guidance(ctx: ArtemisContext, steps: list[dict] | None = None) 
 def _format_check_items(check_items: list) -> str:
     lines = []
     for ci in check_items:
-        lines.append(f"- [{ci.kind}] ({ci.when}) {ci.text}")
+        role = f" [role:{ci.role_id}]" if getattr(ci, "role_id", None) else ""
+        lines.append(f"- [{ci.kind}] ({ci.when}) {ci.text}{role} [check_key={ci.key}]")
     return "\n".join(lines) if lines else "(none)"
 
 
@@ -429,9 +437,11 @@ async def _structured_report(llm, messages) -> CheckReport:
     return CheckReport(verdicts=[])
 
 
-def _normalize_report(report: CheckReport, check_items: list) -> CheckReport:
+def _normalize_report(report: CheckReport, check_items: list, policy=None) -> CheckReport:
     """Node-side hygiene: vague failed verdicts downgrade to inconclusive; every
     expected item gets a verdict (missing ones are inconclusive)."""
+    if policy is not None:
+        return policy.normalize_report(report, check_items)
     verdicts: list[CheckVerdict] = []
     for v in report.verdicts:
         if v.status == "failed" and not v.evidence.strip():
@@ -528,7 +538,7 @@ async def _run_check_loop(
 
     if report is None:
         report = CheckReport(verdicts=[])
-    return _normalize_report(report, check_items)
+    return _normalize_report(report, check_items, getattr(ctx, "check_policy", None))
 
 
 # --- Streamed-reasoning transcript -----------------------------------------------------
@@ -822,7 +832,11 @@ async def run_final_check(
         if s
     )
 
-    screenshot_b64, minimal_list = await _capture_final_screen(ctx)
+    policy = getattr(ctx, "check_policy", None)
+    if policy is not None:
+        screenshot_b64, minimal_list = None, "See explicitly labelled role observations below."
+    else:
+        screenshot_b64, minimal_list = await _capture_final_screen(ctx)
     steps = _load_steps(ctx)
 
     human_text = (
@@ -837,6 +851,8 @@ async def run_final_check(
     )
 
     content: list = [{"type": "text", "text": human_text}]
+    if policy is not None:
+        content.extend(await policy.final_observations())
     if screenshot_b64:
         content.append({"type": "text", "text": "--- Final Screenshot ---"})
         content.append(

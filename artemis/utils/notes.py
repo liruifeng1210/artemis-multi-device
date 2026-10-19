@@ -19,7 +19,7 @@ from pathlib import Path
 import re
 
 from artemis.core.tool_failure import ToolFailure
-from artemis.data_engine.engine import _CURRENT_DATA_ENGINE
+from artemis.runtime.execution_scope import CURRENT_EXECUTION, get_current_data_engine
 from artemis.utils.plan_grammar import parse_plan
 from third_party.mobile_use.utils.logger import get_logger
 
@@ -96,7 +96,7 @@ def get_note_file_path(base_dir: str | Path, key: str) -> Path:
     notes_dir = get_notes_dir(base_dir)
     # Strip any trailing .md (e.g. 'findings.md' -> 'findings')
     clean_key = key[:-3] if key.lower().endswith(".md") else key
-    if clean_key == "task_plan":
+    if clean_key.lower() == "task_plan":
         return notes_dir / "task_plan.md"
     return notes_dir / f"{clean_key}.md"
 
@@ -145,6 +145,15 @@ def read_note_content(
     return content
 
 
+def _write_note_text(file_path, key, before, after):
+    scope = CURRENT_EXECUTION.get()
+    runtime = scope.runtime if scope else None
+    if file_path.name.lower() == "task_plan.md" and runtime is not None:
+        runtime.commit_plan(file_path, before, after, scope)
+    else:
+        file_path.write_text(after, encoding="utf-8")
+
+
 def save_note_content(base_dir: str | Path, key: str, content: str) -> None:
     """Saves or overwrites the raw content of a note."""
     notes_dir = get_notes_dir(base_dir)
@@ -152,7 +161,7 @@ def save_note_content(base_dir: str | Path, key: str, content: str) -> None:
     file_path = get_note_file_path(base_dir, key)
 
     content_before = ""
-    if key == "task_plan" and file_path.exists():
+    if file_path.name.lower() == "task_plan.md" and file_path.exists():
         try:
             content_before = file_path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError) as exc:
@@ -163,7 +172,7 @@ def save_note_content(base_dir: str | Path, key: str, content: str) -> None:
                 exc,
             )
 
-    file_path.write_text(content, encoding="utf-8")
+    _write_note_text(file_path, key, content_before, content)
 
     if key == "task_plan":
         try:
@@ -174,8 +183,9 @@ def save_note_content(base_dir: str | Path, key: str, content: str) -> None:
             logger.warning("Failed to record subgoal hash chain for task_plan: %s", exc)
 
     try:
-        if _CURRENT_DATA_ENGINE:
-            _CURRENT_DATA_ENGINE._publish("note_saved", {"key": key, "content": content})
+        engine = get_current_data_engine()
+        if engine:
+            engine._publish("note_saved", {"key": key, "content": content})
     except Exception as exc:
         # Telemetry side channel: publishing must never break a note save.
         logger.debug("Failed to publish note_saved event for key '%s': %s", key, exc)
@@ -201,8 +211,8 @@ def append_note_content(base_dir: str | Path, key: str, content: str) -> None:
                 # separator newline before the appended content.
                 pass
 
-    with open(file_path, "a", encoding="utf-8") as f:
-        f.write(prefix + content + "\n")
+    before = file_path.read_text(encoding="utf-8") if file_path.exists() else ""
+    _write_note_text(file_path, key, before, before + prefix + content + "\n")
 
 
 def clean_line(line: str) -> str:
@@ -351,7 +361,7 @@ def update_note_content(
 
     # Phase 4: Write and Return, or Not Found Error
     if new_content_to_write is not None:
-        file_path.write_text(new_content_to_write, encoding="utf-8")
+        _write_note_text(file_path, key, content, new_content_to_write)
         if key == "task_plan":
             try:
                 record_subgoal_hash_chain(base_dir, content, new_content_to_write)

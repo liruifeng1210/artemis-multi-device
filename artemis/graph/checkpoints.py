@@ -118,6 +118,7 @@ class PendingCheckpoint:
     check_items: tuple[CheckItem, ...]
     plan_text: str
     trigger_ts: float
+    role_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -436,6 +437,9 @@ def revert_subgoal_status(ctx, subgoal_key: str) -> bool:
     This is a forward-looking state change (never a rollback of history) and is
     written directly to the file, bypassing the wrapped note tools.
     """
+    policy = getattr(ctx, "check_policy", None)
+    if policy is not None:
+        return policy.reopen(subgoal_key)
     if not getattr(ctx, "data_engine", None):
         return False
     path = get_note_file_path(ctx.data_engine.base_dir, "task_plan")
@@ -527,12 +531,16 @@ def _finding_items(ctx) -> dict:
     return items
 
 
-def _register_finding(ctx, checkpoint_id: str, verify_failures: list) -> None:
+def _register_finding(ctx, checkpoint_id: str, verify_failures: list, check_items=()) -> None:
     _finding_registry(ctx)[checkpoint_id] = _render_finding_headline(checkpoint_id, verify_failures)
-    _finding_items(ctx)[checkpoint_id] = {
-        (str(getattr(v, "kind", "") or ""), str(getattr(v, "item_text", "") or ""))
-        for v in verify_failures
-    }
+    policy = getattr(ctx, "check_policy", None)
+    if policy is not None:
+        _finding_items(ctx)[checkpoint_id] = policy.finding_keys(check_items, verify_failures)
+    else:
+        _finding_items(ctx)[checkpoint_id] = {
+            (str(getattr(v, "kind", "") or ""), str(getattr(v, "item_text", "") or ""))
+            for v in verify_failures
+        }
 
 
 def _clear_finding(ctx, checkpoint_id: str) -> bool:
@@ -547,14 +555,14 @@ def _retired_checks(ctx) -> set[tuple[str, str]]:
 
 
 def retire_check_items(ctx, items) -> None:
-    """Records ``(kind, text)`` check items the Operator dropped under user
-    guidance and withdraws their already-materialized findings.
+    """Records withdrawn checks and clears findings backed only by them.
 
-    Recording feeds the harvest gate (:func:`_active_verdicts`) and the run
-    outcome. Cleanup: every standing headline produced *only* by now-retired
-    items is popped and the plan's finding lines are re-projected; a headline
-    that still names a live item stays untouched.
+    Single-device checks retain the legacy ``(kind, text)`` identity; multi-
+    device checks use their role-anchored ``check_key``.
     """
+    policy = getattr(ctx, "check_policy", None)
+    if policy is not None:
+        return policy.retire(ctx, items)
     incoming = {(str(kind), str(text)) for kind, text in items}
     if not incoming:
         return
@@ -578,6 +586,9 @@ def reinstate_check_items(ctx, items) -> None:
     declared them in the plan again, so their verdicts drive side effects
     once more and the run outcome counts them normally. A no-op when none of
     the given items is retired."""
+    policy = getattr(ctx, "check_policy", None)
+    if policy is not None:
+        return policy.reinstate(ctx, items)
     retired = _retired_checks(ctx)
     if not retired:
         return
@@ -592,9 +603,10 @@ def reinstate_check_items(ctx, items) -> None:
 
 
 def _active_verdicts(ctx, checkpoint, verdicts: list) -> list:
-    """The verdicts still allowed to drive side effects: those whose
-    ``(kind, item_text)`` was not retired by user guidance. Ledger recording is
-    never filtered — this gate only protects execution state."""
+    """Return verdicts still allowed to affect execution after user guidance."""
+    policy = getattr(ctx, "check_policy", None)
+    if policy is not None:
+        return policy.active_verdicts(ctx, checkpoint, verdicts)
     retired = _retired_checks(ctx)
     if not retired:
         return list(verdicts)
@@ -647,7 +659,11 @@ def sync_finding_lines(ctx) -> None:
         findings = dict(registry) if isinstance(registry, dict) else {}
         projected = apply_finding_lines(content, findings)
         if projected != content:
-            path.write_text(projected, encoding="utf-8")
+            policy = getattr(ctx, "check_policy", None)
+            if policy is not None:
+                policy.write_system_plan(path, content, projected)
+            else:
+                path.write_text(projected, encoding="utf-8")
     except Exception as e:
         logger.error(f"Failed to project finding lines into task plan: {e}")
 
@@ -729,6 +745,7 @@ def queue_checkpoints(
                 check_items=check_items,
                 plan_text=plan_text,
                 trigger_ts=time.time(),
+                role_id=item.role_id,
             )
         )
         logger.info(f"Queued checkpoint for completed subgoal: {text}")
@@ -753,6 +770,11 @@ def _record_verdicts(
                 "checkpoint_id": run.checkpoint.checkpoint_id,
                 "subgoal_text": run.checkpoint.subgoal_text,
                 "trace_id": attempt_trace_id(ctx, run.attempt_id),
+                "role_id": run.checkpoint.role_id,
+                "check_key": (
+                    ctx.check_policy.verdict_key(run.checkpoint.check_items, v)
+                    if getattr(ctx, "check_policy", None) is not None else None
+                ),
                 "item_text": v.item_text,
                 "kind": v.kind,
                 "when": when_by_text.get((v.kind, v.item_text), "on_complete"),
@@ -769,6 +791,9 @@ def _annotate_history_chunks(ctx, run: CheckpointRun, verdicts) -> None:
     segment was chunk-compressed is appended to that chunk and bumps its
     version. Best-effort — history annotation never gates checkpoint booking."""
     try:
+        policy = getattr(ctx, "check_policy", None)
+        if policy is not None:
+            ctx = policy.annotate_context(ctx, run.checkpoint)
         chunker = getattr(getattr(ctx, "transcript_ledger", None), "chunker", None)
         if chunker is None:
             return
@@ -796,6 +821,8 @@ def _record_attempt_failure(ctx, run: CheckpointRun, status: str, evidence: str)
                 "checkpoint_id": run.checkpoint.checkpoint_id,
                 "subgoal_text": run.checkpoint.subgoal_text,
                 "trace_id": attempt_trace_id(ctx, run.attempt_id),
+                "role_id": run.checkpoint.role_id,
+                "check_key": ci.key,
                 "item_text": ci.text,
                 "kind": ci.kind,
                 "when": ci.when,
@@ -835,6 +862,11 @@ def harvest_run(
                 "attempt_id": run.attempt_id,
                 "checkpoint_id": checkpoint.checkpoint_id,
                 "subgoal_text": checkpoint.subgoal_text,
+                **(
+                    {"role_id": checkpoint.role_id, "subgoal_hash": checkpoint.checkpoint_id}
+                    if checkpoint.role_id
+                    else {}
+                ),
                 "trace_id": attempt_trace_id(ctx, run.attempt_id),
                 "status": status,
                 "verdicts": verdicts_payload,
@@ -919,7 +951,9 @@ def harvest_run(
             reverted = revert_subgoal_status(ctx, checkpoint.checkpoint_id)
             # Layer 2: register the standing plan headline for this unresolved
             # finding; the projection below renders it under the subgoal.
-            _register_finding(ctx, checkpoint.checkpoint_id, verify_failures)
+            _register_finding(
+                ctx, checkpoint.checkpoint_id, verify_failures, checkpoint.check_items
+            )
             registry_changed = True
             for v in verify_failures:
                 suggestion = getattr(v, "suggestion", "") or ""
@@ -973,9 +1007,14 @@ def harvest_run(
         applicable=bool(applicable),
         reverted=bool(reverted),
         retired=[
-            {"kind": p["kind"], "item_text": p["item_text"]}
-            for p in verdict_payloads(verdicts)
-            if (p["kind"], p["item_text"]) in _retired_checks(ctx)
+            {"kind": v.kind, "item_text": v.item_text}
+            for v in verdicts
+            if (
+                ctx.check_policy.verdict_key(checkpoint.check_items, v)
+                in ctx.check_policy.retired(ctx)
+                if getattr(ctx, "check_policy", None) is not None
+                else (v.kind, v.item_text) in _retired_checks(ctx)
+            )
         ],
         repairs_used=int(ctx.checkpoint_repairs.get(checkpoint.checkpoint_id, 0)),
     )
@@ -1049,19 +1088,23 @@ async def spawn_pending_checkpoints(ctx, state, anchor_step_id: str | None) -> l
             trigger_ts=pending.trigger_ts,
             plan_text=pending.plan_text,
         )
-        task = asyncio.create_task(
-            asyncio.wait_for(
-                run_checkpoint_check(
-                    ctx,
-                    check_items=pending.check_items,
-                    anchor=anchor,
-                    goal=goal,
-                    subgoal_text=pending.subgoal_text,
-                    attempt_id=attempt_id,
-                ),
-                timeout=timeout,
-            )
+        from functools import partial
+
+        check = partial(
+            run_checkpoint_check,
+            check_items=pending.check_items,
+            anchor=anchor,
+            goal=goal,
+            subgoal_text=pending.subgoal_text,
+            attempt_id=attempt_id,
         )
+        policy = getattr(ctx, "check_policy", None)
+        work = (
+            policy.run_checkpoint(pending, check, step_id=anchor_step_id)
+            if policy is not None and pending.role_id
+            else check(ctx)
+        )
+        task = asyncio.create_task(asyncio.wait_for(work, timeout=timeout))
         ctx.checkpoint_tasks[cid] = CheckpointRun(
             attempt_id=attempt_id, task=task, checkpoint=pending
         )
@@ -1139,7 +1182,8 @@ def resolve_item_status(kind: str, records: list[dict]) -> str:
 def compute_test_summary(
     check_items: list[CheckItem],
     records: list[dict],
-    retired: set[tuple[str, str]] | None = None,
+    retired: set[tuple[str, str]] | set[str] | None = None,
+    policy=None,
 ) -> TestSummary:
     """Folds the verdict ledger into pass/fail counts over the declared items.
 
@@ -1148,6 +1192,8 @@ def compute_test_summary(
     ``retired`` with its last recorded verdict, not as a pass or a failure —
     the user withdrew that requirement.
     """
+    if policy is not None:
+        return policy.test_summary(check_items, records, retired)
     summary = TestSummary()
     retired = retired or set()
     by_item: dict[tuple[str, str], list[dict]] = {}
@@ -1199,7 +1245,8 @@ def compute_run_outcome(
     records: list[dict],
     *,
     verify_blocked: bool,
-    retired: set[tuple[str, str]] | None = None,
+    retired: set[tuple[str, str]] | set[str] | None = None,
+    policy=None,
 ) -> RunOutcome:
     """Assembles the machine-readable run outcome.
 
@@ -1208,7 +1255,9 @@ def compute_run_outcome(
     completion. Assert failures never change ``task_status``: a finished task
     with failed assertions is ``completed`` with ``tests.failed > 0``.
     """
-    tests = compute_test_summary(list(snapshot.all_check_items), records, retired=retired)
+    tests = compute_test_summary(
+        list(snapshot.all_check_items), records, retired=retired, policy=policy
+    )
     if verify_blocked:
         task_status: Literal["completed", "partial", "blocked"] = "blocked"
     elif snapshot.all_top_level_done:

@@ -210,7 +210,8 @@ async def test_transcript_mode_two_turns_build_four_regions(tmp_path):
         assert not ledger.has_restored_history
         assert ledger.turn_count == 1
         turn2_messages = captured[1]
-        # S region is the same object with the same bytes.
+        # The static transcript prefix remains the same object across turns.
+        assert isinstance(turn2_messages[0], SystemMessage)
         assert turn2_messages[0] is turn1_messages[0]
 
         active = list(ledger.active_messages)
@@ -335,7 +336,7 @@ async def test_transcript_cold_start_builds_restored_history_block(tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_flag_off_keeps_legacy_two_message_build_and_no_ledger():
+async def test_flag_off_keeps_legacy_prompt_and_no_ledger():
     ctx = _transcript_ctx()
     captured: list = []
     mock_llm = _no_action_llm(captured)

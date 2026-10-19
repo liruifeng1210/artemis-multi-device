@@ -95,11 +95,19 @@ class ActionSession:
             item = await self._requests.get()
             if item is _SHUTDOWN:
                 return
-            fut, name, args = item
+            fut, name, args, scope = item
             if fut.cancelled():
                 continue  # caller gave up before we started; nothing was sent
             try:
-                result = await session.call_tool(name, args)
+                from contextlib import nullcontext
+                from artemis.runtime.execution_scope import execution_scope
+
+                with execution_scope(scope) if scope is not None else nullcontext():
+                    ctx = getattr(self, "device_context", None)
+                    runtime = getattr(ctx, "multi_device_runtime", None)
+                    if runtime is not None:
+                        runtime.require_device_scope(ctx.role_id)
+                    result = await session.call_tool(name, args)
             except BaseException as e:
                 if not fut.cancelled():
                     fut.set_exception(e)
@@ -149,10 +157,16 @@ class ActionSession:
         abandons the caller's future -- harmless, because the transport call itself
         runs in the owner task and cannot be cancelled from here.
         """
+        ctx = getattr(self, "device_context", None)
+        runtime = getattr(ctx, "multi_device_runtime", None)
+        if runtime is not None:
+            runtime.require_device_scope(ctx.role_id)
         if self._session is None:
             raise RuntimeError("ActionSession is not started.")
         fut: asyncio.Future = asyncio.get_running_loop().create_future()
-        self._requests.put_nowait((fut, name, args))
+        from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+        self._requests.put_nowait((fut, name, args, CURRENT_EXECUTION.get()))
         result = await fut
         if getattr(result, "isError", False):
             # Protocol-level failure (unknown tool, schema violation) -- a programming
@@ -201,16 +215,39 @@ class ActionSession:
 
     async def aclose(self) -> None:
         """Shuts the session down; safe to call from any task."""
-        if self._owner is None:
+        owner = self._owner
+        if owner is None:
             return
         self._requests.put_nowait(_SHUTDOWN)
+        interrupted = False
         try:
-            await asyncio.wait_for(asyncio.shield(self._owner), timeout=5.0)
-        except (TimeoutError, asyncio.CancelledError, Exception) as e:
+            await asyncio.wait_for(asyncio.shield(owner), timeout=5.0)
+        except asyncio.CancelledError:
+            interrupted = True
+        except Exception as e:
             logger.warning(f"Action session owner task did not exit cleanly: {e!r}")
         finally:
+            # The owner runs the MCP transport and its anyio context. A lease
+            # cannot be released while it may still dispatch a device action.
+            if not owner.done():
+                owner.cancel()
+            while not owner.done():
+                try:
+                    await asyncio.shield(owner)
+                except asyncio.CancelledError:
+                    if not owner.done():
+                        interrupted = True
+                        owner.cancel()
+                except Exception:
+                    break
+            if not owner.cancelled():
+                error = owner.exception()
+                if error is not None:
+                    logger.warning(f"Action session owner task failed on close: {error!r}")
             self._owner = None
             self._ready = asyncio.Event()
+        if interrupted:
+            raise asyncio.CancelledError
 
 
 async def get_action_session(ctx: Any, actuator: Any = None) -> ActionSession:
@@ -236,6 +273,7 @@ async def get_action_session(ctx: Any, actuator: Any = None) -> ActionSession:
     actuator = actuator or getattr(ctx, "actuator", None) or AdbActuator(ctx)
     server = build_action_server(actuator)
     session = ActionSession(server)
+    session.device_context = ctx
     await session.start()
     try:
         ctx.action_session = session

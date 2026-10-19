@@ -15,6 +15,7 @@
 """ActionSession lifecycle tests, including the anyio same-task exit hazard."""
 
 import asyncio
+from types import SimpleNamespace
 
 import pytest
 
@@ -31,6 +32,54 @@ async def test_start_and_close():
     assert session.started
     await session.aclose()
     assert not session.started
+
+
+async def test_close_drains_inflight_adb_process_before_releasing_session(monkeypatch):
+    """A real MCP click must finish its client cleanup before a lease can end."""
+    from artemis.drivers.android.adb_driver import AndroidAdbDriver
+    from artemis.mcp.actuators.adb import AdbActuator
+
+    started = asyncio.Event()
+    stopped = asyncio.Event()
+    processes = []
+
+    class Process:
+        returncode = None
+
+        async def communicate(self):
+            started.set()
+            await stopped.wait()
+            return b"", b""
+
+        def kill(self):
+            self.returncode = -1
+            stopped.set()
+
+    async def launch(*args, **kwargs):
+        process = Process()
+        processes.append(process)
+        return process
+
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", launch)
+    from adbutils import AdbClient
+
+    driver = AndroidAdbDriver("phone-a", AdbClient(host="localhost", port=5037))
+
+    class Controller:
+        async def tap_at(self, x, y, **kwargs):
+            await driver.tap(x, y)
+            return SimpleNamespace(error=None)
+
+    ctx = SimpleNamespace(device=SimpleNamespace(device_width=100, device_height=200))
+    session = await ActionSession(build_action_server(AdbActuator(ctx, Controller()))).start()
+    call = asyncio.create_task(session.call("click", {"target": [500, 500]}))
+    await asyncio.wait_for(started.wait(), 2)
+    await session.aclose()
+    assert processes and processes[0].returncode == -1
+    assert stopped.is_set() and not session.started
+    assert session._owner is None
+    with pytest.raises((asyncio.CancelledError, RuntimeError)):
+        await call
 
 
 async def test_close_from_different_task():

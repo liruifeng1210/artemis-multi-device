@@ -116,6 +116,11 @@ def _notify_history_chunker(ctx: ArtemisContext, method: str, *args) -> None:
     swallowed — history compression must never gate the execution path.
     """
     try:
+        from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+        scope = CURRENT_EXECUTION.get()
+        if scope is not None and scope.context is not None:
+            ctx = scope.context
         chunker = getattr(getattr(ctx, "transcript_ledger", None), "chunker", None)
         if chunker is not None:
             getattr(chunker, method)(*args)
@@ -153,6 +158,12 @@ async def execution_check_node(state: State, ctx: ArtemisContext):
                     logger.warning(f"Failed to parse structured decisions: {e}")
 
             subgoal_hash_val, sub_subgoal_hash = _get_active_subgoal_hashes(ctx)
+            from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+            scope = CURRENT_EXECUTION.get()
+            if scope is not None and scope.subgoal_hash is not None:
+                subgoal_hash_val = scope.subgoal_hash
+                sub_subgoal_hash = None
             # The user's injected instruction is stamped verbatim on the step
             # it reached: the chunk ledger (band ③) preserves it as a
             # never-evicted line at every compression level (§3.3).
@@ -287,6 +298,7 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
     verify_blocked = False
     blocked_findings: list[str] = []
     if final_check_enabled(ctx):
+        check_policy = getattr(ctx, "check_policy", None)
         attempt_no = ctx.final_check_attempts + 1
         ctx.final_check_attempts = attempt_no
         final_attempt_id = f"final#{attempt_no}"
@@ -324,6 +336,8 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
         except Exception as e:
             # Fail-open: release, but the verdict value stays inconclusive.
             logger.warning(f"Final check errored ({e}); releasing fail-open.")
+            if check_policy is not None:
+                check_policy.mark_final("inconclusive")
             error_verdicts: list[dict] = []
             for ci in snapshot.all_check_items:
                 append_ledger_record(
@@ -333,6 +347,8 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                         "checkpoint_id": FINAL_CHECKPOINT_ID,
                         "subgoal_text": FINAL_SUBGOAL_TEXT,
                         "trace_id": attempt_trace_id(ctx, final_attempt_id),
+                        "check_key": ci.key,
+                        "role_id": ci.role_id,
                         "item_text": ci.text,
                         "kind": ci.kind,
                         "when": ci.when,
@@ -359,7 +375,9 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                     (
                         ci.when
                         for ci in snapshot.all_check_items
-                        if ci.kind == v.kind and ci.text == v.item_text
+                        if ci.kind == v.kind
+                        and ci.text == v.item_text
+                        and (not getattr(v, "check_key", None) or ci.key == v.check_key)
                     ),
                     "at_end",
                 )
@@ -370,6 +388,8 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                         "checkpoint_id": FINAL_CHECKPOINT_ID,
                         "subgoal_text": FINAL_SUBGOAL_TEXT,
                         "trace_id": attempt_trace_id(ctx, final_attempt_id),
+                        "check_key": getattr(v, "check_key", None),
+                        "role_id": getattr(v, "role_id", None),
                         "item_text": v.item_text,
                         "kind": v.kind,
                         "when": when,
@@ -381,6 +401,8 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                 )
 
             passed = verdicts_allow_release(report) and not report.unmet_subgoals
+            if check_policy is not None:
+                check_policy.mark_final("passed" if passed else "failed")
             if not passed:
                 if user_stopped or halted or attempt_no >= max_attempts:
                     verify_blocked = True
@@ -438,12 +460,17 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
 
     # END path: assemble the machine-readable run outcome.
     records = read_ledger(base_dir)
-    retired = getattr(ctx, "guidance_retired_checks", None)
+    check_policy = getattr(ctx, "check_policy", None)
+    retired = (
+        check_policy.retired(ctx) if check_policy is not None
+        else getattr(ctx, "guidance_retired_checks", None)
+    )
     outcome = compute_run_outcome(
         snapshot,
         records,
         verify_blocked=verify_blocked,
         retired=retired if isinstance(retired, set) else None,
+        policy=check_policy,
     )
     if snapshot.all_check_items or records or verify_blocked:
         update["run_outcome"] = outcome.model_dump()
@@ -618,13 +645,22 @@ async def _process_plan_write(
     new top-level completions. ``declared_intent`` marks surgical update_note
     edits, which are exempt from the full-rewrite hand-slip check.
     """
+    ctx = getattr(ctx, "plan_owner", None) or ctx
+    check_policy = getattr(ctx, "check_policy", None)
+
+    def write_system_plan(expected: str, replacement: str) -> None:
+        if check_policy is not None:
+            check_policy.write_system_plan(task_plan_path, expected, replacement)
+        else:
+            task_plan_path.write_text(replacement, encoding="utf-8")
+
     rejection_message = check_plan_mutation_rejections(content_before, content_after, state)
     if rejection_message is None and not declared_intent:
         rejection_message = check_unintended_rewrite(content_before, content_after)
     if rejection_message:
         logger.info(f"Rejected task plan update: {rejection_message}")
         if task_plan_path.exists():
-            task_plan_path.write_text(content_before, encoding="utf-8")
+            write_system_plan(content_after, content_before)
 
         # Guidance, not a tool failure: status stays "success" so the Operator
         # loop treats it as feedback content (matching the legacy envelope
@@ -643,26 +679,25 @@ async def _process_plan_write(
     # surgical edits, turns after the guidance landed. Lines added after the
     # instruction are protected again until the next one.
     #
-    # ``missing_check_items`` diffs on the full signature (kind, when, text,
-    # parent hash), so rewording a milestone re-signs every check line under
-    # it. Such a line has merely moved: it is still declared, so it is neither
-    # merged back (that would duplicate it as a task-level ``@end`` orphan)
-    # nor retired (the ledger, the harvest gate and the run outcome all key a
-    # check item by ``(kind, text)``). Only a line whose ``(kind, text)`` is
-    # gone from the new plan counts as dropped.
+    # The native plan matches check lines by kind and text when milestones move.
+    # An extension may use a stricter parent identity.
     before_snapshot = parse_plan(content_before)
     after_snapshot = parse_plan(content_after)
     missing = missing_check_items(before_snapshot, after_snapshot)
     unprotected = getattr(ctx, "guidance_unprotected_checks", None)
     if not isinstance(unprotected, set):
         unprotected = set()
-    still_declared = Counter((ci.kind, ci.text) for ci in after_snapshot.check_items)
-    dropped: list = []
-    for ci in missing:
-        if still_declared.get((ci.kind, ci.text), 0) > 0:
-            still_declared[(ci.kind, ci.text)] -= 1
-            continue  # moved under a reworded milestone / re-timed: still declared
-        dropped.append(ci)
+    if check_policy is not None:
+        dropped = check_policy.dropped_checks(before_snapshot, after_snapshot)
+    else:
+        still_declared = Counter((ci.kind, ci.text) for ci in after_snapshot.check_items)
+        dropped = []
+        for ci in missing:
+            signature = (ci.kind, ci.text)
+            if still_declared.get(signature, 0) > 0:
+                still_declared[signature] -= 1
+            else:
+                dropped.append(ci)
     waived = [ci for ci in dropped if (ci.kind, ci.text) in unprotected]
     protected = [ci for ci in dropped if (ci.kind, ci.text) not in unprotected]
     if waived:
@@ -672,10 +707,17 @@ async def _process_plan_write(
         )
         # Records the retirement (harvest gate + run outcome) and withdraws any
         # standing finding headline those lines had already produced.
-        retire_check_items(ctx, [(ci.kind, ci.text) for ci in waived])
+        retire_check_items(
+            ctx, waived if check_policy is not None else [(ci.kind, ci.text) for ci in waived]
+        )
     # A retired line the Operator declares again is live again: the harvest
     # gate and the run outcome must agree with the plan on disk.
-    reinstate_check_items(ctx, [(ci.kind, ci.text) for ci in after_snapshot.check_items])
+    reinstate_check_items(
+        ctx,
+        after_snapshot.check_items
+        if check_policy is not None
+        else [(ci.kind, ci.text) for ci in after_snapshot.check_items],
+    )
     if protected:
         merged = restore_missing_check_items(content_before, content_after, items=protected)
         if merged is not None:
@@ -684,11 +726,14 @@ async def _process_plan_write(
                 " back (check standards are protected deterministically):"
                 f" {[render_check_line(ci).strip() for ci in protected]}"
             )
+            candidate_before_merge = content_after
             content_after = merged
             try:
-                task_plan_path.write_text(content_after, encoding="utf-8")
+                write_system_plan(candidate_before_merge, content_after)
             except Exception as e:
                 logger.error(f"Failed to write merged check lines: {e}")
+                if check_policy is not None:
+                    raise
 
     # Deterministic finding-line projection: unresolved verify findings are
     # re-rendered from the checkpoint repair state on every plan write, so a
@@ -773,6 +818,9 @@ async def _intercept_plan_write(
     content_after_fallback: str = "",
 ):
     """Run a note write and process any resulting task-plan changes."""
+    key = args["key"]
+    if key.lower().removesuffix(".md") == "task_plan":
+        args = {**args, "key": "task_plan"}
     rejection = _reject_checker_note_write(args["key"], tool_call_id)
     if rejection is not None:
         return rejection
@@ -945,8 +993,11 @@ def convergence_gate(
     return "continue"
 
 
-async def get_graph(ctx: ArtemisContext) -> CompiledStateGraph:
-    graph_builder = StateGraph(State)
+def build_pro_nodes(ctx: ArtemisContext):
+    nodes = {}
+
+    def register(name, node):
+        nodes[name] = node
 
     # Get native tools
     native_wrappers = [
@@ -960,7 +1011,7 @@ async def get_graph(ctx: ArtemisContext) -> CompiledStateGraph:
     native_tools = get_tools_from_wrappers(ctx, native_wrappers)
 
     ## Define nodes
-    graph_builder.add_node("planner", PlannerNode(ctx, tools=native_tools))
+    register("planner", PlannerNode(ctx, tools=native_tools))
 
     # Wrap native tools for Operator
     operator_native_tools = []
@@ -1013,22 +1064,40 @@ async def get_graph(ctx: ArtemisContext) -> CompiledStateGraph:
     if ctx.execution_setup and ctx.execution_setup.video_recording_tools_enabled:
         operator_tools.append(get_video_analyzer_tool(ctx, role="operator"))
 
-    graph_builder.add_node("operator", OperatorNode(ctx, tools=operator_tools))
-    graph_builder.add_node("validator", ValidatorNode(ctx))
+    register("operator", OperatorNode(ctx, tools=operator_tools))
+    register("validator", ValidatorNode(ctx))
 
-    graph_builder.add_node("summarizer", SummarizerNode(ctx))
-    graph_builder.add_node("execution_check", functools.partial(execution_check_node, ctx=ctx))
-    graph_builder.add_node("perception", functools.partial(perception_node, ctx=ctx))
+    register("summarizer", SummarizerNode(ctx))
+    register("execution_check", functools.partial(execution_check_node, ctx=ctx))
+    register("perception", functools.partial(perception_node, ctx=ctx))
+    return nodes
+
+
+async def get_graph(ctx: ArtemisContext) -> CompiledStateGraph:
+    return await build_pro_graph(ctx)
+
+
+async def build_pro_graph(ctx: ArtemisContext, *, extension=None, nodes=None) -> CompiledStateGraph:
+    """Assemble Pro nodes with optional routing supplied by an external runtime."""
+    graph_builder = StateGraph(State)
+    nodes = nodes if nodes is not None else build_pro_nodes(ctx)
+    wrap = extension.wrap_node if extension is not None else lambda _name, node: node
+    for name, node in nodes.items():
+        graph_builder.add_node(name, wrap(name, node))
     add_convergence_node(graph_builder)
-    graph_builder.add_node("exit_settlement", functools.partial(exit_settlement_node, ctx=ctx))
+    settlement = functools.partial(exit_settlement_node, ctx=ctx)
+    graph_builder.add_node("exit_settlement", wrap("exit_settlement", settlement))
 
     ## Linking nodes
     graph_builder.add_edge(START, "planner")
     graph_builder.add_edge("planner", CONVERGENCE_NODE)
-    graph_builder.add_edge("operator", "execution_check")
+    if extension is None:
+        graph_builder.add_edge("operator", "execution_check")
+    else:
+        extension.add_turn_boundary(graph_builder)
     graph_builder.add_conditional_edges(
         "execution_check",
-        execution_check_edge,
+        extension.execution_edge if extension is not None else execution_check_edge,
         {
             "review_subgoals": CONVERGENCE_NODE,
             "execute_decisions": "validator",
@@ -1040,13 +1109,17 @@ async def get_graph(ctx: ArtemisContext) -> CompiledStateGraph:
     add_convergence_edges(
         graph_builder,
         functools.partial(convergence_gate, ctx=ctx),
-        {"continue": "perception", "exit_settlement": "exit_settlement", "end": END},
+        {
+            "continue": extension.next_turn if extension is not None else "perception",
+            "exit_settlement": "exit_settlement",
+            "end": END,
+        },
     )
     graph_builder.add_conditional_edges(
         source="exit_settlement",
         path=exit_settlement_gate,
         path_map={
-            "continue": "perception",
+            "continue": extension.next_turn if extension is not None else "perception",
             "end": END,
         },
     )

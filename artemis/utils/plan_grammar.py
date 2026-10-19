@@ -87,6 +87,12 @@ class PlanItem:
     line_no: int
 
     @property
+    def role_id(self) -> str | None:
+        """Optional device participant; legacy plans remain valid."""
+        match = re.match(r"\[role:([a-z][a-z0-9_]*)\]", self.text)
+        return match.group(1) if match else None
+
+    @property
     def is_top_level(self) -> bool:
         return self.indent == 0
 
@@ -128,6 +134,7 @@ class CheckItem:
     when: Literal["on_complete", "at_end"]
     text: str
     parent_key: str | None
+    role_id: str | None = None
 
     @property
     def key(self) -> str:
@@ -273,6 +280,7 @@ def parse_plan(content: str | None) -> PlanSnapshot:
                         when="at_end" if at_end else "on_complete",
                         text=check_match.group("text").strip(),
                         parent_key=parent_key,
+                        role_id=current_top.role_id if parent_key and current_top else None,
                     )
                 )
     return PlanSnapshot(items=tuple(items), check_items=tuple(checks))

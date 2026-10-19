@@ -14,6 +14,7 @@
 
 """Unit tests for Unified Base Device Driver and implementations."""
 
+import asyncio
 import base64
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
@@ -87,19 +88,107 @@ async def test_android_driver_with_mock_adb():
         width=1080,
         height=2400,
     )
+    driver._shell_command = AsyncMock(return_value="")
 
     # Test tap
     await driver.tap(540, 1200)
-    mock_adb_device.shell.assert_called_with("input tap 540 1200")
+    driver._shell_command.assert_awaited_with("input tap 540 1200", 15.0)
 
     # Test multi-tap
     await driver.tap(540, 1200, times=3, delay_ms=100)
     expected_multi = "input tap 540 1200 && sleep 0.100 && input tap 540 1200 && sleep 0.100 && input tap 540 1200"
-    mock_adb_device.shell.assert_called_with(expected_multi)
+    driver._shell_command.assert_awaited_with(expected_multi, 15.0)
 
     # Test press key
     await driver.press_key(KeyCode.BACK)
-    mock_adb_device.shell.assert_called_with("input keyevent 4")
+    driver._shell_command.assert_awaited_with("input keyevent 4")
+
+
+@pytest.mark.asyncio
+async def test_adb_process_created_after_cancel_is_killed_before_return(monkeypatch):
+    from adbutils import AdbClient
+
+    entered, release = asyncio.Event(), asyncio.Event()
+
+    class Process:
+        returncode = None
+        killed = False
+
+        def kill(self):
+            self.returncode = -1
+            self.killed = True
+
+        async def communicate(self):
+            return b"", b""
+
+    process = Process()
+
+    async def launch(*args, **kwargs):
+        assert args[1:5] == ("-H", "remote-host", "-P", "5038")
+        entered.set()
+        await release.wait()
+        return process
+
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", launch)
+    driver = AndroidAdbDriver("phone-a", AdbClient(host="remote-host", port=5038))
+    call = asyncio.create_task(driver._shell_command("input tap 1 2"))
+    await entered.wait()
+    call.cancel()
+    release.set()
+    with pytest.raises(asyncio.CancelledError):
+        await call
+    assert process.killed
+
+
+@pytest.mark.asyncio
+async def test_adb_shell_total_deadline_kills_and_drains_process(monkeypatch):
+    from adbutils import AdbClient
+
+    completed = asyncio.Event()
+
+    class Process:
+        returncode = None
+        killed = False
+
+        def kill(self):
+            self.returncode = -1
+            self.killed = True
+            completed.set()
+
+        async def communicate(self):
+            await completed.wait()
+            return b"", b""
+
+    process = Process()
+
+    async def launch(*args, **kwargs):
+        return process
+
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", launch)
+    driver = AndroidAdbDriver("phone-a", AdbClient())
+    with pytest.raises(TimeoutError):
+        await driver._shell_command("input tap 1 2", timeout_seconds=0.01)
+    assert process.killed and completed.is_set()
+
+
+@pytest.mark.asyncio
+async def test_cancelled_input_text_does_not_issue_following_commands():
+    driver = AndroidAdbDriver("phone-a", MagicMock())
+    started = asyncio.Event()
+    commands = []
+
+    async def shell(command, *args):
+        commands.append(command)
+        started.set()
+        await asyncio.Event().wait()
+
+    driver._shell_command = shell
+    task = asyncio.create_task(driver.input_text("later text"))
+    await started.wait()
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert len(commands) == 1 and commands[0].startswith("input keyevent 123")
 
 
 @pytest.mark.asyncio

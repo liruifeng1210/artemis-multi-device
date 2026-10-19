@@ -134,6 +134,32 @@ async def execute_task(
             pro_mode=explorer_pro_mode,
         )
 
+    if graph_config_callbacks:
+        config.with_graph_config_callbacks(graph_config_callbacks)
+
+    if profile == "pro" and os.environ.get("ARTEMIS_CLOUD_MODE") != "1":
+        from artemis.runtime.multi_device.dispatch import dispatch_multi_role_if_needed
+        from artemis.runtime.multi_device.models import MultiDeviceRequest, AppProfile
+
+        handled = await dispatch_multi_role_if_needed(
+            config.build(),
+            MultiDeviceRequest(
+                case=goal,
+                preferred_device=device_serial,
+                app_profile=AppProfile(package=locked_app_package, apk_path=app_path)
+                if locked_app_package
+                else None,
+                apk_path=app_path if not locked_app_package else None,
+                output_description=output_description,
+                record_video=video_recording_tools_enabled is not False,
+            ),
+            session_id=effective_sid,
+            test_name=test_name,
+            traces_path=traces_output_path_str,
+        )
+        if handled:
+            return
+
     target_serial = (
         device_serial or settings.ADB_DEVICE_SERIAL or os.environ.get("ADB_DEVICE_SERIAL")
     )
@@ -149,9 +175,6 @@ async def execute_task(
         from artemis.context import DevicePlatform
 
         config.for_device(DevicePlatform.ANDROID, target_serial)
-
-    if graph_config_callbacks:
-        config.with_graph_config_callbacks(graph_config_callbacks)
 
     await run_automation(
         config,
