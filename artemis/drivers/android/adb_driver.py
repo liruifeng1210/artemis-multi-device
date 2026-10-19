@@ -339,7 +339,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
                         await asyncio.to_thread(self.device.shell, "input keyevent 279")
                         return True
                 except Exception as e:
-                    logger.debug(f"Clipboard paste fallback to ADB input: {e}")
+                    logger.debug("Clipboard paste fallback to ADB input: %s", type(e).__name__)
 
             # 2. Tier 2: Check if ADBKeyboard is currently active
             try:
@@ -353,7 +353,9 @@ class AndroidAdbDriver(BaseDeviceDriver):
                     return True
             except Exception as e:
                 # ADBKeyboard probe/broadcast failed; fall through to native input.
-                logger.debug(f"ADBKeyboard IME path failed, falling back to ADB input: {e}")
+                logger.debug(
+                    "ADBKeyboard IME path failed, falling back to ADB input: %s", type(e).__name__
+                )
 
             # 3. Tier 3: Universal Native ADB input text fallback
             lines = norm_text.split("\n")
@@ -366,7 +368,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
                     await asyncio.to_thread(self.device.shell, f"input text {escaped}")
             return True
         except Exception as e:
-            logger.error(f"Input text failed for '{text}': {e}")
+            logger.error("Input text failed: %s", type(e).__name__)
             return False
 
     async def press_key(self, key: KeyCode | str | int) -> bool:
