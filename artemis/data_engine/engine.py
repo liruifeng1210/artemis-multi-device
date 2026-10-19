@@ -1252,8 +1252,11 @@ class DataEngine:
                         self._pending_threads.remove(curr_thread)
 
             from contextvars import copy_context
+
             context = copy_context()
-            thread = threading.Thread(target=context.run, args=(run_and_cleanup,), name="artemis-storage", daemon=True)
+            thread = threading.Thread(
+                target=context.run, args=(run_and_cleanup,), name="artemis-storage", daemon=True
+            )
             self._pending_threads.append(thread)
             thread.start()
         else:
@@ -1541,9 +1544,15 @@ class DataEngine:
             return []
         steps_with_traces = self.storage.get_steps_with_traces(self.current_session_id)
         scope = CURRENT_EXECUTION.get()
-        if scope is not None and scope.engine is self and scope.role_id and scope.phase not in ("final", "planner"):
+        if (
+            scope is not None
+            and scope.engine is self
+            and scope.role_id
+            and scope.phase not in ("final", "planner")
+        ):
             steps_with_traces = [
-                (step, traces) for step, traces in steps_with_traces
+                (step, traces)
+                for step, traces in steps_with_traces
                 if (step.extra_metadata or {}).get("role_id") == scope.role_id
             ]
         describer = build_image_describer([step for step, _ in steps_with_traces])

@@ -82,7 +82,10 @@ class CheckVerdict(BaseModel):
 
     item_text: str = Field(description="The check line's text, quoted verbatim.")
     kind: Literal["verify", "assert"]
-    check_key: str | None = Field(default=None, description="Copy the declared check_key exactly; required when identical text appears more than once.")
+    check_key: str | None = Field(
+        default=None,
+        description="Copy the declared check_key exactly; required when identical text appears more than once.",
+    )
     role_id: str | None = None
     status: Literal["passed", "failed", "inconclusive"]
     evidence: str = Field(
@@ -440,19 +443,38 @@ def _normalize_report(report: CheckReport, check_items: list) -> CheckReport:
     if any(getattr(ci, "role_id", None) for ci in check_items):
         normalized = []
         for ci in check_items:
-            candidates = [v for v in report.verdicts if v.check_key == ci.key
-                          and v.kind == ci.kind and v.item_text == ci.text]
-            if not candidates and sum(c.kind == ci.kind and c.text == ci.text for c in check_items) == 1:
-                candidates = [v for v in report.verdicts if not v.check_key
-                              and v.kind == ci.kind and v.item_text == ci.text]
+            candidates = [
+                v
+                for v in report.verdicts
+                if v.check_key == ci.key and v.kind == ci.kind and v.item_text == ci.text
+            ]
+            if (
+                not candidates
+                and sum(c.kind == ci.kind and c.text == ci.text for c in check_items) == 1
+            ):
+                candidates = [
+                    v
+                    for v in report.verdicts
+                    if not v.check_key and v.kind == ci.kind and v.item_text == ci.text
+                ]
             if candidates:
                 v = candidates[-1].model_copy(update={"check_key": ci.key, "role_id": ci.role_id})
                 if v.status == "failed" and not v.evidence.strip():
-                    v = v.model_copy(update={"status": "inconclusive", "evidence": "failed verdict lacked concrete evidence"})
+                    v = v.model_copy(
+                        update={
+                            "status": "inconclusive",
+                            "evidence": "failed verdict lacked concrete evidence",
+                        }
+                    )
             else:
-                v = CheckVerdict(item_text=ci.text, kind=ci.kind, status="inconclusive",
-                                 evidence="No unambiguous verdict produced for this role's check",
-                                 check_key=ci.key, role_id=ci.role_id)
+                v = CheckVerdict(
+                    item_text=ci.text,
+                    kind=ci.kind,
+                    status="inconclusive",
+                    evidence="No unambiguous verdict produced for this role's check",
+                    check_key=ci.key,
+                    role_id=ci.role_id,
+                )
             normalized.append(v)
         return CheckReport(verdicts=normalized, unmet_subgoals=list(report.unmet_subgoals))
     verdicts: list[CheckVerdict] = []

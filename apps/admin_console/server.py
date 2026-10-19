@@ -87,7 +87,16 @@ except ImportError:
     from apps.admin_console.core.security import SameOriginBoundaryMiddleware
     from apps.admin_console.core.state import state
     from apps.admin_console.database.repositories.session_repository import session_repo
-    from apps.admin_console.routers import cases, media, replay, sessions, steps, stream, system, tasks
+    from apps.admin_console.routers import (
+        cases,
+        media,
+        replay,
+        sessions,
+        steps,
+        stream,
+        system,
+        tasks,
+    )
     from apps.admin_console.routers.replay import replay_manager
     from apps.admin_console.services.ipc_service import ipc_service
     from apps.admin_console.services.model_service import model_service

@@ -94,6 +94,7 @@ async def invoke_tool_with_injection(
         start_time = time.time()
 
         from artemis.runtime.execution_scope import get_current_data_engine
+
         live_engine = get_current_data_engine()
 
         if record_trace and live_engine:

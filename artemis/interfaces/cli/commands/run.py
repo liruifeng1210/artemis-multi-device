@@ -141,14 +141,24 @@ async def execute_task(
         from artemis.sdk.multi_device_agent import MultiDeviceAgent
         from artemis.runtime.multi_device.models import MultiDeviceRequest, AppProfile
 
-        publish_startup_progress("role_planning", "Planning case participants before allocating devices",
-                                 session_id=effective_sid)
-        result = await MultiDeviceAgent(config=config.build(), session_id=effective_sid).run_case(
+        publish_startup_progress(
+            "role_planning",
+            "Planning case participants before allocating devices",
+            session_id=effective_sid,
+        )
+        result = await MultiDeviceAgent(
+            config=config.build(),
+            session_id=effective_sid,
+            test_name=test_name,
+            traces_path=traces_output_path_str,
+        ).run_case(
             MultiDeviceRequest(
                 case=goal,
                 preferred_device=device_serial,
                 app_profile=AppProfile(package=locked_app_package, apk_path=app_path)
-                if locked_app_package else None,
+                if locked_app_package
+                else None,
+                apk_path=app_path if not locked_app_package else None,
                 output_description=output_description,
                 record_video=video_recording_tools_enabled is not False,
             )

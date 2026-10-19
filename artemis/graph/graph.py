@@ -119,6 +119,7 @@ def _notify_history_chunker(ctx: ArtemisContext, method: str, *args) -> None:
         runtime = getattr(ctx, "multi_device_runtime", None)
         if runtime is not None:
             from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
             scope = CURRENT_EXECUTION.get()
             if scope is not None and scope.role_id in runtime.contexts:
                 ctx = runtime.contexts[scope.role_id]
@@ -373,7 +374,8 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                     (
                         ci.when
                         for ci in snapshot.all_check_items
-                        if ci.kind == v.kind and ci.text == v.item_text
+                        if ci.kind == v.kind
+                        and ci.text == v.item_text
                         and (not getattr(v, "check_key", None) or ci.key == v.check_key)
                     ),
                     "at_end",
@@ -655,6 +657,7 @@ async def _process_plan_write(
             runtime.commit_plan(
                 task_plan_path, expected, replacement, ExecutionScope(phase="system")
             )
+
     rejection_message = check_plan_mutation_rejections(content_before, content_after, state)
     if rejection_message is None and not declared_intent:
         rejection_message = check_unintended_rewrite(content_before, content_after)
@@ -699,9 +702,7 @@ async def _process_plan_write(
         new_item = new_top[index]
         if old_item.role_id == new_item.role_id:
             moved_parents[old_item.key] = new_item.key
-    still_declared = Counter(
-        (ci.kind, ci.text, ci.parent_key) for ci in after_snapshot.check_items
-    )
+    still_declared = Counter((ci.kind, ci.text, ci.parent_key) for ci in after_snapshot.check_items)
     dropped: list = []
     for ci in missing:
         parent = moved_parents.get(ci.parent_key, ci.parent_key)
@@ -1089,7 +1090,9 @@ async def get_graph(ctx: ArtemisContext, runtime=None) -> CompiledStateGraph:
     graph_builder = StateGraph(State)
     nodes = build_pro_nodes(ctx)
     if runtime is not None:
-        runtime.nodes = {role: build_pro_nodes(role_ctx) for role, role_ctx in runtime.contexts.items()}
+        runtime.nodes = {
+            role: build_pro_nodes(role_ctx) for role, role_ctx in runtime.contexts.items()
+        }
         for name, node in nodes.items():
             graph_builder.add_node(name, runtime.wrap_node(name, node))
     else:
@@ -1097,7 +1100,10 @@ async def get_graph(ctx: ArtemisContext, runtime=None) -> CompiledStateGraph:
             graph_builder.add_node(name, node)
     add_convergence_node(graph_builder)
     settlement = functools.partial(exit_settlement_node, ctx=ctx)
-    graph_builder.add_node("exit_settlement", runtime.wrap_node("exit_settlement", settlement) if runtime is not None else settlement)
+    graph_builder.add_node(
+        "exit_settlement",
+        runtime.wrap_node("exit_settlement", settlement) if runtime is not None else settlement,
+    )
 
     ## Linking nodes
     graph_builder.add_edge(START, "planner")
@@ -1124,7 +1130,11 @@ async def get_graph(ctx: ArtemisContext, runtime=None) -> CompiledStateGraph:
     add_convergence_edges(
         graph_builder,
         functools.partial(convergence_gate, ctx=ctx),
-        {"continue": "role_route" if runtime is not None else "perception", "exit_settlement": "exit_settlement", "end": END},
+        {
+            "continue": "role_route" if runtime is not None else "perception",
+            "exit_settlement": "exit_settlement",
+            "end": END,
+        },
     )
     graph_builder.add_conditional_edges(
         source="exit_settlement",

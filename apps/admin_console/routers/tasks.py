@@ -145,7 +145,8 @@ async def run_task(request: RunRequest):
     # An admission-time default device must not become the whole execution scope.
     device_probe = (
         await readiness_engine.run_device_submission_probe(target_serial=target_serial)
-        if request.profile != "pro" else None
+        if request.profile != "pro"
+        else None
     )
     if device_probe and device_probe.summary in {"Device Locked", "Lock State Unknown"}:
         locked_serial = (

@@ -745,6 +745,21 @@ class OperatorNode:
 
             runtime = getattr(self.ctx, "multi_device_runtime", None)
             if runtime is not None and runtime.handoff_requested():
+                # The model's tool-call message is already in the transcript. Pair
+                # every call before handing the conversation to another role.
+                for tc in action_calls:
+                    tool_outputs.append(
+                        ToolMessage(
+                            tool_call_id=tc["id"],
+                            name=normalize_name(tc["name"]),
+                            content=(
+                                "Not executed: the current milestone changed. "
+                                "Wait for a fresh observation before issuing this action."
+                            ),
+                            status="error",
+                        )
+                    )
+                current_messages.extend(tool_outputs)
                 action_result = None
                 break
 
@@ -952,7 +967,10 @@ class OperatorNode:
         runtime = getattr(self.ctx, "multi_device_runtime", None)
         if runtime is not None:
             from langchain_core.messages import SystemMessage
-            messages.insert(0, SystemMessage(content=runtime.operator_instructions(self.ctx.role_id)))
+
+            messages.insert(
+                0, SystemMessage(content=runtime.operator_instructions(self.ctx.role_id))
+            )
             if self._transcript_turn_base is not None:
                 self._transcript_turn_base += 1
             traced_tools = runtime.guard_tools(traced_tools, self.ctx.role_id)
@@ -1249,7 +1267,6 @@ class OperatorNode:
                     [],
                     (f"Error: 'text' must be a string, got {type(text).__name__}."),
                 )
-
             el, err = resolve_target_element(target, args.get("target_description"))
             if err:
                 return [], err
@@ -1396,7 +1413,7 @@ class OperatorNode:
                     [],
                     f"Error: Unsupported app management action '{action}'.",
                 )
-            if not app_name or not isinstance(app_name, str):
+            if not isinstance(app_name, str) or not app_name:
                 return [], "Error: 'app_name' must be a valid non-empty string."
             action_str = "launch_app" if action == "launch" else "stop_app"
             return [{"action": action_str, "app_name": app_name}], None

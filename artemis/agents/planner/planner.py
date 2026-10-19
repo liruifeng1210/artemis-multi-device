@@ -242,7 +242,9 @@ class PlannerNode:
             system_message += single_device_instructions(self.ctx)
 
         # Get screenshot
-        screenshot_b64 = next(iter(runtime.initial_observations.values()), None) if runtime else None
+        screenshot_b64 = (
+            next(iter(runtime.initial_observations.values()), None) if runtime else None
+        )
         screenshot_path = state.latest_screenshot if hasattr(state, "latest_screenshot") else None
 
         if screenshot_path and Path(screenshot_path).exists():
@@ -285,10 +287,15 @@ class PlannerNode:
         human_message_content = [{"type": "text", "text": human_message}]
         if runtime is not None:
             for role_id, observation in runtime.initial_observations.items():
-                human_message_content.extend([
-                    {"type": "text", "text": f"Initial device observation for role {role_id}:"},
-                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{observation}"}},
-                ])
+                human_message_content.extend(
+                    [
+                        {"type": "text", "text": f"Initial device observation for role {role_id}:"},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/png;base64,{observation}"},
+                        },
+                    ]
+                )
         elif screenshot_b64:
             human_message_content.append(
                 {
