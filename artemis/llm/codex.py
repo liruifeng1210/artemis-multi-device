@@ -21,6 +21,10 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from pydantic import Field
 
+from third_party.mobile_use.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 def find_codex() -> str:
     explicit = os.environ.get("ARTEMIS_CODEX_PATH")
@@ -237,6 +241,9 @@ class CodexChatModel(BaseChatModel):
                 process = await _settle(spawning)
                 await _settle(asyncio.create_task(_kill_and_reap(process)))
                 raise
+            call_id = uuid.uuid4().hex
+            pid = getattr(process, "pid", None)
+            logger.info(f"CODEX_CALL start id={call_id} pid={pid} model={self.model_name} effort={self.reasoning_effort}")
             try:
                 stdout, stderr = await asyncio.wait_for(
                     process.communicate(prompt.encode("utf-8")),
@@ -244,7 +251,9 @@ class CodexChatModel(BaseChatModel):
                 )
             except (asyncio.CancelledError, TimeoutError):
                 await _settle(asyncio.create_task(_kill_and_reap(process)))
+                logger.info(f"CODEX_CALL reaped id={call_id} pid={pid} reason=cancel_or_timeout")
                 raise
+            logger.info(f"CODEX_CALL exit id={call_id} pid={pid} code={process.returncode}")
             if process.returncode:
                 # Never include stdout/stderr: they may contain the conversation.
                 raise RuntimeError(
