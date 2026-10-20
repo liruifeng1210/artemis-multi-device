@@ -1,0 +1,19 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "The read-only note B_calculator_history_report records first result 8 (48÷6), latest current result 32 (8×4), says both are recorded with no unavailable item, and states A data referenced: no. The extracted report repeats these values.",
+      "item_text": "[verify] (at_end) [contract:report_history] 报告B历史中的首次结果和最新当前结果，缺失项明确标记不可用，未引用A的数据。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "no verdict produced for this item",
+      "item_text": "[contract:report_history] 报告B历史中的首次结果和最新当前结果，缺失项明确标记不可用，未引用A的数据。",
+      "kind": "verify",
+      "status": "inconclusive",
+      "suggestion": ""
+    }
+  ]
+}

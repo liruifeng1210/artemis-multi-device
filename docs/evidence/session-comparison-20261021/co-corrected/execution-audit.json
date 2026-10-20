@@ -1,0 +1,375 @@
+{
+  "read_only": true,
+  "execution_status_counts": {
+    "completed": 4,
+    "failed": 2,
+    "cancelled": 2
+  },
+  "native_check_totals": {
+    "passed": 7,
+    "failed": 1,
+    "inconclusive": 2,
+    "unchecked": 0
+  },
+  "cancel_request": {
+    "time": "2026-10-20T18:38:51.099973+00:00",
+    "kind": "cancel_request",
+    "role": "A",
+    "task": "56ed3d7c-5c85-445a-a5f0-292b01de5824",
+    "attempt": "6e4a5ba7-e524-4665-9753-f709d992d0bc",
+    "status": "running",
+    "active": true,
+    "children": [
+      "codex.exe",
+      "codex.exe",
+      "conhost.exe",
+      "conhost.exe"
+    ]
+  },
+  "cancel_return": {
+    "time": "2026-10-20T18:38:51.141142+00:00",
+    "kind": "cancel_return",
+    "role": "A",
+    "task": "56ed3d7c-5c85-445a-a5f0-292b01de5824"
+  },
+  "cancel_latency_seconds": 0.041169,
+  "cancel_task_device_actions": [],
+  "cancel_stage": "LLM/planner wait before first action",
+  "B_actions_after_A_cancel": [
+    {
+      "trace_id": "873b9b77-1fa3-4ecd-b010-850f8faacca1",
+      "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+      "step_id": "4b9393de-53eb-4a6b-83f5-80950ddce540",
+      "parent_trace_id": "82ebb10c-06b1-4d2e-b17b-926d47bf1fef",
+      "type": "action",
+      "name": "tap",
+      "timestamp": 1792521704.3393958,
+      "duration": 0.5140292644500732,
+      "status": "success",
+      "execution": {
+        "role_id": "B",
+        "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+        "task_id": "2b922e1f-3bff-4adb-b6fc-f23c7186d488",
+        "attempt_id": "935ff236-fb70-4eb9-9266-9e43bf09809b",
+        "device_id": "a8acf864"
+      },
+      "action": {
+        "action": "tap",
+        "coordinates": [
+          927,
+          1401
+        ],
+        "coordinate_space": "pixel",
+        "normalized_coordinates": [
+          858,
+          590
+        ],
+        "times": 1,
+        "delay_ms": 100,
+        "target_text": "乘",
+        "target_bounds": [
+          816,
+          1290,
+          1038,
+          1512
+        ],
+        "target_resource_id": "com.coloros.calculator:id/op_mul",
+        "target_class": "android.widget.Button"
+      },
+      "success": true
+    },
+    {
+      "trace_id": "fffdf37b-ab00-4565-970e-85462e4e8ced",
+      "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+      "step_id": "a74d89c1-99b4-4884-b49e-795e88b7d402",
+      "parent_trace_id": "e524ed08-e39c-4f56-a9a3-785ff950ea0c",
+      "type": "action",
+      "name": "tap",
+      "timestamp": 1792521733.5845025,
+      "duration": 0.5332698822021484,
+      "status": "success",
+      "execution": {
+        "role_id": "B",
+        "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+        "task_id": "2b922e1f-3bff-4adb-b6fc-f23c7186d488",
+        "attempt_id": "935ff236-fb70-4eb9-9266-9e43bf09809b",
+        "device_id": "a8acf864"
+      },
+      "action": {
+        "action": "tap",
+        "coordinates": [
+          927,
+          1401
+        ],
+        "coordinate_space": "pixel",
+        "normalized_coordinates": [
+          858,
+          590
+        ],
+        "times": 1,
+        "delay_ms": 100,
+        "target_text": "乘",
+        "target_bounds": [
+          816,
+          1290,
+          1038,
+          1512
+        ],
+        "target_resource_id": "com.coloros.calculator:id/op_mul",
+        "target_class": "android.widget.Button"
+      },
+      "success": true
+    },
+    {
+      "trace_id": "cd58ff39-08c4-491f-811e-8e61826b4084",
+      "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+      "step_id": "087d978f-3075-436d-953d-5766034b9a01",
+      "parent_trace_id": "3f6d6c37-51fb-44d5-b6fb-492d39116e9d",
+      "type": "action",
+      "name": "tap",
+      "timestamp": 1792521767.6628582,
+      "duration": 0.5550692081451416,
+      "status": "success",
+      "execution": {
+        "role_id": "B",
+        "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+        "task_id": "2b922e1f-3bff-4adb-b6fc-f23c7186d488",
+        "attempt_id": "935ff236-fb70-4eb9-9266-9e43bf09809b",
+        "device_id": "a8acf864"
+      },
+      "action": {
+        "action": "tap",
+        "coordinates": [
+          153,
+          1659
+        ],
+        "coordinate_space": "pixel",
+        "normalized_coordinates": [
+          142,
+          698
+        ],
+        "times": 1,
+        "delay_ms": 100,
+        "target_text": "4",
+        "target_bounds": [
+          42,
+          1548,
+          264,
+          1770
+        ],
+        "target_resource_id": "com.coloros.calculator:id/digit_4",
+        "target_class": "android.widget.Button"
+      },
+      "success": true
+    },
+    {
+      "trace_id": "2d70233f-b0f6-4246-be47-705cf0545b38",
+      "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+      "step_id": "7491dd21-a1c9-46db-9b19-d7608949b9c6",
+      "parent_trace_id": "f09b40d4-9ea1-4ee5-b7f3-2ab4c20b9c2a",
+      "type": "action",
+      "name": "tap",
+      "timestamp": 1792521797.7025328,
+      "duration": 0.5046851634979248,
+      "status": "success",
+      "execution": {
+        "role_id": "B",
+        "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+        "task_id": "2b922e1f-3bff-4adb-b6fc-f23c7186d488",
+        "attempt_id": "935ff236-fb70-4eb9-9266-9e43bf09809b",
+        "device_id": "a8acf864"
+      },
+      "action": {
+        "action": "tap",
+        "coordinates": [
+          927,
+          2175
+        ],
+        "coordinate_space": "pixel",
+        "normalized_coordinates": [
+          858,
+          915
+        ],
+        "times": 1,
+        "delay_ms": 100,
+        "target_text": "等于",
+        "target_bounds": [
+          816,
+          2064,
+          1038,
+          2286
+        ],
+        "target_resource_id": "com.coloros.calculator:id/eq",
+        "target_class": "android.widget.Button"
+      },
+      "success": true
+    }
+  ],
+  "late_actions_after_task_terminal": [],
+  "action_intervals_ending_after_task_terminal": [],
+  "actions_without_duration": 0,
+  "persistent_resource_boundaries": [
+    {
+      "path": "artifacts/01-initial-A/boundary.json",
+      "session": "14127587-b5ff-45ad-9943-8879e13864cc",
+      "context_id": 2041865319712,
+      "driver_id": 2041877640688,
+      "ledger_id": 2041878188240,
+      "role_status": "idle",
+      "ledger_turn_count": 17,
+      "ledger_has_staged_turn": false,
+      "ledger_task_key": [
+        "393d24d4-1162-423a-b5d4-92fc4219ce83",
+        "8f40a219-cf84-413d-a006-f94b174a7a4b"
+      ],
+      "retained_runs": 0,
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "artifacts/01-initial-B/boundary.json",
+      "session": "633269ea-9548-43bc-bfed-ad37525de38e",
+      "context_id": 2041877772912,
+      "driver_id": 2041877643184,
+      "ledger_id": 2041877629504,
+      "role_status": "idle",
+      "ledger_turn_count": 8,
+      "ledger_has_staged_turn": false,
+      "ledger_task_key": [
+        "51a076e5-7df3-42d7-aed2-ceea43e69aed",
+        "a8ba4bfb-ca3b-4f0b-b389-07922b3f79fe"
+      ],
+      "retained_runs": 0,
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "artifacts/02-continue-A/boundary.json",
+      "session": "14127587-b5ff-45ad-9943-8879e13864cc",
+      "context_id": 2041865319712,
+      "driver_id": 2041877640688,
+      "ledger_id": 2041878188240,
+      "role_status": "idle",
+      "ledger_turn_count": 22,
+      "ledger_has_staged_turn": false,
+      "ledger_task_key": [
+        "7abd884f-8c75-4fee-899d-7096bc4b452f",
+        "e6f94af8-2c29-4b13-8f38-0b82936eebcf"
+      ],
+      "retained_runs": 0,
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "artifacts/02-continue-B/boundary.json",
+      "session": "633269ea-9548-43bc-bfed-ad37525de38e",
+      "context_id": 2041877772912,
+      "driver_id": 2041877643184,
+      "ledger_id": 2041877629504,
+      "role_status": "idle",
+      "ledger_turn_count": 14,
+      "ledger_has_staged_turn": false,
+      "ledger_task_key": [
+        "999790a6-45e8-4142-96d9-1a2a2421dd5d",
+        "875fff6e-9acb-477e-8175-0425fc1b2bbb"
+      ],
+      "retained_runs": 0,
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "artifacts/03-cancel-A/boundary.json",
+      "session": "14127587-b5ff-45ad-9943-8879e13864cc",
+      "context_id": 2041865319712,
+      "driver_id": 2041877640688,
+      "ledger_id": 2041878188240,
+      "role_status": "idle",
+      "ledger_turn_count": 22,
+      "ledger_has_staged_turn": false,
+      "ledger_task_key": [
+        "56ed3d7c-5c85-445a-a5f0-292b01de5824",
+        "6e4a5ba7-e524-4665-9753-f709d992d0bc"
+      ],
+      "retained_runs": 0,
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "artifacts/03-independent-B/boundary.json",
+      "session": "633269ea-9548-43bc-bfed-ad37525de38e",
+      "context_id": 2041877772912,
+      "driver_id": 2041877643184,
+      "ledger_id": 2041877629504,
+      "role_status": "idle",
+      "ledger_turn_count": 19,
+      "ledger_has_staged_turn": false,
+      "ledger_task_key": [
+        "2b922e1f-3bff-4adb-b6fc-f23c7186d488",
+        "935ff236-fb70-4eb9-9266-9e43bf09809b"
+      ],
+      "retained_runs": 0,
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "artifacts/04-reuse-A/boundary.json",
+      "session": "14127587-b5ff-45ad-9943-8879e13864cc",
+      "context_id": 2041865319712,
+      "driver_id": 2041877640688,
+      "ledger_id": 2041878188240,
+      "role_status": "idle",
+      "ledger_turn_count": 26,
+      "ledger_has_staged_turn": false,
+      "ledger_task_key": [
+        "4578493b-a5d0-4fc0-8d9f-982b5b51f9f4",
+        "20ca8206-c8d1-4f7d-a3ce-ac10da9bf296"
+      ],
+      "retained_runs": 0,
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "artifacts/04-reuse-B/boundary.json",
+      "session": "633269ea-9548-43bc-bfed-ad37525de38e",
+      "context_id": 2041877772912,
+      "driver_id": 2041877643184,
+      "ledger_id": 2041877629504,
+      "role_status": "idle",
+      "ledger_turn_count": 19,
+      "ledger_has_staged_turn": false,
+      "ledger_task_key": [
+        "c7ba65a8-8271-46fd-b937-5c00f6c3c266",
+        "1f3c3a3c-0072-48ae-9fe8-a8686f7cbf94"
+      ],
+      "retained_runs": 0,
+      "background_tasks": 0,
+      "background_jobs": 0
+    }
+  ],
+  "resource_identity_unchanged_per_session": {
+    "14127587-b5ff-45ad-9943-8879e13864cc": {
+      "context_id": true,
+      "driver_id": true,
+      "ledger_id": true
+    },
+    "633269ea-9548-43bc-bfed-ad37525de38e": {
+      "context_id": true,
+      "driver_id": true,
+      "ledger_id": true
+    }
+  },
+  "history_chunk_status_counts": {
+    "pending": 14,
+    "ready": 14
+  },
+  "history_chunk_latest_range_status_counts": {
+    "ready": 14
+  },
+  "task_start_state_records": 0,
+  "limitations": [
+    "Action timestamps are trace records, not device-side atomic commits.",
+    "Template-context background counters do not enumerate every active task context.",
+    "Activation observer in a2afa8d lacked parent mkdir; missing files are an instrumentation gap. Graph-start log evidence is separate.",
+    "Queue and in-flight device-operation cancellation were not exercised. No crash injection."
+  ]
+}

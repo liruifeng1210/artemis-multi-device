@@ -1,0 +1,36 @@
+{
+  "role_id": "A",
+  "session_id": "14127587-b5ff-45ad-9943-8879e13864cc",
+  "task_id": "4578493b-a5d0-4fc0-8d9f-982b5b51f9f4",
+  "attempt_id": "20ca8206-c8d1-4f7d-a3ce-ac10da9bf296",
+  "status": "completed",
+  "output": {
+    "test_summary": {
+      "task_status": "completed",
+      "passed": 3,
+      "failed": 0,
+      "inconclusive": 1,
+      "unchecked": 0,
+      "failed_items": [],
+      "retired": 0,
+      "retired_items": []
+    }
+  },
+  "error": null,
+  "workspace": "<LOCAL_EVIDENCE>/comparison-20261021\\co-corrected\\traces\\14127587-b5ff-45ad-9943-8879e13864cc\\tasks\\4578493b-a5d0-4fc0-8d9f-982b5b51f9f4\\20ca8206-c8d1-4f7d-a3ce-ac10da9bf296",
+  "cleanup_errors": [],
+  "reusable": true,
+  "native_run_outcome": {
+    "task_status": "completed",
+    "tests": {
+      "passed": 3,
+      "failed": 0,
+      "inconclusive": 1,
+      "unchecked": 0,
+      "failed_items": [],
+      "retired": 0,
+      "retired_items": []
+    }
+  },
+  "checker_success_flag": true
+}

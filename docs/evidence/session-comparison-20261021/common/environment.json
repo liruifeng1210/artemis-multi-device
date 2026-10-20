@@ -1,0 +1,39 @@
+{
+  "os": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.14 (main, Sep  1 2026, 14:17:39) [MSC v.1944 64 bit (AMD64)]",
+  "packages": {
+    "langgraph": "1.2.11",
+    "langchain-core": "1.5.6",
+    "pydantic": "2.13.4",
+    "psutil": "7.2.2"
+  },
+  "adb": [
+    "Android Debug Bridge version 1.0.41",
+    "Version 33.0.2-8557947"
+  ],
+  "codex_cli": "codex-cli 0.163.0",
+  "devices": {
+    "A": {
+      "serial": "21850fc5",
+      "calculator": "com.miui.calculator",
+      "ro.product.model": "MI 6",
+      "ro.build.version.release": "9",
+      "ro.build.version.sdk": "28",
+      "package_version": [
+        "versionCode=11020001 minSdk=21 targetSdk=26",
+        "versionName=11.0.1"
+      ]
+    },
+    "B": {
+      "serial": "a8acf864",
+      "calculator": "com.coloros.calculator",
+      "ro.product.model": "PJZ110",
+      "ro.build.version.release": "16",
+      "ro.build.version.sdk": "36",
+      "package_version": [
+        "versionCode=16004002 minSdk=30 targetSdk=36",
+        "versionName=16.4.2"
+      ]
+    }
+  }
+}

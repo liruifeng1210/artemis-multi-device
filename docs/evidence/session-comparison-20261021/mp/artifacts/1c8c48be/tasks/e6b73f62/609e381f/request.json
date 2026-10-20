@@ -1,0 +1,59 @@
+{
+  "attempt_id": "609e381f-b88a-474f-8835-e4e58580c37f",
+  "child_session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+  "in_reply_to": null,
+  "kind": "execute",
+  "message_id": "1eb28223-0756-461f-9afe-9bee89f77cf2",
+  "payload": {
+    "completion": [
+      {
+        "description": "从屏幕现有值执行乘4并等号，观察并记录实际结果；若乘前为25则结果为100。",
+        "id": "reuse_observed",
+        "required": true
+      },
+      {
+        "description": "B持续Role历史保留首次结果并更新当前结果；不得伪造期望值。",
+        "id": "history_updated",
+        "required": true
+      }
+    ],
+    "constraints": [
+      "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+      "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+      "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+      "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+      "只操作指定设备计算器；不得用shell替代点击。",
+      "保持B原有子Session、连接和历史，不清空、不重输旧值或旧算式。",
+      "此任务不依赖A的任务状态；不重试有不确定副作用的操作。"
+    ],
+    "effect_policy": "verify_before_retry",
+    "execution_timeout_seconds": 900.0,
+    "goal": "与A的cancel-A场景独立运行。在B原有子Session、连接和历史中观察当前屏幕，接屏幕现有值执行×4并等号；不清空或重输旧值或旧算式。观察实际结果并更新B历史当前结果。若当前值为25，结果应为100；否则如实报告实际值，不伪造期望值。",
+    "input_sources": {},
+    "inputs": {
+      "device_id": "a8acf864",
+      "expected_result": "100",
+      "session_id": "570caa92-a5e2-460a-893b-8d547145ac42"
+    },
+    "max_steps": 100,
+    "outputs_schema": {
+      "properties": {
+        "current_result": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "current_result"
+      ],
+      "type": "object"
+    },
+    "settlement_timeout_seconds": 60.0,
+    "verification_timeout_seconds": 600.0
+  },
+  "protocol_version": 1,
+  "role_id": "B",
+  "sequence": 7,
+  "task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+  "worker_epoch": "1bc8faeb-9a3b-41af-a75d-257ee4e3e179",
+  "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14"
+}

@@ -1,0 +1,8 @@
+- [x] Re-read the current calculator screen: the pending expression is 125+ and the displayed value is 125; use this live state, not an assumed rollback
+- [x] Enter 10 after the pending +, press = without clearing, confirm the result, and report before=125 and after=135
+  - [x] Tap 1 as the first digit after the pending +.
+  - [x] Press = to evaluate 125+10; the final display shows 135.
+  - verify: The reported result is the live starting value plus 10
+- assert@end: 不清空
+- assert@end: 按等号
+- assert@end: 报告前后值

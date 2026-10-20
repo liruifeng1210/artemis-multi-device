@@ -1,0 +1,123 @@
+{
+  "sample_interval_s": 5,
+  "samples": 611,
+  "first": "2026-10-20T18:09:03.601949+00:00",
+  "last": "2026-10-20T19:00:37.638880+00:00",
+  "method": "psutil current real interpreter plus recursive children; sampled RSS sum, not unique/private memory. Main venv launcher and shared adb daemon excluded; child venv launchers and transient CLI/conhost/ADB processes included when sampled. Nominal 5s; MP boundary capture can delay samples.",
+  "total_processes": {
+    "min": 1,
+    "median": 5,
+    "max": 13
+  },
+  "python_processes": {
+    "min": 1,
+    "median": 1,
+    "max": 1
+  },
+  "codex_processes": {
+    "min": 0,
+    "median": 2,
+    "max": 6
+  },
+  "summed_rss_bytes": {
+    "min": 167501824,
+    "median": 447868928,
+    "max": 996380672
+  },
+  "peak_sample": {
+    "time": "2026-10-20T18:30:30.346321+00:00",
+    "processes": [
+      {
+        "pid": 16572,
+        "ppid": 36104,
+        "name": "python.exe",
+        "rss": 193449984,
+        "created": 1792519737.8572009
+      },
+      {
+        "pid": 37116,
+        "ppid": 16572,
+        "name": "codex.exe",
+        "rss": 117710848,
+        "created": 1792521009.413313
+      },
+      {
+        "pid": 26852,
+        "ppid": 16572,
+        "name": "codex.exe",
+        "rss": 130265088,
+        "created": 1792521011.20688
+      },
+      {
+        "pid": 30300,
+        "ppid": 16572,
+        "name": "codex.exe",
+        "rss": 135270400,
+        "created": 1792521011.2418196
+      },
+      {
+        "pid": 34424,
+        "ppid": 16572,
+        "name": "codex.exe",
+        "rss": 114397184,
+        "created": 1792521012.1172729
+      },
+      {
+        "pid": 39656,
+        "ppid": 16572,
+        "name": "codex.exe",
+        "rss": 126435328,
+        "created": 1792521013.3550124
+      },
+      {
+        "pid": 26976,
+        "ppid": 16572,
+        "name": "codex.exe",
+        "rss": 131256320,
+        "created": 1792521013.3703952
+      },
+      {
+        "pid": 37560,
+        "ppid": 26976,
+        "name": "conhost.exe",
+        "rss": 7925760,
+        "created": 1792521013.3853388
+      },
+      {
+        "pid": 30076,
+        "ppid": 39656,
+        "name": "conhost.exe",
+        "rss": 7929856,
+        "created": 1792521013.3689375
+      },
+      {
+        "pid": 12412,
+        "ppid": 34424,
+        "name": "conhost.exe",
+        "rss": 7933952,
+        "created": 1792521012.131328
+      },
+      {
+        "pid": 7896,
+        "ppid": 30300,
+        "name": "conhost.exe",
+        "rss": 7938048,
+        "created": 1792521011.2614453
+      },
+      {
+        "pid": 22844,
+        "ppid": 26852,
+        "name": "conhost.exe",
+        "rss": 7933952,
+        "created": 1792521011.2205584
+      },
+      {
+        "pid": 37024,
+        "ppid": 37116,
+        "name": "conhost.exe",
+        "rss": 7933952,
+        "created": 1792521009.426846
+      }
+    ]
+  }
+}

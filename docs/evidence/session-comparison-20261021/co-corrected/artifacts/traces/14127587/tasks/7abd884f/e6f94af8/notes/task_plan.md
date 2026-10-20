@@ -1,0 +1,7 @@
+- [x] Read the actual calculator screen and record both the last completed result in history and the current live expression/result in `calculator_run_record` (history: `125+75=200`; live display: `125+=125`).
+- [/] Continue from the on-screen last completed result using the calculator's existing display or history, multiply by 3, and press equals without clearing or re-entering the old result or expression.
+  - [/] Return from the calculator settings page to the calculation screen without changing the existing input.
+  - verify: The final calculator display shows 600.
+- [!] Read the final live screen and report the resulting expression and result; the only available evidence is the initial screen, which shows 125.
+- assert@end: 当前结果为600
+- assert@end: 不得清空或重新输入旧结果或旧算式

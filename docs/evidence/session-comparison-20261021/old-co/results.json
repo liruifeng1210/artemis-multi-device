@@ -1,0 +1,128 @@
+[
+  {
+    "round": "01-initial",
+    "role_id": "B",
+    "session_id": "22e26727-d330-4945-95ae-c68eb125cce2",
+    "task_id": "796b698d-69c6-42fd-9100-c5ba6303e3a8",
+    "attempt_id": "58fdf8c8-6a37-4c4a-a952-544f0e964a81",
+    "status": "completed",
+    "output": {
+      "test_summary": {
+        "task_status": "completed",
+        "passed": 1,
+        "failed": 0,
+        "inconclusive": 0,
+        "unchecked": 0,
+        "failed_items": [],
+        "retired": 0,
+        "retired_items": []
+      }
+    },
+    "error": null,
+    "workspace": "E:\\workplace\\artemis\\traces\\22e26727-d330-4945-95ae-c68eb125cce2\\tasks\\796b698d-69c6-42fd-9100-c5ba6303e3a8\\58fdf8c8-6a37-4c4a-a952-544f0e964a81",
+    "cleanup_errors": [],
+    "reusable": true,
+    "native_run_outcome": {
+      "task_status": "completed",
+      "tests": {
+        "passed": 1,
+        "failed": 0,
+        "inconclusive": 0,
+        "unchecked": 0,
+        "failed_items": [],
+        "retired": 0,
+        "retired_items": []
+      }
+    },
+    "checker_success_flag": true
+  },
+  {
+    "round": "01-initial",
+    "role_id": "A",
+    "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f",
+    "task_id": "a88d0655-7bd5-41d4-a66a-7e991f2f2176",
+    "attempt_id": "1f668e63-3629-4224-b638-071a48291824",
+    "status": "completed",
+    "output": {
+      "test_summary": {
+        "task_status": "completed",
+        "passed": 0,
+        "failed": 0,
+        "inconclusive": 3,
+        "unchecked": 0,
+        "failed_items": [],
+        "retired": 0,
+        "retired_items": []
+      }
+    },
+    "error": null,
+    "workspace": "E:\\workplace\\artemis\\traces\\49a0708e-47c8-4a7d-9181-fe243ac11e1f\\tasks\\a88d0655-7bd5-41d4-a66a-7e991f2f2176\\1f668e63-3629-4224-b638-071a48291824",
+    "cleanup_errors": [],
+    "reusable": true,
+    "native_run_outcome": {
+      "task_status": "completed",
+      "tests": {
+        "passed": 0,
+        "failed": 0,
+        "inconclusive": 3,
+        "unchecked": 0,
+        "failed_items": [],
+        "retired": 0,
+        "retired_items": []
+      }
+    },
+    "checker_success_flag": true
+  },
+  {
+    "round": "02-continue",
+    "role_id": "B",
+    "session_id": "22e26727-d330-4945-95ae-c68eb125cce2",
+    "task_id": "dbedad79-f17b-4f0c-9b5b-fc1170f32365",
+    "attempt_id": "40181a37-923d-4987-8545-ed064a3a7366",
+    "status": "completed",
+    "output": {
+      "test_summary": {
+        "task_status": "completed",
+        "passed": 0,
+        "failed": 0,
+        "inconclusive": 2,
+        "unchecked": 0,
+        "failed_items": [],
+        "retired": 0,
+        "retired_items": []
+      }
+    },
+    "error": null,
+    "workspace": "E:\\workplace\\artemis\\traces\\22e26727-d330-4945-95ae-c68eb125cce2\\tasks\\dbedad79-f17b-4f0c-9b5b-fc1170f32365\\40181a37-923d-4987-8545-ed064a3a7366",
+    "cleanup_errors": [],
+    "reusable": true,
+    "native_run_outcome": {
+      "task_status": "completed",
+      "tests": {
+        "passed": 0,
+        "failed": 0,
+        "inconclusive": 2,
+        "unchecked": 0,
+        "failed_items": [],
+        "retired": 0,
+        "retired_items": []
+      }
+    },
+    "checker_success_flag": true
+  },
+  {
+    "round": "02-continue",
+    "role_id": "A",
+    "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f",
+    "task_id": "6e9bb311-2fc9-4af1-aeab-7be11ec6b5dc",
+    "attempt_id": "8cba99c9-d56f-498b-98cb-f8935213a4b3",
+    "status": "cancelled",
+    "output": null,
+    "error": "Task cancelled",
+    "workspace": "E:\\workplace\\artemis\\traces\\49a0708e-47c8-4a7d-9181-fe243ac11e1f\\tasks\\6e9bb311-2fc9-4af1-aeab-7be11ec6b5dc\\8cba99c9-d56f-498b-98cb-f8935213a4b3",
+    "cleanup_errors": [],
+    "reusable": true,
+    "native_run_outcome": null,
+    "checker_success_flag": true
+  }
+]

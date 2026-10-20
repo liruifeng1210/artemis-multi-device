@@ -30,7 +30,7 @@ def clean(value):
 
 def write(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(clean(value), ensure_ascii=False, indent=2), encoding='utf-8')
+    path.write_text(json.dumps(clean(value), ensure_ascii=False, indent=2), encoding='utf-8', newline='\n')
 
 
 def calculator_note(key):
@@ -79,7 +79,7 @@ def export(source, target, log=None):
                 'summed_rss_bytes':stats([sum(p['rss'] for p in r['processes']) for r in rows]),
                 'peak_sample':max(rows,key=lambda r:sum(p['rss'] for p in r['processes']))})
             # Compact raw samples make the resource claims independently reproducible.
-            (target / 'process-samples.jsonl').write_text(samples.read_text(encoding='utf-8'),encoding='utf-8')
+            (target / 'process-samples.jsonl').write_text(samples.read_text(encoding='utf-8'),encoding='utf-8',newline='\n')
     for p in source.rglob('screen.png'):
         if p.relative_to(source).as_posix() in omitted_paths:continue
         if 'traces' not in p.relative_to(source).parts:
@@ -119,7 +119,7 @@ def export(source, target, log=None):
             except (ValueError, UnicodeError): pass
         else:
             out=artifact_path(rel);out.parent.mkdir(parents=True,exist_ok=True)
-            out.write_text(clean(p.read_text(encoding='utf-8')),encoding='utf-8')
+            out.write_text(clean(p.read_text(encoding='utf-8')).rstrip('\r\n')+'\n',encoding='utf-8',newline='\n')
     for p in source.rglob('events.jsonl'):
         write(target/'events.json', [json.loads(s) for s in p.read_text(encoding='utf-8').splitlines()])
     observer=source/'observer-events.jsonl'
@@ -171,6 +171,14 @@ def export(source, target, log=None):
         for row in steps:
             row['extra_metadata']=json.loads(row['extra_metadata'] or '{}')
         chunks=[dict(r) for r in connection.execute('select chunk_id,session_id,start_step_id,end_step_id,start_step_number,end_step_number,source_step_ids,version,status,created_at,band1,band2 from history_chunks')]
+        # Storage is append-only: pending v1 and ready v2 have distinct row IDs.
+        # Match storage.get_history_chunks's newest-version-per-step-range view.
+        latest_chunks={}
+        for chunk in chunks:
+            key=(chunk['session_id'],chunk['start_step_number'],chunk['end_step_number'])
+            previous=latest_chunks.get(key)
+            if previous is None or (chunk['version'],chunk['created_at']) >= (previous['version'],previous['created_at']):
+                latest_chunks[key]=chunk
         jobs=[dict(r) for r in connection.execute('select task_id,session_id,summary,status,start_time,end_time,trace_id from background_tasks')]
         traces=[]
         for r in connection.execute('select * from traces order by timestamp'):
@@ -215,13 +223,17 @@ def export(source, target, log=None):
                 if not meta.get('task_id'):check_without_task_meta+=1
                 elif (meta.get('task_id'),meta.get('attempt_id'))!=(task,attempt):
                     check_errors.append([file['path'],'foreign task/attempt'])
-        write(target/'database-summary.json', {'sessions':sessions,'steps':steps,'history_chunks':chunks,'background_jobs':jobs,'trace_counts':dict(Counter(r['type'] for r in traces)),
+        write(target/'database-summary.json', {'sessions':sessions,'steps':steps,'history_chunks':chunks,
+            'history_chunk_all_version_status_counts':dict(Counter(r['status'] for r in chunks)),
+            'history_chunk_latest_range_status_counts':dict(Counter(r['status'] for r in latest_chunks.values())),
+            'history_chunk_version_note':'Append-only versions have distinct row IDs; historical pending v1 is superseded when the same Session/step range has ready v2. Current view follows storage.get_history_chunks.',
+            'background_jobs':jobs,'trace_counts':dict(Counter(r['type'] for r in traces)),
             'trace_session_counts':dict(Counter(str(r['session_id']) for r in traces)),
             'running_trace_ids':[r['trace_id'] for r in traces if r['status']=='running'],
             'expected_bindings':expected,'referential_or_task_owner_errors':errors,'trace_device_metadata_gaps':gaps,
             'check_file_owner_errors':check_errors,'check_records_without_direct_task_metadata':check_without_task_meta,
             'limitation':'No task/step mismatch does not prove all prompt/note semantics isolated; running trace is persisted metadata, not OS liveness.'})
-        (target/'trace-timeline.jsonl').write_text('\n'.join(json.dumps(clean(r),ensure_ascii=False) for r in traces)+'\n',encoding='utf-8')
+        (target/'trace-timeline.jsonl').write_text('\n'.join(json.dumps(clean(r),ensure_ascii=False) for r in traces)+'\n',encoding='utf-8',newline='\n')
         connection.close()
     write(target/'artifact-index.json',[{'public_path':k,'original_relative_path':v} for k,v in sorted(artifact_index.items())])
     entries=[]

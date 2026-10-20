@@ -1,0 +1,1458 @@
+[
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=82f7c84365b64a0391af709196751b52 pid=26440 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=c6c2cd887c9a4732b86f3142a474fe83 pid=32160 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=c6c2cd887c9a4732b86f3142a474fe83 pid=32160 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=3c063bfd6df945cb9ee5756fba48671d pid=27096 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=82f7c84365b64a0391af709196751b52 pid=26440 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=6ebcc0f85517478d8e7457db4bab5a06 pid=29840 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=3c063bfd6df945cb9ee5756fba48671d pid=27096 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=473e87102a5d4586a0f5edad98e5d57b pid=2496 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=6ebcc0f85517478d8e7457db4bab5a06 pid=29840 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=7ff98317aad94ac6b976cb35c579c01b pid=34060 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=7ff98317aad94ac6b976cb35c579c01b pid=34060 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=5698aef893d94dab91bfd678fd10174b pid=37772 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=c07dc0fc61234787bf05aeaec214a55e pid=23476 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=473e87102a5d4586a0f5edad98e5d57b pid=2496 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=a5b955d445154606b7f6b7a0e6e5c088 pid=12508 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=5698aef893d94dab91bfd678fd10174b pid=37772 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=c07dc0fc61234787bf05aeaec214a55e pid=23476 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=3521cd7d09fc44af83861c289a796a74 pid=33636 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=fdb99986771f4b3e84be2e3f59c5abe0 pid=35660 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=a5b955d445154606b7f6b7a0e6e5c088 pid=12508 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=25cf5186cf2e45e791caa93159d4891c pid=36784 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=3521cd7d09fc44af83861c289a796a74 pid=33636 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=fdb99986771f4b3e84be2e3f59c5abe0 pid=35660 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=c97a5d1f19db46d7bf5d8f700ddf9f15 pid=37852 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=8be095c369c64a9fa12ad6d1abcb6bc5 pid=31448 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=25cf5186cf2e45e791caa93159d4891c pid=36784 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=c8e6eb823c904ef798870b6e5a18aa16 pid=6528 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=c97a5d1f19db46d7bf5d8f700ddf9f15 pid=37852 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=8be095c369c64a9fa12ad6d1abcb6bc5 pid=31448 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=ab2c7f8d579242edbfecbff6226610d3 pid=38208 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=7ffae09aefed418394557dadd7dab185 pid=36656 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=c8e6eb823c904ef798870b6e5a18aa16 pid=6528 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=8b986a5c593f47d1849bab49c40c596c pid=34284 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=ab2c7f8d579242edbfecbff6226610d3 pid=38208 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=7ffae09aefed418394557dadd7dab185 pid=36656 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=7bd86ecb58af450da01643ec3c3d0c51 pid=38008 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=f5da4eefc6d4416d8bddabe250445605 pid=38972 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=8b986a5c593f47d1849bab49c40c596c pid=34284 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=14995b6b989c476aa032ee63ee38b008 pid=39908 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=7bd86ecb58af450da01643ec3c3d0c51 pid=38008 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=f5da4eefc6d4416d8bddabe250445605 pid=38972 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=f3d9a8e3149f4891a2b60df7d2a16a44 pid=16748 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=de783b399bd0419ea6b28d5e75540f95 pid=35560 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=14995b6b989c476aa032ee63ee38b008 pid=39908 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=b227ebca4d10436a8510aa2149905046 pid=4856 model=gpt-6-luna effort=xhighℹ"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=682ecb3c8f394e6e8ca126449019ab39 pid=37020 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=f3d9a8e3149f4891a2b60df7d2a16a44 pid=16748 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=de783b399bd0419ea6b28d5e75540f95 pid=35560 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=ee2ed5618a9744478cfd96d673a3bb86 pid=38628 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=e79e90a0d7a1484e980673bcdb0d27df pid=27488 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=b227ebca4d10436a8510aa2149905046 pid=4856 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=682ecb3c8f394e6e8ca126449019ab39 pid=37020 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=992fbb45bb4244328c0169e7b845c484 pid=26612 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=81e45561416b44a48d432fb65f700fa1 pid=28364 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=ee2ed5618a9744478cfd96d673a3bb86 pid=38628 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=992fbb45bb4244328c0169e7b845c484 pid=26612 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=81e45561416b44a48d432fb65f700fa1 pid=28364 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=e79e90a0d7a1484e980673bcdb0d27df pid=27488 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d75fd13797c24e18b0ace4b458633ba5 pid=20740 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=3afc7a25b1994b879f7e77bac2700f4f pid=34464 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=fbdfaf567978483894963ce420f7c76a pid=29688 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=3afc7a25b1994b879f7e77bac2700f4f pid=34464 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=fbdfaf567978483894963ce420f7c76a pid=29688 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=bceefc37e7be43f78c60a742947ea0f5 pid=31080 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=699cceb6241e46e4844e0bd5e2b54d71 pid=13416 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d75fd13797c24e18b0ace4b458633ba5 pid=20740 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=99d39d170b884f109659dd6501581996 pid=14460 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=699cceb6241e46e4844e0bd5e2b54d71 pid=13416 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=e4237e5a43414617965a9be4f1de8c94 pid=15192 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=bceefc37e7be43f78c60a742947ea0f5 pid=31080 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=e1dfbc43505747b3925822a735fe3bab pid=28588 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=99d39d170b884f109659dd6501581996 pid=14460 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=38a3f3609c7844e7a4f851b485cf6555 pid=39432 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=e4237e5a43414617965a9be4f1de8c94 pid=15192 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=e1dfbc43505747b3925822a735fe3bab pid=28588 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=6051236c8f5f4876a301f91e9e31e852 pid=35384 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=449e34fa2ad1419ebbfa4723135b2afc pid=1836 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=38a3f3609c7844e7a4f851b485cf6555 pid=39432 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d5ec901e890a417583ba45e0883bcb0b pid=38296 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=6051236c8f5f4876a301f91e9e31e852 pid=35384 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=449e34fa2ad1419ebbfa4723135b2afc pid=1836 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=4edd86aae80344f99cf4220da8125ff2 pid=32588 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d5ec901e890a417583ba45e0883bcb0b pid=38296 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=6433c191e81c4442a9360e348491b33b pid=27516 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=c6c53c1c47c541cebd16ac305ccac015 pid=3956 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=4edd86aae80344f99cf4220da8125ff2 pid=32588 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=c6c53c1c47c541cebd16ac305ccac015 pid=3956 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=42fb44891e51432a904dc11c28f72957 pid=31536 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=06ff9128c3574b858c0268ec82d8408a pid=38024 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=6433c191e81c4442a9360e348491b33b pid=27516 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=fd9721d9c1444d3184fa34c7f9ac6d54 pid=5452 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=42fb44891e51432a904dc11c28f72957 pid=31536 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=06ff9128c3574b858c0268ec82d8408a pid=38024 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=c434f6dd259b47d3b7426b3e0e235117 pid=35468 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=934820f6304f478d9c41d061e7a523fd pid=21808 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=ea26ce571ef84b86bc8831fa6cdfa1a6 pid=39212 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=fd9721d9c1444d3184fa34c7f9ac6d54 pid=5452 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=4b1f1576327c4c3b9aa715fb4af998a7 pid=34656 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=c434f6dd259b47d3b7426b3e0e235117 pid=35468 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=4b1f1576327c4c3b9aa715fb4af998a7 pid=34656 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=ea26ce571ef84b86bc8831fa6cdfa1a6 pid=39212 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d4d466ae61bf42df9dbcd588d3e61d71 pid=36388 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=934820f6304f478d9c41d061e7a523fd pid=21808 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=1a219c6ece5f4395bb727c1942de8bec pid=33700 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=213ed5aea9ac45cebaf0e916a3d727c2 pid=30652 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=213ed5aea9ac45cebaf0e916a3d727c2 pid=30652 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=5d0566bd5d5d49f1af503b51f4f914da pid=31640 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d4d466ae61bf42df9dbcd588d3e61d71 pid=36388 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=a8734fa6edcf480b8c7650112e28a8e5 pid=31784 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=1a219c6ece5f4395bb727c1942de8bec pid=33700 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=5d0566bd5d5d49f1af503b51f4f914da pid=31640 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=a8734fa6edcf480b8c7650112e28a8e5 pid=31784 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=b66d91d5ec904f0bab2ef09c13963bc6 pid=5872 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=b66d91d5ec904f0bab2ef09c13963bc6 pid=5872 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d17be344a71540b0b9603afb53c7feec pid=29364 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=c5c9952422104a2d88ff425d1ace2210 pid=36280 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=4a060f2b986847f9b0619005ba4b70ea pid=39016 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d17be344a71540b0b9603afb53c7feec pid=29364 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=c5c9952422104a2d88ff425d1ace2210 pid=36280 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=4a060f2b986847f9b0619005ba4b70ea pid=39016 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=c7fd6fa369464069a61a08820bc8c824 pid=34600 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=50643d2e763447a49be4b6936aff1024 pid=35092 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=c7fd6fa369464069a61a08820bc8c824 pid=34600 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=50643d2e763447a49be4b6936aff1024 pid=35092 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=4fb9951df233466b9fa362a3e73ae717 pid=24856 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=1073066cf9274693be71d5607cd06071 pid=32812 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=4fb9951df233466b9fa362a3e73ae717 pid=24856 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=1073066cf9274693be71d5607cd06071 pid=32812 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=fd8e81c72b0c478d8f1fe94220675249 pid=7928 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=f18a9030525d478b83ee99edfa9efd7b pid=7608 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=0510ab8194084830a0ac25f045b16ef1 pid=34648 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=fd8e81c72b0c478d8f1fe94220675249 pid=7928 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=0510ab8194084830a0ac25f045b16ef1 pid=34648 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=f5a60d6311b64c979d4f8be0af29a92f pid=36388 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=7b5edee0f70e42298ef269cbb6541557 pid=31288 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=f18a9030525d478b83ee99edfa9efd7b pid=7608 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=f5a60d6311b64c979d4f8be0af29a92f pid=36388 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=7b5edee0f70e42298ef269cbb6541557 pid=31288 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=4abb9653d0f44f4c9035c5ac437ea3c8 pid=22408 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=3fc9e4aac4a441249e6d07a5bac19502 pid=28780 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=4abb9653d0f44f4c9035c5ac437ea3c8 pid=22408 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=bb97ada5b67d4643885f08ff95e4b367 pid=32160 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=3fc9e4aac4a441249e6d07a5bac19502 pid=28780 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=0fcce51575b349caa773bb51b9b23e23 pid=8960 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=0fcce51575b349caa773bb51b9b23e23 pid=8960 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=756267f069974494bc2d662acaa8d057 pid=38596 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=bb97ada5b67d4643885f08ff95e4b367 pid=32160 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=e2ed6d4dc99440ff9414e87f077844a5 pid=36420 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=e2ed6d4dc99440ff9414e87f077844a5 pid=36420 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=ca387647f9244c7bafcfc8ba978f712a pid=30288 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=756267f069974494bc2d662acaa8d057 pid=38596 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=3c0f5f2eaf3d4f85a185e8f5c5ab0312 pid=29800 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=ca387647f9244c7bafcfc8ba978f712a pid=30288 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=c20285c1f89846149ebabf933c672fc1 pid=34380 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=3c0f5f2eaf3d4f85a185e8f5c5ab0312 pid=29800 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=a7427db272484b5a8bce4ebad78022f8 pid=38056 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=c20285c1f89846149ebabf933c672fc1 pid=34380 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=2c26b485e36c4d5ab104343235298077 pid=12408 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=cd085c42d503436d9036f9ac8a73c5d0 pid=34464 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=a7427db272484b5a8bce4ebad78022f8 pid=38056 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=3d6556499fc04d6d97346daac482bde4 pid=39804 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=3d6556499fc04d6d97346daac482bde4 pid=39804 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=aa8e9031bdd6416dbc942bcc50f967fa pid=33448 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=cd085c42d503436d9036f9ac8a73c5d0 pid=34464 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=8b2e7553db1440c697c48cd88af0293d pid=32468 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=2c26b485e36c4d5ab104343235298077 pid=12408 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL reaped id=aa8e9031bdd6416dbc942bcc50f967fa pid=33448 reason=cancel_or_timeout"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=cde467d2a307498b9734c31ba105b8e1 pid=39300 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=8b2e7553db1440c697c48cd88af0293d pid=32468 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=df8e3739ae5140ae9e92ed4e2ae0ad0c pid=30088 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=3c01100e0e064a21be836c06490f9b1c pid=33364 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=cde467d2a307498b9734c31ba105b8e1 pid=39300 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=16f213daf5b64e459ad74ee5109418be pid=30700 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=3c01100e0e064a21be836c06490f9b1c pid=33364 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=df8e3739ae5140ae9e92ed4e2ae0ad0c pid=30088 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=aa4a957c37be4a31920d3e214f87da0c pid=26756 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=eb231c45d6d448688a76856e4821d04c pid=36516 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=16f213daf5b64e459ad74ee5109418be pid=30700 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=30d7b84a3a2b4d92a20b26391d102be7 pid=24884 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=aa4a957c37be4a31920d3e214f87da0c pid=26756 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=eb231c45d6d448688a76856e4821d04c pid=36516 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=1efbeeffa91a4c9c81fe4e391ae90114 pid=2960 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=8b426b526735466a9084b7c1f906f21e pid=34416 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=f54ac217a3e047c8a2112ba3d82db9c1 pid=29556 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=30d7b84a3a2b4d92a20b26391d102be7 pid=24884 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=651b1b23adec4e5caa25088b60273589 pid=14420 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=1efbeeffa91a4c9c81fe4e391ae90114 pid=2960 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=f54ac217a3e047c8a2112ba3d82db9c1 pid=29556 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=f867e75239ba461ba276768f0a3c5e52 pid=33816 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=e1d38f12454745cea35fbd50f2d4b56d pid=15304 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d5356ad28e004761a3ac0021cbec951e pid=6408 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=8b426b526735466a9084b7c1f906f21e pid=34416 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=651b1b23adec4e5caa25088b60273589 pid=14420 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=49df77672d594bc191555a0343a5c96d pid=35768 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=f867e75239ba461ba276768f0a3c5e52 pid=33816 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=e1d38f12454745cea35fbd50f2d4b56d pid=15304 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=49df77672d594bc191555a0343a5c96d pid=35768 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=1c2170870e2c40529f8dbc1cd5977136 pid=37116 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=98914b4763c549bb9d0eec2df0b39ee5 pid=26852 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=a3b67381fef347dc8d8045d9b1a34f3c pid=30300 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d5356ad28e004761a3ac0021cbec951e pid=6408 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=2a5ac4ed22924a68b81e3babd20bf002 pid=34424 model=gpt-6-luna effort=xhighℹ"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=57659a103b4c4428923f703f640a3cb2 pid=39656 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=806967145d12497582a94afb955196d9 pid=26976 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=1c2170870e2c40529f8dbc1cd5977136 pid=37116 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=2a5ac4ed22924a68b81e3babd20bf002 pid=34424 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=57659a103b4c4428923f703f640a3cb2 pid=39656 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=e4e6243650384f198ef7bc9bebf28f64 pid=29860 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=a3b67381fef347dc8d8045d9b1a34f3c pid=30300 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=0d279062070244598667f40b8027bb3e pid=35696 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=98914b4763c549bb9d0eec2df0b39ee5 pid=26852 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=806967145d12497582a94afb955196d9 pid=26976 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=03a06da30aff4e46af58a0b70ad465ea pid=29308 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=fcb486eda33d4cc0868728f114c31ff8 pid=29260 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=0d279062070244598667f40b8027bb3e pid=35696 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=430170c39dce4ec8b7f78be1a567be88 pid=10816 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=9b8584bb36e8428c81c06d9ddb3ed8e5 pid=33868 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=e4e6243650384f198ef7bc9bebf28f64 pid=29860 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=03a06da30aff4e46af58a0b70ad465ea pid=29308 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=9b8584bb36e8428c81c06d9ddb3ed8e5 pid=33868 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=430170c39dce4ec8b7f78be1a567be88 pid=10816 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=600c698568af4057bdee3768591577a7 pid=7668 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=fcb486eda33d4cc0868728f114c31ff8 pid=29260 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=4f1f64cedd3a49e39b4f86efc3ff3f56 pid=37116 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=600c698568af4057bdee3768591577a7 pid=7668 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=275ee25e2b534c2ba73967aacc2d54f5 pid=29028 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=4f1f64cedd3a49e39b4f86efc3ff3f56 pid=37116 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d0e9e72aa6dc4e1ab33525cb579088a7 pid=20392 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=275ee25e2b534c2ba73967aacc2d54f5 pid=29028 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=f5852bfac35f4bd588c3b28745e29cfa pid=13964 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=f5852bfac35f4bd588c3b28745e29cfa pid=13964 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=2ba35947b6984399a7468f7a6eed9f57 pid=32796 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=3e269d4981ee4a2399a68f1a8cad35f8 pid=26764 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d0e9e72aa6dc4e1ab33525cb579088a7 pid=20392 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=c88adeaf93554324a6342807356ab252 pid=30584 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=2ba35947b6984399a7468f7a6eed9f57 pid=32796 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=c88adeaf93554324a6342807356ab252 pid=30584 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d3f18bb27afe458993e863182733b676 pid=30264 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=3e269d4981ee4a2399a68f1a8cad35f8 pid=26764 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=eedf1f8cbe6f43d2bf17b4a79ff533a8 pid=3276 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d3f18bb27afe458993e863182733b676 pid=30264 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=eedf1f8cbe6f43d2bf17b4a79ff533a8 pid=3276 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=8e8615008ec646af8e748ef2afd656ef pid=9616 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=8e8615008ec646af8e748ef2afd656ef pid=9616 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=575e0acd8d1642d9bc52a87e858c29b5 pid=18704 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=575e0acd8d1642d9bc52a87e858c29b5 pid=18704 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=cf58a4517ff74c059e6000219744eab5 pid=39804 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=cf58a4517ff74c059e6000219744eab5 pid=39804 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=7a00d5070c2c4a36a63ea893c0f1bdf5 pid=36764 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=7a00d5070c2c4a36a63ea893c0f1bdf5 pid=36764 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=4b91bb42b70a42f7a2bb3dfded9a084b pid=33520 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=3c1e560a553e4b4eb9d2da025dd21843 pid=9888 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=4b91bb42b70a42f7a2bb3dfded9a084b pid=33520 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=3c1e560a553e4b4eb9d2da025dd21843 pid=9888 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=b8a07ac5626b481fb359487dca5cc009 pid=8368 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=4395c9b8082148cb9ae58310557a7c8b pid=34452 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d438f5e0bbd44d2d89408b04c7b0e900 pid=39684 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=b8a07ac5626b481fb359487dca5cc009 pid=8368 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d438f5e0bbd44d2d89408b04c7b0e900 pid=39684 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=ac4f4bdde91e45f1aaa41c9ee3546515 pid=31872 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=4395c9b8082148cb9ae58310557a7c8b pid=34452 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=990f097b84dd4c10bd95a2266a430745 pid=23048 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=ac4f4bdde91e45f1aaa41c9ee3546515 pid=31872 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL reaped id=990f097b84dd4c10bd95a2266a430745 pid=23048 reason=cancel_or_timeout"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=3129e3727f284289afc5cbd66e23c571 pid=20360 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=897656be223147ccaacee7f8d199b9a1 pid=36448 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL reaped id=897656be223147ccaacee7f8d199b9a1 pid=36448 reason=cancel_or_timeout"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=3129e3727f284289afc5cbd66e23c571 pid=20360 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=aebc9814ea5045148b9acd648c20895f pid=36016 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=aebc9814ea5045148b9acd648c20895f pid=36016 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=607cb8dee7414fc7a1bfbd541567f2b5 pid=38884 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=607cb8dee7414fc7a1bfbd541567f2b5 pid=38884 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=dfc006b95e1e49b6949f3c11df7f151b pid=9916 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=dfc006b95e1e49b6949f3c11df7f151b pid=9916 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=51cac7bf7a594333969f0f0f40dc5d2d pid=28000 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=51cac7bf7a594333969f0f0f40dc5d2d pid=28000 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=1d6fc907b4ea42a8968b9307a9767293 pid=38208 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=1d6fc907b4ea42a8968b9307a9767293 pid=38208 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=09e4cd0b7aae4bcca39b718ca20c90cb pid=27916 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=84b0581019d64f1b9c26d3e6776da0fa pid=14280 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=84b0581019d64f1b9c26d3e6776da0fa pid=14280 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=f670fb49cd7546ce9bc15b3adcfe9ba0 pid=10856 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=93ae16590b054b828ad34b31a7e83a80 pid=35600 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=2d63cb5629b8414da62429c7af874764 pid=18600 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=09e4cd0b7aae4bcca39b718ca20c90cb pid=27916 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=f670fb49cd7546ce9bc15b3adcfe9ba0 pid=10856 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=2d63cb5629b8414da62429c7af874764 pid=18600 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=0e864302a918493ea8214cbc5727107f pid=24252 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=91f732eba86d4ddaa90b87604592fe00 pid=18628 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=b2b966516428437b9e4ccdacb49d47eb pid=5668 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=93ae16590b054b828ad34b31a7e83a80 pid=35600 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=b2b966516428437b9e4ccdacb49d47eb pid=5668 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=0e864302a918493ea8214cbc5727107f pid=24252 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=6051e7932ef743ebb25af27b906cd356 pid=28660 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=97ee4b6a66184d818ef0b7187f04ec9c pid=37928 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=941a340527564132b2877330e49f3627 pid=11516 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=91f732eba86d4ddaa90b87604592fe00 pid=18628 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=6051e7932ef743ebb25af27b906cd356 pid=28660 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=941a340527564132b2877330e49f3627 pid=11516 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=56e75e2649b74d19a6f3556328aa456b pid=29116 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=97ee4b6a66184d818ef0b7187f04ec9c pid=37928 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=56e75e2649b74d19a6f3556328aa456b pid=29116 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=cdd62df409ca4af98587a42e0e37bb6e pid=32924 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=cdd62df409ca4af98587a42e0e37bb6e pid=32924 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=f17bd2a1010f4dec9a45c85d348e2d5e pid=38036 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=f17bd2a1010f4dec9a45c85d348e2d5e pid=38036 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=a6ef6b60442f42aeaed9b79c2d2c8c65 pid=39344 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=a6ef6b60442f42aeaed9b79c2d2c8c65 pid=39344 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=6a771e8e1f2b46eebd0497ee742c18ef pid=34124 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=6a771e8e1f2b46eebd0497ee742c18ef pid=34124 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=cb9b7d6e717149abbf909edf35a861b5 pid=38388 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=cb9b7d6e717149abbf909edf35a861b5 pid=38388 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=37563e3509004f23a378d5fde643cf2a pid=27020 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=37563e3509004f23a378d5fde643cf2a pid=27020 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=0848d33787f34e88b2464575bf80738e pid=17832 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=0848d33787f34e88b2464575bf80738e pid=17832 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=4652c69a87064b609297bf93fe08c0f9 pid=38076 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=4652c69a87064b609297bf93fe08c0f9 pid=38076 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=f886b8ed22f44d2faf5ef20a6e596abc pid=21300 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=e7dde81263ea424891b3931fa6de577f pid=34284 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=e7dde81263ea424891b3931fa6de577f pid=34284 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=91762cf7036e4013a18a4bba71d23299 pid=10816 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=f886b8ed22f44d2faf5ef20a6e596abc pid=21300 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=191f7983c3a24edbabc57827066610c6 pid=30788 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=191f7983c3a24edbabc57827066610c6 pid=30788 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=2e3ccf3c9b5247a7a47a65a9be8e22ff pid=27908 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=91762cf7036e4013a18a4bba71d23299 pid=10816 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=02529ec0730b42b58a3894aea8dbd628 pid=39536 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=2e3ccf3c9b5247a7a47a65a9be8e22ff pid=27908 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=976df7ac0a5b486ba738aa5d38dc84a9 pid=27916 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=976df7ac0a5b486ba738aa5d38dc84a9 pid=27916 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=951e0d3f551a44d1a6e8588e0fdcc839 pid=26832 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=951e0d3f551a44d1a6e8588e0fdcc839 pid=26832 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL reaped id=02529ec0730b42b58a3894aea8dbd628 pid=39536 reason=cancel_or_timeout"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=6155861b34ed4989b70145edbbd2862c pid=33024 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=6155861b34ed4989b70145edbbd2862c pid=33024 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=6a6c8cc751174eeba74a85f0112a6a2e pid=22448 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=6a6c8cc751174eeba74a85f0112a6a2e pid=22448 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d2f1391a766a472080687b6bf7caad26 pid=31524 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d2f1391a766a472080687b6bf7caad26 pid=31524 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=9f9c6e1dac00482fa3c63f561512300c pid=2964 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=2052c4240614411faf012027ea9d00a1 pid=18444 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=9f9c6e1dac00482fa3c63f561512300c pid=2964 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=2052c4240614411faf012027ea9d00a1 pid=18444 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=5f84adf9903f48538145e3a777f45a92 pid=26668 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=5d7c37d002434d10b6028ceb2f173e2f pid=28608 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=5d7c37d002434d10b6028ceb2f173e2f pid=28608 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=5f84adf9903f48538145e3a777f45a92 pid=26668 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=73b78b9d745b4327826e09d06fde265d pid=26324 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=733c5cfa8ea74711970b6f86529bb217 pid=29916 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=58153752475b423e95e1c6b02c023123 pid=29220 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=73b78b9d745b4327826e09d06fde265d pid=26324 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=58153752475b423e95e1c6b02c023123 pid=29220 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=1296eece9e5f4cec92fe6d7fa8901747 pid=33308 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=733c5cfa8ea74711970b6f86529bb217 pid=29916 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=1296eece9e5f4cec92fe6d7fa8901747 pid=33308 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=66a807ee57104d9495f3db9ebae19d3a pid=30764 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=66a807ee57104d9495f3db9ebae19d3a pid=30764 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=82036aa471814a2489eebcfed9daedc0 pid=39016 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=82036aa471814a2489eebcfed9daedc0 pid=39016 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d238d612f0024e6e98da203c0abd88d3 pid=38700 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d238d612f0024e6e98da203c0abd88d3 pid=38700 code=0"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL start id=d252f4fb45ca4f08a8208868c8ee86c6 pid=29356 model=gpt-6-luna effort=xhigh"
+  },
+  {
+    "log": "external-comparison-co-corrected.log",
+    "event": "CODEX_CALL exit id=d252f4fb45ca4f08a8208868c8ee86c6 pid=29356 code=0"
+  }
+]

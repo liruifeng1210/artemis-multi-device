@@ -1,0 +1,28 @@
+{
+  "elapsed": 40.15599999999904,
+  "proposal": {
+    "base_plan_revision": 1,
+    "tasks": [],
+    "finish": false,
+    "missing_input": null,
+    "diagnostics": [
+      {
+        "role_id": "A",
+        "kind": "observe",
+        "query": {
+          "purpose": "Inspect the current device screen and foreground app before calculator automation; report whether a calculator is open and the visible display."
+        }
+      },
+      {
+        "role_id": "B",
+        "kind": "observe",
+        "query": {
+          "purpose": "Inspect the current device screen and foreground app before calculator automation; report whether a calculator is open and the visible display."
+        }
+      }
+    ],
+    "recoveries": [],
+    "restart_roles": []
+  },
+  "validated": true
+}

@@ -1,0 +1,46 @@
+{
+  "completion": [
+    {
+      "description": "已从屏幕现有值执行加17并等号，未清空或重输；观察并记录实际结果。若初值为8，屏幕结果为25。",
+      "id": "continued_from_screen",
+      "required": true
+    },
+    {
+      "description": "B历史保留首次结果并更新当前结果；无法安全完成时如实记录原因。",
+      "id": "history_updated",
+      "required": true
+    }
+  ],
+  "constraints": [
+    "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+    "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+    "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+    "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+    "只操作指定设备计算器；不得用shell替代点击。",
+    "保持原子Session、连接和历史，不清空、不重输旧值或旧算式。",
+    "不重试有不确定副作用的操作。"
+  ],
+  "effect_policy": "verify_before_retry",
+  "execution_timeout_seconds": 900.0,
+  "goal": "在B原有子Session、连接、历史中观察当前屏幕，接屏幕上已有结果执行+17并等号；不清空、不重输旧值或旧算式。观察实际结果并更新B历史中的当前结果，保留首次结果。若当前屏幕不可读或无法安全继续，如实记录，不猜测、不重试不确定操作。",
+  "input_sources": {},
+  "inputs": {
+    "device_id": "a8acf864",
+    "expected_result": "25",
+    "session_id": "570caa92-a5e2-460a-893b-8d547145ac42"
+  },
+  "max_steps": 100,
+  "outputs_schema": {
+    "properties": {
+      "current_result": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "current_result"
+    ],
+    "type": "object"
+  },
+  "settlement_timeout_seconds": 60.0,
+  "verification_timeout_seconds": 600.0
+}

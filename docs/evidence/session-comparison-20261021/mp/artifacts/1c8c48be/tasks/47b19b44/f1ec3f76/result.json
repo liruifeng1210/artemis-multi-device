@@ -1,0 +1,33 @@
+{
+  "artifact_refs": [],
+  "blocker": null,
+  "checks": [
+    {
+      "evidence": "",
+      "evidence_refs": [],
+      "id": "screen_reread",
+      "verdict": "unchecked"
+    },
+    {
+      "evidence": "",
+      "evidence_refs": [],
+      "id": "plus_ten",
+      "verdict": "unchecked"
+    }
+  ],
+  "error": {
+    "code": "execution_failed",
+    "description": "cancelled"
+  },
+  "observations": [],
+  "observed_at": "2026-10-20T17:57:45.664030+00:00",
+  "outputs": {},
+  "session_reusable": true,
+  "side_effect_state": "uncertain",
+  "status": "cancelled",
+  "step_range": {
+    "first": 10,
+    "last": 10
+  },
+  "suggested_next_actions": []
+}

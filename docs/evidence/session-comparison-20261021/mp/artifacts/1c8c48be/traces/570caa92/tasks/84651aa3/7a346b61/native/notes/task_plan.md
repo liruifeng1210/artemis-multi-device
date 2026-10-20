@@ -1,0 +1,6 @@
+- [x] Inspect the specified calculator's existing screen and continue from its current state only if device interaction is available; otherwise record the capability limitation and stop without retrying. The screenshot shows 48÷6 = 8, but no device interaction action was available, so +17 and = were not executed.
+  - verify: The existing screen state was recorded and the reason continuation could not be performed was documented.
+- [x] Record the actual observed result and B history outcome, preserving the first result; if history cannot be accessed safely, record that limitation. The screen showed 8 before continuation; no post-continuation result was produced, and B history could not be inspected or updated. Details are in `calculator_continuation_record`.
+  - verify: The observed screen value and the inability to update or verify B history are recorded without claiming a result of 25.
+- assert@end: 已从屏幕现有值执行加17并等号，未清空或重输；观察并记录实际结果。若初值为8，屏幕结果为25。
+- assert@end: B历史保留首次结果并更新当前结果；无法安全完成时如实记录原因。

@@ -1,0 +1,42 @@
+{
+  "time": "2026-10-20T19:02:01.958727+00:00",
+  "surviving_sampled_identities": [],
+  "locks": {
+    "21850fc5": {
+      "owner_before": false,
+      "acquired": true,
+      "owner_after": false
+    },
+    "a8acf864": {
+      "owner_before": false,
+      "acquired": true,
+      "owner_after": false
+    }
+  },
+  "databases": {
+    "traces\\data_engine.db": {
+      "quick_check": [
+        [
+          "ok"
+        ]
+      ],
+      "before": {
+        "sessions": 2,
+        "steps": 44,
+        "traces": 2853,
+        "history_chunks": 28
+      },
+      "after": {
+        "sessions": 2,
+        "steps": 44,
+        "traces": 2853,
+        "history_chunks": 28
+      },
+      "counts_stable_10s": true
+    }
+  },
+  "adb_forwards": [
+    ""
+  ],
+  "limits": "PID plus create time avoids PID reuse. Only sampled descendants checked; ten seconds of stable row counts is bounded evidence, not a proof of all future writes. Shared adb daemon is pre-existing."
+}

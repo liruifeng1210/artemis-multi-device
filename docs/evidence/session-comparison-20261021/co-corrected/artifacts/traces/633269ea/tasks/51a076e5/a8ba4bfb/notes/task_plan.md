@@ -1,0 +1,13 @@
+- [x] Open or confirm system calculator com.coloros.calculator; note the current expression shown in the screenshot (8×4 = 32)
+- [x] Clear the current input once, enter 48 ÷ 6 using real taps, and press equals
+  - [x] Clear the current input once with AC
+  - [x] Enter 48 ÷ 6 using keypad taps
+    - [x] Tap 4
+    - [x] Tap 8
+    - [x] Tap ÷
+    - [x] Tap 6
+    - [x] Press equals
+  - verify: The calculator displays the result for 48 ÷ 6 after equals is pressed
+- [x] Read the displayed result, record it as the first result in session_context, and leave the calculator input uncleared
+  - [x] Recorded displayed result 8 in session_context; calculator input remains uncleared
+  - verify: session_context contains the first observed result and calculator input has not been cleared again

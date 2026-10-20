@@ -1,0 +1,144 @@
+{
+  "time": "2026-10-20T17:34:53.248121+00:00",
+  "task": {
+    "task_id": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+    "display_name": "initial-B",
+    "role_id": "B",
+    "spec": {
+      "goal": "在现有子Session和连接中操作com.coloros.calculator。仅清空一次，输入48÷6并等号；观察屏幕确认结果8。将首次结果和当前结果记入B的持续Role历史，供后续任务读取。",
+      "inputs": {
+        "device_id": "a8acf864",
+        "session_id": "570caa92-a5e2-460a-893b-8d547145ac42"
+      },
+      "input_sources": {},
+      "completion": [
+        {
+          "id": "screen_8",
+          "description": "计算器屏幕显示48÷6=8。",
+          "required": true
+        },
+        {
+          "id": "history_saved",
+          "description": "B的持续Role历史记录首次结果和当前结果。",
+          "required": true
+        }
+      ],
+      "outputs_schema": {
+        "type": "object",
+        "properties": {
+          "first_result": {
+            "type": "string"
+          },
+          "current_result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "first_result",
+          "current_result"
+        ]
+      },
+      "constraints": [
+        "只操作指定设备计算器；不得用shell替代点击。",
+        "仅本任务清空一次；不得重连或重置子Session。",
+        "若操作结果不确定，先观察核实，不重试有不确定副作用的操作。"
+      ],
+      "effect_policy": "verify_before_retry",
+      "execution_timeout_seconds": 900.0,
+      "verification_timeout_seconds": 600.0,
+      "settlement_timeout_seconds": 60.0,
+      "max_steps": 100
+    },
+    "depends_on": [],
+    "dependency_mode": "all"
+  },
+  "result": {
+    "status": "blocked",
+    "outputs": {
+      "first_result": "8",
+      "current_result": "8"
+    },
+    "checks": [
+      {
+        "id": "screen_8",
+        "verdict": "inconclusive",
+        "evidence_refs": [
+          "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract_report.json",
+          "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract-screen.jpg"
+        ],
+        "evidence": "no verdict produced for this item"
+      },
+      {
+        "id": "history_saved",
+        "verdict": "inconclusive",
+        "evidence_refs": [
+          "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract_report.json",
+          "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract-screen.jpg"
+        ],
+        "evidence": "no verdict produced for this item"
+      }
+    ],
+    "observations": [],
+    "blocker": null,
+    "suggested_next_actions": [],
+    "observed_at": "2026-10-20T17:34:52.948592+00:00",
+    "step_range": {
+      "first": 1,
+      "last": 7
+    },
+    "artifact_refs": [
+      "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract_report.json",
+      "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract-screen.jpg"
+    ],
+    "side_effect_state": "confirmed",
+    "session_reusable": true,
+    "error": null
+  },
+  "session": "570caa92-a5e2-460a-893b-8d547145ac42",
+  "pid": 22940,
+  "device": "a8acf864",
+  "conversation_tail": [
+    {
+      "content": "Appended to note 'B'.",
+      "additional_kwargs": {},
+      "response_metadata": {},
+      "type": "tool",
+      "name": "append_note",
+      "id": null,
+      "tool_call_id": "34ca9acae46a4b0aba1a01156dbbf579",
+      "artifact": null,
+      "status": "success"
+    },
+    {
+      "content": "Updated note 'task_plan'.",
+      "additional_kwargs": {},
+      "response_metadata": {},
+      "type": "tool",
+      "name": "update_note",
+      "id": null,
+      "tool_call_id": "6efc2c9928394260885330bdee3e9752",
+      "artifact": null,
+      "status": "success"
+    }
+  ],
+  "transcript_next_offset": null,
+  "inspection_source": {
+    "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14",
+    "role_id": "B",
+    "child_session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+    "worker_epoch": "1bc8faeb-9a3b-41af-a75d-257ee4e3e179",
+    "active_task_id": "84651aa3-19cf-480f-a66a-13d1d9e63bf1",
+    "active_attempt_id": "7a346b61-0179-4900-80f7-a629e6230550"
+  },
+  "inspection_consistency": "stream_checkpoint",
+  "observed_temporary_state": {
+    "initial_goal": "在B原有子Session、连接、历史中观察当前屏幕，接屏幕上已有结果执行+17并等号；不清空、不重输旧值或旧算式。观察实际结果并更新B历史中的当前结果，保留首次结果。若当前屏幕不可读或无法安全继续，如实记录，不猜测、不重试不确定操作。\nInputs: {\"device_id\": \"a8acf864\", \"session_id\": \"570caa92-a5e2-460a-893b-8d547145ac42\", \"expected_result\": \"25\"}\nRequired contract:\n[contract:continued_from_screen] 已从屏幕现有值执行加17并等号，未清空或重输；观察并记录实际结果。若初值为8，屏幕结果为25。\n[contract:history_updated] B历史保留首次结果并更新当前结果；无法安全完成时如实记录原因。\nConstraints:\n仅操作指定设备计算器；不使用shell直接计算替代真实点击。\n任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。\n使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。\n不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。\n只操作指定设备计算器；不得用shell替代点击。\n保持原子Session、连接和历史，不清空、不重输旧值或旧算式。\n不重试有不确定副作用的操作。\nEffect policy: verify_before_retry\nFinish only this task, then wait for Main.",
+    "injected_instruction": null,
+    "user_stop_requested": false,
+    "checker_success": null,
+    "run_outcome": null,
+    "current_step_id": null,
+    "open_incident": null,
+    "subagent_calls": []
+  }
+}

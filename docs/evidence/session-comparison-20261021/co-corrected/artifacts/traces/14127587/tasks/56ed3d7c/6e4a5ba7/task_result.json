@@ -1,0 +1,14 @@
+{
+  "role_id": "A",
+  "session_id": "14127587-b5ff-45ad-9943-8879e13864cc",
+  "task_id": "56ed3d7c-5c85-445a-a5f0-292b01de5824",
+  "attempt_id": "6e4a5ba7-e524-4665-9753-f709d992d0bc",
+  "status": "cancelled",
+  "output": null,
+  "error": "Task cancelled",
+  "workspace": "<LOCAL_EVIDENCE>/comparison-20261021\\co-corrected\\traces\\14127587-b5ff-45ad-9943-8879e13864cc\\tasks\\56ed3d7c-5c85-445a-a5f0-292b01de5824\\6e4a5ba7-e524-4665-9753-f709d992d0bc",
+  "cleanup_errors": [],
+  "reusable": true,
+  "native_run_outcome": null,
+  "checker_success_flag": null
+}

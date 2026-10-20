@@ -1,0 +1,11 @@
+- [x] Use the visible system calculator and clear the current input once before starting the requested calculation
+  - [x] Tap 清除 once to clear current input
+- [/] Enter 125+75 by tapping calculator keys, tap equals, and read the displayed result; treat the faint prior history as separate from this fresh calculation
+  - [/] Enter 125+75 by tapping calculator keys
+    - [x] Tap 1
+    - [x] Tap 2
+    - [x] Tap 5
+    - [/] Tap +
+  - verify: The fresh calculation's displayed result is read after equals
+- [ ] Record this calculation's first result in `session_context` and leave the calculator input uncleared
+  - verify: The first result is recorded in `session_context` and the input has not been cleared after calculation

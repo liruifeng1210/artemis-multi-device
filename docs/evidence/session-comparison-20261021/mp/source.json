@@ -1,0 +1,7 @@
+{
+  "as_run_commit": "00708faf1ada903c5dffbfc3b49f4a07c2a35a23",
+  "tracking": "detached isolated worktree; local report/evidence additions excluded",
+  "scenario": "all",
+  "max_steps": 100,
+  "note": "production MainPlanner; WorkflowSpec.tasks is empty"
+}

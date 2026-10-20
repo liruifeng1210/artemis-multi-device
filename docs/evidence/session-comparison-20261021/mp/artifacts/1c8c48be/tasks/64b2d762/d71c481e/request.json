@@ -1,0 +1,51 @@
+{
+  "attempt_id": "d71c481e-848d-4da3-8265-6c5f2eec1881",
+  "child_session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+  "in_reply_to": null,
+  "kind": "execute",
+  "message_id": "d536a824-e0f5-41e3-8399-5929e3437924",
+  "payload": {
+    "completion": [
+      {
+        "description": "报告B历史中的首次结果和最新当前结果，缺失项明确标记不可用，未引用A的数据。",
+        "id": "report_history",
+        "required": true
+      }
+    ],
+    "constraints": [
+      "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+      "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+      "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+      "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+      "只使用B自己的计算器历史和Role记忆；不得读取或引用A的数据。",
+      "不得操作计算器、清空或重输任何值。"
+    ],
+    "effect_policy": "read_only",
+    "execution_timeout_seconds": 900.0,
+    "goal": "仅根据B自己的持续Role历史报告首次计算结果和当前结果，不读取或引用A的数据。优先使用绑定的B历史输出；绑定缺失时读取B自己的Role历史，如无记录则明确报告不可用，不猜测。",
+    "input_sources": {},
+    "inputs": {
+      "fallback": "绑定值缺失时读取B自己的持续Role历史；不可用则如实说明。"
+    },
+    "max_steps": 100,
+    "outputs_schema": {
+      "properties": {
+        "report": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "report"
+      ],
+      "type": "object"
+    },
+    "settlement_timeout_seconds": 60.0,
+    "verification_timeout_seconds": 600.0
+  },
+  "protocol_version": 1,
+  "role_id": "B",
+  "sequence": 10,
+  "task_id": "64b2d762-0ba5-45fa-8f9c-b39e56ed2605",
+  "worker_epoch": "1bc8faeb-9a3b-41af-a75d-257ee4e3e179",
+  "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14"
+}

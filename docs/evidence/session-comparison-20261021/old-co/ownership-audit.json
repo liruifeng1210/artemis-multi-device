@@ -1,0 +1,67 @@
+{
+  "roles": {
+    "A": {
+      "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f",
+      "device": "21850fc5",
+      "steps": 12,
+      "trace_counts": {
+        "log": 388,
+        "agent": 37,
+        "llm_call": 74,
+        "span": 4,
+        "tool": 51,
+        "raw_thinking": 11,
+        "action": 11
+      },
+      "running_traces": [
+        "a62ad6c0-b1d5-47f4-9ac5-6db9a7a7e1e7",
+        "01a15a0d-5212-7b71-928a-61a88a9b0a75",
+        "6eec986e-bb06-45e1-bc9d-38a46bf0d99b",
+        "f4d8e874-49a7-4d26-aa56-c973908b7476",
+        "a906bd26-3d56-44a8-96f3-a756cfa1a3d1",
+        "7349653f-6671-40bd-b951-03060306a1c5",
+        "01a15a12-62fe-7171-b650-3b1cb2fed8c5"
+      ],
+      "tasks": [
+        {
+          "round": "01-initial",
+          "task_id": "a88d0655-7bd5-41d4-a66a-7e991f2f2176",
+          "attempt_id": "1f668e63-3629-4224-b638-071a48291824",
+          "status": "completed",
+          "reusable": true,
+          "cleanup_errors": []
+        }
+      ]
+    },
+    "B": {
+      "session_id": "22e26727-d330-4945-95ae-c68eb125cce2",
+      "device": "a8acf864",
+      "steps": 10,
+      "trace_counts": {
+        "log": 296,
+        "agent": 32,
+        "llm_call": 57,
+        "span": 3,
+        "tool": 36,
+        "raw_thinking": 6,
+        "action": 9
+      },
+      "running_traces": [
+        "01a15a12-0d89-7953-810b-bbac98283bea",
+        "3e93061b-69af-4b48-b810-9fc28dd47b4c",
+        "01a15a12-1208-7321-b239-78d5108a580f"
+      ],
+      "tasks": [
+        {
+          "round": "01-initial",
+          "task_id": "796b698d-69c6-42fd-9100-c5ba6303e3a8",
+          "attempt_id": "58fdf8c8-6a37-4c4a-a952-544f0e964a81",
+          "status": "completed",
+          "reusable": true,
+          "cleanup_errors": []
+        }
+      ]
+    }
+  },
+  "ownership_errors": []
+}

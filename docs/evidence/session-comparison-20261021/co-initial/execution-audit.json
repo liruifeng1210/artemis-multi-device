@@ -1,0 +1,114 @@
+{
+  "cancel_request": {
+    "time": "2026-10-20T17:06:06.308943+00:00",
+    "kind": "cancel_request",
+    "role": "A",
+    "task": "a85a63ac-b448-42cb-8786-85594fb1b8ad",
+    "attempt": "7b6ed50e-b46b-4722-926d-ae58bb3c6b7e",
+    "status": "running",
+    "active": true,
+    "children": [
+      "codex.exe",
+      "codex.exe",
+      "conhost.exe",
+      "conhost.exe"
+    ]
+  },
+  "cancel_return": {
+    "time": "2026-10-20T17:06:06.342033+00:00",
+    "kind": "cancel_return",
+    "role": "A",
+    "task": "a85a63ac-b448-42cb-8786-85594fb1b8ad"
+  },
+  "cancel_latency_seconds": 0.03309,
+  "cancel_task_device_action_count": 0,
+  "cancel_stage": "LLM/planner wait before first device action; queue/device-operation stage not exercised",
+  "late_action_records_after_task_terminal": [],
+  "persistent_resource_boundaries": [
+    {
+      "path": "01-initial-A\\boundary.json",
+      "session": "a70ece53-4d3f-4955-b390-508762f69333",
+      "context_id": 2223432199824,
+      "driver_id": 2223459440864,
+      "ledger_id": 2223460056576,
+      "role_status": "idle",
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "01-initial-B\\boundary.json",
+      "session": "bd0ecc92-21b0-497c-bf2c-d1f9c584ac16",
+      "context_id": 2222831398624,
+      "driver_id": 2223460021312,
+      "ledger_id": 2223438450944,
+      "role_status": "idle",
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "02-continue-A\\boundary.json",
+      "session": "a70ece53-4d3f-4955-b390-508762f69333",
+      "context_id": 2223432199824,
+      "driver_id": 2223459440864,
+      "ledger_id": 2223460056576,
+      "role_status": "idle",
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "02-continue-B\\boundary.json",
+      "session": "bd0ecc92-21b0-497c-bf2c-d1f9c584ac16",
+      "context_id": 2222831398624,
+      "driver_id": 2223460021312,
+      "ledger_id": 2223438450944,
+      "role_status": "idle",
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "03-cancel-A\\boundary.json",
+      "session": "a70ece53-4d3f-4955-b390-508762f69333",
+      "context_id": 2223432199824,
+      "driver_id": 2223459440864,
+      "ledger_id": 2223460056576,
+      "role_status": "idle",
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "03-independent-B\\boundary.json",
+      "session": "bd0ecc92-21b0-497c-bf2c-d1f9c584ac16",
+      "context_id": 2222831398624,
+      "driver_id": 2223460021312,
+      "ledger_id": 2223438450944,
+      "role_status": "idle",
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "04-reuse-A\\boundary.json",
+      "session": "a70ece53-4d3f-4955-b390-508762f69333",
+      "context_id": 2223432199824,
+      "driver_id": 2223459440864,
+      "ledger_id": 2223460056576,
+      "role_status": "idle",
+      "background_tasks": 0,
+      "background_jobs": 0
+    },
+    {
+      "path": "04-reuse-B\\boundary.json",
+      "session": "bd0ecc92-21b0-497c-bf2c-d1f9c584ac16",
+      "context_id": 2222831398624,
+      "driver_id": 2223460021312,
+      "ledger_id": 2223438450944,
+      "role_status": "idle",
+      "background_tasks": 0,
+      "background_jobs": 0
+    }
+  ],
+  "history_chunk_status_counts": {
+    "pending": 5,
+    "ready": 5
+  },
+  "limitation": "Action trace timestamps and ownership are observable records, not device-side atomic commit timestamps. Zero template-context background counters do not prove every active task context drained. Staged terminal conversation field was absent in this initial harness."
+}

@@ -1,0 +1,7 @@
+{
+  "as_run_commit": "a2afa8d1a28d848182d65b7caf23b4fd08266555",
+  "scenario": "all",
+  "max_steps": 100,
+  "task_timeout": 900,
+  "note": "fresh A/B Sessions after verified MP close; compare continuity only inside this run; corrected shared backend budgets and async diagnoser loaded"
+}

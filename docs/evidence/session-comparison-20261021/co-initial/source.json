@@ -1,0 +1,7 @@
+{
+  "as_run_commit": "ac57e305d99f42767b2f7b354b6c29bf15e1e6fc",
+  "tracking": "detached isolated worktree; local report/evidence additions excluded",
+  "scenario": "all",
+  "max_steps": 30,
+  "note": "co initial attempt does not load subsequent budget, async-diagnoser, close metadata or CLI PID logging fixes"
+}

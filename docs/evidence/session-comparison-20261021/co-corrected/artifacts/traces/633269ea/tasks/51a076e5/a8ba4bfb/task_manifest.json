@@ -1,0 +1,11 @@
+{
+  "role_id": "B",
+  "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+  "task_id": "51a076e5-7df3-42d7-aed2-ceea43e69aed",
+  "attempt_id": "a8ba4bfb-ca3b-4f0b-b389-07922b3f79fe",
+  "device_id": "a8acf864",
+  "goal": "打开系统计算器 com.coloros.calculator，清空本次输入，真实点击计算48÷6并按等号。读取结果并记住首次结果，写入session_context，不再清空。",
+  "status": "completed",
+  "reusable": true,
+  "cleanup_errors": []
+}

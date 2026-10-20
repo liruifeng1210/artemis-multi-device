@@ -1,0 +1,11 @@
+{
+  "role_id": "A",
+  "session_id": "14127587-b5ff-45ad-9943-8879e13864cc",
+  "task_id": "7abd884f-8c75-4fee-899d-7096bc4b452f",
+  "attempt_id": "e6f94af8-2c29-4b13-8f38-0b82936eebcf",
+  "device_id": "21850fc5",
+  "goal": "接着屏幕上轮结果乘3并按等号，期望600。不得清空或重新输入旧结果或旧算式。读真实屏幕，报告首次及当前结果。",
+  "status": "cancelled",
+  "reusable": true,
+  "cleanup_errors": []
+}

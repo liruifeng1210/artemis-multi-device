@@ -1,0 +1,55 @@
+{
+  "session": "633269ea-9548-43bc-bfed-ad37525de38e",
+  "context_id": 2041877772912,
+  "driver_id": 2041877643184,
+  "ledger_id": 2041877629504,
+  "role_status": "idle",
+  "continuity": {
+    "a8ba4bfb-ca3b-4f0b-b389-07922b3f79fe": {
+      "task_id": "51a076e5-7df3-42d7-aed2-ceea43e69aed",
+      "attempt_id": "a8ba4bfb-ca3b-4f0b-b389-07922b3f79fe",
+      "goal": "打开系统计算器 com.coloros.calculator，清空本次输入，真实点击计算48÷6并按等号。读取结果并记住首次结果，写入session_context，不再清空。",
+      "status": "completed",
+      "reported_output": {
+        "test_summary": {
+          "task_status": "completed",
+          "passed": 2,
+          "failed": 0,
+          "inconclusive": 0,
+          "unchecked": 0,
+          "failed_items": [],
+          "retired": 0,
+          "retired_items": []
+        }
+      },
+      "historical_plan": "- [x] Open or confirm system calculator com.coloros.calculator; note the current expression shown in the screenshot (8×4 = 32)\n- [x] Clear the current input once, enter 48 ÷ 6 using real taps, and press equals\n  - [x] Clear the current input once with AC\n  - [x] Enter 48 ÷ 6 using keypad taps\n    - [x] Tap 4\n    - [x] Tap 8\n    - [x] Tap ÷\n    - [x] Tap 6\n    - [x] Press equals\n  - verify: The calculator displays the result for 48 ÷ 6 after equals is pressed\n- [x] Read the displayed result, record it as the first result in session_context, and leave the calculator input uncleared\n  - [x] Recorded displayed result 8 in session_context; calculator input remains uncleared\n  - verify: session_context contains the first observed result and calculator input has not been cleared again\n",
+      "error": null,
+      "reusable": true,
+      "cleanup_errors": [],
+      "workspace": "<LOCAL_EVIDENCE>/comparison-20261021\\co-corrected\\traces\\633269ea-9548-43bc-bfed-ad37525de38e\\tasks\\51a076e5-7df3-42d7-aed2-ceea43e69aed\\a8ba4bfb-ca3b-4f0b-b389-07922b3f79fe"
+    }
+  },
+  "ledger_turn_count": 8,
+  "ledger_has_staged_turn": false,
+  "ledger_task_key": [
+    "51a076e5-7df3-42d7-aed2-ceea43e69aed",
+    "a8ba4bfb-ca3b-4f0b-b389-07922b3f79fe"
+  ],
+  "conversation_tail": [
+    {
+      "type": "ai",
+      "text": "",
+      "tool_calls": [
+        "update_note"
+      ]
+    },
+    {
+      "type": "tool",
+      "text": "Updated note 'task_plan'.",
+      "tool_calls": []
+    }
+  ],
+  "retained_runs": 0,
+  "background_tasks": 0,
+  "background_jobs": 0
+}

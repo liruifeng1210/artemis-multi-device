@@ -1,0 +1,546 @@
+{
+  "llm": {
+    "planner": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": "high",
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "utils": {
+      "outputter": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null,
+        "fallback": {
+          "provider": "codex",
+          "model": "gpt-6-luna",
+          "temperature": null,
+          "thinking_budget": null,
+          "thinking_level": null,
+          "reasoning_effort": "xhigh",
+          "include_thoughts": null,
+          "enable_grounding": null
+        },
+        "fix_model": null,
+        "timeout": 300.0
+      },
+      "hopper": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null,
+        "fallback": {
+          "provider": "codex",
+          "model": "gpt-6-luna",
+          "temperature": null,
+          "thinking_budget": null,
+          "thinking_level": null,
+          "reasoning_effort": "xhigh",
+          "include_thoughts": null,
+          "enable_grounding": null
+        },
+        "fix_model": null,
+        "timeout": 300.0
+      },
+      "video_analyzer": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null,
+        "fallback": {
+          "provider": "codex",
+          "model": "gpt-6-luna",
+          "temperature": null,
+          "thinking_budget": null,
+          "thinking_level": null,
+          "reasoning_effort": "xhigh",
+          "include_thoughts": null,
+          "enable_grounding": null
+        },
+        "fix_model": null,
+        "timeout": 300.0
+      },
+      "object_detector": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null,
+        "fallback": {
+          "provider": "codex",
+          "model": "gpt-6-luna",
+          "temperature": null,
+          "thinking_budget": null,
+          "thinking_level": null,
+          "reasoning_effort": "xhigh",
+          "include_thoughts": null,
+          "enable_grounding": null
+        },
+        "fix_model": null,
+        "timeout": 300.0
+      }
+    },
+    "summarizer": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": null,
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "operator": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": "medium",
+      "reasoning_effort": "xhigh",
+      "include_thoughts": true,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "operator_summarizer": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": null,
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "log_reader_sub_agent": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": null,
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "log_analyzer": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": null,
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": true,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "diagnoser": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": null,
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "checker": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": "medium",
+      "reasoning_effort": "xhigh",
+      "include_thoughts": true,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "planner_avatar": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": null,
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "history_analyzer_expert": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": null,
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "diagnoser_expert": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": null,
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": true,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "explorer": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": "medium",
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "history_analyzer": null,
+    "validator_pixel_safety_net": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": null,
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "planner_validation": {
+      "provider": "codex",
+      "model": "gpt-6-luna",
+      "temperature": null,
+      "thinking_budget": null,
+      "thinking_level": null,
+      "reasoning_effort": "xhigh",
+      "include_thoughts": null,
+      "enable_grounding": null,
+      "fallback": {
+        "provider": "codex",
+        "model": "gpt-6-luna",
+        "temperature": null,
+        "thinking_budget": null,
+        "thinking_level": null,
+        "reasoning_effort": "xhigh",
+        "include_thoughts": null,
+        "enable_grounding": null
+      },
+      "fix_model": null,
+      "timeout": 300.0
+    },
+    "output_analyzer": null
+  },
+  "agent": {
+    "flash": {
+      "max_turns": 0,
+      "explorer_mode": "pro",
+      "step_summarizer": {
+        "enabled": true,
+        "model": "gpt-6-luna",
+        "prune_history_xml": true,
+        "retry_limit": 3
+      }
+    },
+    "pro": {
+      "execution": {
+        "max_burst_actions": 4,
+        "plan_ledger_gate": true,
+        "plan_ledger_stale_turns": 4
+      },
+      "explorer": {
+        "mode": "pro",
+        "caching": true
+      },
+      "planner_validation": {
+        "enabled": true
+      },
+      "committee": {
+        "enabled": false,
+        "debate_rounds": 2
+      },
+      "checker": {
+        "enabled": true,
+        "midway_checks": false,
+        "final_check": true,
+        "max_iterations": 20,
+        "final_check_max_attempts": 3,
+        "checkpoint_max_repairs": 2,
+        "max_concurrent_checkpoints": 3,
+        "checkpoint_timeout": 600.0,
+        "settlement_timeout": 600.0,
+        "assert_failure_policy": "continue",
+        "device_probes": true
+      },
+      "video_analyzer": {
+        "enabled": true,
+        "enable_ledger": true,
+        "chunk_size_seconds": 60.0,
+        "min_chunk_seconds": 4.0,
+        "max_split_depth": 4,
+        "circuit_breaker_threshold": 3,
+        "circuit_breaker_cooldown_seconds": 60.0,
+        "action_window_seconds": 2.0,
+        "dense_action_fps": 4.0,
+        "max_dense_action_frames": 24,
+        "native_max_retries": 1,
+        "model_call_timeout_seconds": 120.0,
+        "processing": "auto",
+        "agentic_chunk_size_seconds": 600.0,
+        "agentic_call_timeout_seconds": 300.0
+      }
+    },
+    "explorer": {
+      "default_version": "flash",
+      "flash_mode": "pro",
+      "pro_mode": "pro",
+      "caching": null
+    },
+    "explorer_versions": {},
+    "planner_validation": {
+      "enabled": true
+    },
+    "committee": {
+      "enabled": false,
+      "debate_rounds": 2
+    },
+    "checker": {
+      "enabled": true,
+      "midway_checks": false,
+      "final_check": true,
+      "max_iterations": 20,
+      "final_check_max_attempts": 3,
+      "checkpoint_max_repairs": 2,
+      "max_concurrent_checkpoints": 3,
+      "checkpoint_timeout": 600.0,
+      "settlement_timeout": 600.0,
+      "assert_failure_policy": "continue",
+      "device_probes": true
+    },
+    "outputter": {
+      "enabled": true,
+      "force_synthesis": false
+    },
+    "denylisted_tools": {
+      "explorer": []
+    },
+    "video_analyzer": {
+      "enabled": true,
+      "enable_ledger": true,
+      "chunk_size_seconds": 60.0,
+      "min_chunk_seconds": 4.0,
+      "max_split_depth": 4,
+      "circuit_breaker_threshold": 3,
+      "circuit_breaker_cooldown_seconds": 60.0,
+      "action_window_seconds": 2.0,
+      "dense_action_fps": 4.0,
+      "max_dense_action_frames": 24,
+      "native_max_retries": 1,
+      "model_call_timeout_seconds": 120.0,
+      "processing": "auto",
+      "agentic_chunk_size_seconds": 600.0,
+      "agentic_call_timeout_seconds": 300.0
+    },
+    "memory": {
+      "runtime": {
+        "max_concurrency": 2,
+        "retry_limit": 3,
+        "flush_timeout_s": 30.0
+      },
+      "chunking": {
+        "max_steps": 12,
+        "target_source_tokens": 2000,
+        "min_steps": 3,
+        "model": "gpt-6-luna",
+        "max_chunks": 8,
+        "max_eras": null
+      },
+      "recall": {
+        "enabled": true,
+        "max_results": 5,
+        "max_text_tokens": 2000,
+        "screen_scan_steps": 150
+      },
+      "replay": {
+        "max_steps": 5,
+        "max_tokens": 12000
+      },
+      "policies": {}
+    }
+  },
+  "task_timeout": 900.0,
+  "max_steps": 30,
+  "pid": 11824,
+  "started": "2026-10-20T16:37:07.370239+00:00",
+  "orchestrator": "deterministic test harness; intelligent Main absent"
+}

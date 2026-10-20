@@ -1,0 +1,51 @@
+{
+  "completion": [
+    {
+      "description": "每次已完成的+1等号操作后均观察并记录实际屏幕值；任务可因正式取消而以cancelled终态结束。",
+      "id": "increment_observed",
+      "required": true
+    },
+    {
+      "description": "全过程未清空、未重输旧值或旧算式，且未自行取消。",
+      "id": "no_reset",
+      "required": true
+    }
+  ],
+  "constraints": [
+    "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+    "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+    "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+    "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+    "仅操作指定设备计算器；不得用shell替代点击。",
+    "保持A原有子Session、连接和历史，不清空、不重输旧值或旧算式。",
+    "每次+1并等号后观察屏幕；按实际结果记录，不伪造期望值。",
+    "收到正式取消后停止；不要重试或重复任何结果不确定的操作。"
+  ],
+  "effect_policy": "verify_before_retry",
+  "execution_timeout_seconds": 900.0,
+  "goal": "在A原有子Session和连接中，从当前屏幕值开始逐次执行+1并等号，共30次；每次等号后都观察并记录屏幕实际值。不得清空或重输旧值、旧算式。此任务派发20秒后测试员将通过正式Main.cancel取消它；持续执行到收到取消或30次完成，不要自行模拟取消。",
+  "input_sources": {},
+  "inputs": {
+    "device_id": "21850fc5",
+    "iterations": "30",
+    "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8"
+  },
+  "max_steps": 100,
+  "outputs_schema": {
+    "properties": {
+      "increments_completed": {
+        "type": "string"
+      },
+      "last_observed": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "increments_completed",
+      "last_observed"
+    ],
+    "type": "object"
+  },
+  "settlement_timeout_seconds": 60.0,
+  "verification_timeout_seconds": 600.0
+}

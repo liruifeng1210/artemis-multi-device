@@ -1,0 +1,11 @@
+{
+  "role_id": "B",
+  "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+  "task_id": "999790a6-45e8-4142-96d9-1a2a2421dd5d",
+  "attempt_id": "875fff6e-9acb-477e-8175-0425fc1b2bbb",
+  "device_id": "a8acf864",
+  "goal": "接着屏幕上轮结果加17并按等号，期望25。不得清空或重新输入旧结果或旧算式。读真实屏幕，报告首次及当前结果。",
+  "status": "completed",
+  "reusable": true,
+  "cleanup_errors": []
+}

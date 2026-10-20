@@ -1,0 +1,36 @@
+{
+  "role_id": "B",
+  "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+  "task_id": "51a076e5-7df3-42d7-aed2-ceea43e69aed",
+  "attempt_id": "a8ba4bfb-ca3b-4f0b-b389-07922b3f79fe",
+  "status": "completed",
+  "output": {
+    "test_summary": {
+      "task_status": "completed",
+      "passed": 2,
+      "failed": 0,
+      "inconclusive": 0,
+      "unchecked": 0,
+      "failed_items": [],
+      "retired": 0,
+      "retired_items": []
+    }
+  },
+  "error": null,
+  "workspace": "<LOCAL_EVIDENCE>/comparison-20261021\\co-corrected\\traces\\633269ea-9548-43bc-bfed-ad37525de38e\\tasks\\51a076e5-7df3-42d7-aed2-ceea43e69aed\\a8ba4bfb-ca3b-4f0b-b389-07922b3f79fe",
+  "cleanup_errors": [],
+  "reusable": true,
+  "native_run_outcome": {
+    "task_status": "completed",
+    "tests": {
+      "passed": 2,
+      "failed": 0,
+      "inconclusive": 0,
+      "unchecked": 0,
+      "failed_items": [],
+      "retired": 0,
+      "retired_items": []
+    }
+  },
+  "checker_success_flag": true
+}

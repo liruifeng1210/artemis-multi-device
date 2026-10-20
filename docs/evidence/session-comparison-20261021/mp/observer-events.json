@@ -1,0 +1,1310 @@
+[
+  {
+    "observed_at": "2026-10-20T17:20:32.166519+00:00",
+    "kind": "model_proposal",
+    "proposal": {
+      "base_plan_revision": 1,
+      "tasks": [
+        {
+          "task_id": "d0103c14-0dcb-4da4-8d25-1640e49ea846",
+          "display_name": "initial-A",
+          "role_id": "A",
+          "spec": {
+            "goal": "在现有子Session和连接中操作com.miui.calculator。仅清空一次，输入125+75并等号；观察屏幕确认结果200。将首次结果和当前结果记入A的持续Role历史，供后续任务读取。",
+            "inputs": {
+              "device_id": "21850fc5",
+              "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8"
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "screen_200",
+                "description": "计算器屏幕显示125+75=200。",
+                "required": true
+              },
+              {
+                "id": "history_saved",
+                "description": "A的持续Role历史记录首次结果和当前结果。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "first_result": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "first_result",
+                "current_result"
+              ]
+            },
+            "constraints": [
+              "只操作指定设备计算器；不得用shell替代点击。",
+              "仅本任务清空一次；不得重连或重置子Session。",
+              "若操作结果不确定，先观察核实，不重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [],
+          "dependency_mode": "all"
+        },
+        {
+          "task_id": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+          "display_name": "initial-B",
+          "role_id": "B",
+          "spec": {
+            "goal": "在现有子Session和连接中操作com.coloros.calculator。仅清空一次，输入48÷6并等号；观察屏幕确认结果8。将首次结果和当前结果记入B的持续Role历史，供后续任务读取。",
+            "inputs": {
+              "device_id": "a8acf864",
+              "session_id": "570caa92-a5e2-460a-893b-8d547145ac42"
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "screen_8",
+                "description": "计算器屏幕显示48÷6=8。",
+                "required": true
+              },
+              {
+                "id": "history_saved",
+                "description": "B的持续Role历史记录首次结果和当前结果。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "first_result": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "first_result",
+                "current_result"
+              ]
+            },
+            "constraints": [
+              "只操作指定设备计算器；不得用shell替代点击。",
+              "仅本任务清空一次；不得重连或重置子Session。",
+              "若操作结果不确定，先观察核实，不重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [],
+          "dependency_mode": "all"
+        },
+        {
+          "task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+          "display_name": "continue-A",
+          "role_id": "A",
+          "spec": {
+            "goal": "在A原有子Session、连接、历史中观察当前屏幕，接屏幕上已有结果执行×3并等号；不清空、不重输旧值或旧算式。观察实际结果并更新A历史中的当前结果，保留首次结果。若当前屏幕不可读或无法安全继续，如实记录，不猜测、不重试不确定操作。",
+            "inputs": {
+              "device_id": "21850fc5",
+              "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+              "expected_result": "600"
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "continued_from_screen",
+                "description": "已从屏幕现有值执行乘3并等号，未清空或重输；观察并记录实际结果。若初值为200，屏幕结果为600。",
+                "required": true
+              },
+              {
+                "id": "history_updated",
+                "description": "A历史保留首次结果并更新当前结果；无法安全完成时如实记录原因。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "current_result"
+              ]
+            },
+            "constraints": [
+              "只操作指定设备计算器；不得用shell替代点击。",
+              "保持原子Session、连接和历史，不清空、不重输旧值或旧算式。",
+              "本任务失败不得阻止后续取消场景任务。",
+              "不重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "d0103c14-0dcb-4da4-8d25-1640e49ea846",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        },
+        {
+          "task_id": "84651aa3-19cf-480f-a66a-13d1d9e63bf1",
+          "display_name": "continue-B",
+          "role_id": "B",
+          "spec": {
+            "goal": "在B原有子Session、连接、历史中观察当前屏幕，接屏幕上已有结果执行+17并等号；不清空、不重输旧值或旧算式。观察实际结果并更新B历史中的当前结果，保留首次结果。若当前屏幕不可读或无法安全继续，如实记录，不猜测、不重试不确定操作。",
+            "inputs": {
+              "device_id": "a8acf864",
+              "session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+              "expected_result": "25"
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "continued_from_screen",
+                "description": "已从屏幕现有值执行加17并等号，未清空或重输；观察并记录实际结果。若初值为8，屏幕结果为25。",
+                "required": true
+              },
+              {
+                "id": "history_updated",
+                "description": "B历史保留首次结果并更新当前结果；无法安全完成时如实记录原因。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "current_result"
+              ]
+            },
+            "constraints": [
+              "只操作指定设备计算器；不得用shell替代点击。",
+              "保持原子Session、连接和历史，不清空、不重输旧值或旧算式。",
+              "不重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        },
+        {
+          "task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+          "display_name": "cancel-A",
+          "role_id": "A",
+          "spec": {
+            "goal": "在A原有子Session和连接中，从当前屏幕值开始逐次执行+1并等号，共30次；每次等号后都观察并记录屏幕实际值。不得清空或重输旧值、旧算式。此任务派发20秒后测试员将通过正式Main.cancel取消它；持续执行到收到取消或30次完成，不要自行模拟取消。",
+            "inputs": {
+              "device_id": "21850fc5",
+              "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+              "iterations": "30"
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "increment_observed",
+                "description": "每次已完成的+1等号操作后均观察并记录实际屏幕值；任务可因正式取消而以cancelled终态结束。",
+                "required": true
+              },
+              {
+                "id": "no_reset",
+                "description": "全过程未清空、未重输旧值或旧算式，且未自行取消。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "increments_completed": {
+                  "type": "string"
+                },
+                "last_observed": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "increments_completed",
+                "last_observed"
+              ]
+            },
+            "constraints": [
+              "仅操作指定设备计算器；不得用shell替代点击。",
+              "保持A原有子Session、连接和历史，不清空、不重输旧值或旧算式。",
+              "每次+1并等号后观察屏幕；按实际结果记录，不伪造期望值。",
+              "收到正式取消后停止；不要重试或重复任何结果不确定的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        },
+        {
+          "task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+          "display_name": "reuse-B",
+          "role_id": "B",
+          "spec": {
+            "goal": "与A的cancel-A场景独立运行。在B原有子Session、连接和历史中观察当前屏幕，接屏幕现有值执行×4并等号；不清空或重输旧值或旧算式。观察实际结果并更新B历史当前结果。若当前值为25，结果应为100；否则如实报告实际值，不伪造期望值。",
+            "inputs": {
+              "device_id": "a8acf864",
+              "session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+              "expected_result": "100"
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "reuse_observed",
+                "description": "从屏幕现有值执行乘4并等号，观察并记录实际结果；若乘前为25则结果为100。",
+                "required": true
+              },
+              {
+                "id": "history_updated",
+                "description": "B持续Role历史保留首次结果并更新当前结果；不得伪造期望值。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "current_result"
+              ]
+            },
+            "constraints": [
+              "只操作指定设备计算器；不得用shell替代点击。",
+              "保持B原有子Session、连接和历史，不清空、不重输旧值或旧算式。",
+              "此任务不依赖A的任务状态；不重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "84651aa3-19cf-480f-a66a-13d1d9e63bf1",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        },
+        {
+          "task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5",
+          "display_name": "post-cancel-A",
+          "role_id": "A",
+          "spec": {
+            "goal": "在cancel-A进入任意终态后，使用A同一子Session和连接重新观察计算器实际屏幕值；基于该实际值接着执行+10并等号，观察并记录结果。不得假设取消回滚，不清空或重输旧值或旧算式。若屏幕值不可读或无法安全继续，不猜测或重试，报告实际观察和原因。",
+            "inputs": {
+              "device_id": "21850fc5",
+              "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8"
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "screen_reread",
+                "description": "cancel-A终态后已重新读取A计算器屏幕实际值。",
+                "required": true
+              },
+              {
+                "id": "plus_ten",
+                "description": "基于该屏幕值执行+10并等号，观察并记录实际结果；若无法安全执行则如实说明。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "screen_before": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "screen_before",
+                "current_result"
+              ]
+            },
+            "constraints": [
+              "只操作指定设备计算器；不得用shell替代点击。",
+              "必须保持A同一子Session和连接；不得假设取消回滚。",
+              "不得清空或重输旧值或旧算式；不重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        },
+        {
+          "task_id": "64b2d762-0ba5-45fa-8f9c-b39e56ed2605",
+          "display_name": "report-B",
+          "role_id": "B",
+          "spec": {
+            "goal": "仅根据B自己的持续Role历史报告首次计算结果和当前结果，不读取或引用A的数据。优先使用绑定的B历史输出；绑定缺失时读取B自己的Role历史，如无记录则明确报告不可用，不猜测。",
+            "inputs": {
+              "fallback": "绑定值缺失时读取B自己的持续Role历史；不可用则如实说明。"
+            },
+            "input_sources": {
+              "first_result": {
+                "from_task": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+                "key": "first_result"
+              },
+              "current_result": {
+                "from_task": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+                "key": "current_result"
+              }
+            },
+            "completion": [
+              {
+                "id": "report_history",
+                "description": "报告B历史中的首次结果和最新当前结果，缺失项明确标记不可用，未引用A的数据。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "report": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "report"
+              ]
+            },
+            "constraints": [
+              "只使用B自己的计算器历史和Role记忆；不得读取或引用A的数据。",
+              "不得操作计算器、清空或重输任何值。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            },
+            {
+              "task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        }
+      ],
+      "finish": false,
+      "missing_input": null,
+      "diagnostics": [],
+      "recoveries": [],
+      "restart_roles": []
+    }
+  },
+  {
+    "observed_at": "2026-10-20T17:20:32.167536+00:00",
+    "kind": "dispatch_seen",
+    "task_id": "d0103c14-0dcb-4da4-8d25-1640e49ea846",
+    "attempt_id": "de638217-b0df-4a81-9204-83ff441dd6ac",
+    "role": "A",
+    "device": "21850fc5",
+    "session": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+    "pid": 27344,
+    "display_name": "initial-A"
+  },
+  {
+    "observed_at": "2026-10-20T17:20:32.167536+00:00",
+    "kind": "dispatch_seen",
+    "task_id": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+    "attempt_id": "ac261bea-56d0-48cc-918e-214e5338f7fb",
+    "role": "B",
+    "device": "a8acf864",
+    "session": "570caa92-a5e2-460a-893b-8d547145ac42",
+    "pid": 22940,
+    "display_name": "initial-B"
+  },
+  {
+    "observed_at": "2026-10-20T17:34:53.248121+00:00",
+    "kind": "dispatch_seen",
+    "task_id": "84651aa3-19cf-480f-a66a-13d1d9e63bf1",
+    "attempt_id": "7a346b61-0179-4900-80f7-a629e6230550",
+    "role": "B",
+    "device": "a8acf864",
+    "session": "570caa92-a5e2-460a-893b-8d547145ac42",
+    "pid": 22940,
+    "display_name": "continue-B"
+  },
+  {
+    "observed_at": "2026-10-20T17:35:32.540181+00:00",
+    "kind": "dispatch_seen",
+    "task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+    "attempt_id": "efb3e80e-bba3-441c-91b7-070e9b8e9510",
+    "role": "A",
+    "device": "21850fc5",
+    "session": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+    "pid": 27344,
+    "display_name": "continue-A"
+  },
+  {
+    "observed_at": "2026-10-20T17:42:04.297006+00:00",
+    "kind": "dispatch_seen",
+    "task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+    "attempt_id": "609e381f-b88a-474f-8835-e4e58580c37f",
+    "role": "B",
+    "device": "a8acf864",
+    "session": "570caa92-a5e2-460a-893b-8d547145ac42",
+    "pid": 22940,
+    "display_name": "reuse-B"
+  },
+  {
+    "observed_at": "2026-10-20T17:42:25.059755+00:00",
+    "kind": "dispatch_seen",
+    "task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+    "attempt_id": "1a398744-e0c2-4650-bc68-f0b95d8613fa",
+    "role": "A",
+    "device": "21850fc5",
+    "session": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+    "pid": 27344,
+    "display_name": "cancel-A"
+  },
+  {
+    "observed_at": "2026-10-20T17:42:45.502231+00:00",
+    "kind": "dispatch_seen",
+    "task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5",
+    "attempt_id": "f1ec3f76-8539-4f8b-a0b6-723e80d7f3e3",
+    "role": "A",
+    "device": "21850fc5",
+    "session": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+    "pid": 27344,
+    "display_name": "post-cancel-A"
+  },
+  {
+    "observed_at": "2026-10-20T17:54:42.657783+00:00",
+    "kind": "dispatch_seen",
+    "task_id": "64b2d762-0ba5-45fa-8f9c-b39e56ed2605",
+    "attempt_id": "d71c481e-848d-4da3-8265-6c5f2eec1881",
+    "role": "B",
+    "device": "a8acf864",
+    "session": "570caa92-a5e2-460a-893b-8d547145ac42",
+    "pid": 22940,
+    "display_name": "report-B"
+  },
+  {
+    "observed_at": "2026-10-20T18:04:30.813015+00:00",
+    "kind": "model_proposal",
+    "proposal": {
+      "base_plan_revision": 2,
+      "tasks": [
+        {
+          "task_id": "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+          "display_name": "verify-post-cancel-A",
+          "role_id": "A",
+          "spec": {
+            "goal": "在A原有子Session中只读核对当前计算器屏幕、可用的A任务操作记录及持续Role历史。记录当前屏幕值，并分别核实首次125+75、continue-A乘3、cancel-A已完成的+1次数及最后观察值、post-cancel-A的+10是否已经达到。证据不足的字段标记为unknown或unavailable，不猜测，不操作计算器。",
+            "inputs": {
+              "device_id": "21850fc5",
+              "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8"
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "screen_read",
+                "description": "已在A原有子Session读取并记录计算器当前屏幕值；不可读时明确标记unavailable。",
+                "required": true
+              },
+              {
+                "id": "task_states_checked",
+                "description": "已根据可用的同Session屏幕和任务记录核实各项操作；首次计算、乘3及+10分别标记yes/no/unknown，cancel-A记录实际可确认的完成次数和最后观察值，证据不足时不推断。",
+                "required": true
+              },
+              {
+                "id": "history_checked",
+                "description": "已只读检查A持续Role历史中的首次值和当前值；缺失项标记unavailable。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "screen_value": {
+                  "type": "string"
+                },
+                "initial_result": {
+                  "type": "string"
+                },
+                "continue_a_applied": {
+                  "type": "string"
+                },
+                "increments_completed": {
+                  "type": "string"
+                },
+                "cancel_last_observed": {
+                  "type": "string"
+                },
+                "plus_ten_applied": {
+                  "type": "string"
+                },
+                "history_first": {
+                  "type": "string"
+                },
+                "history_current": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "screen_value",
+                "initial_result",
+                "continue_a_applied",
+                "increments_completed",
+                "cancel_last_observed",
+                "plus_ten_applied",
+                "history_first",
+                "history_current"
+              ]
+            },
+            "constraints": [
+              "仅只读观察A指定计算器和Role历史；不得点击或改变设备状态。",
+              "保持原子Session和连接；不得清空或重输任何值或算式。",
+              "所有值按实际证据记录；证据不足写unknown或unavailable。",
+              "execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "d0103c14-0dcb-4da4-8d25-1640e49ea846",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            },
+            {
+              "task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            },
+            {
+              "task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            },
+            {
+              "task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        },
+        {
+          "task_id": "b4255ba9-60f1-4e30-990a-98d5ec2adf23",
+          "display_name": "recover-post-cancel-A",
+          "role_id": "A",
+          "spec": {
+            "goal": "在A原有子Session和连接中，根据只读核对结果处理post-cancel-A的+10意图。先重新读取当前屏幕。若核对确认+10尚未完成且屏幕仍与核对时一致，接屏幕现有值执行+10并等号，观察实际结果；若已完成，不重复操作；若状态未知、屏幕不一致或无法安全判断，则不操作并如实记录。若首次结果有已验证值，保留并更新A持续Role历史的当前值；无法验证的历史项如实标记不可用。",
+            "inputs": {
+              "device_id": "21850fc5",
+              "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8"
+            },
+            "input_sources": {
+              "verified_screen_value": {
+                "from_task": "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+                "key": "screen_value"
+              },
+              "verified_plus_ten_status": {
+                "from_task": "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+                "key": "plus_ten_applied"
+              },
+              "verified_first_result": {
+                "from_task": "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+                "key": "initial_result"
+              }
+            },
+            "completion": [
+              {
+                "id": "post_cancel_state_handled",
+                "description": "已在同一子Session重读屏幕；仅在核实原+10未达到且屏幕一致时执行+10并观察结果，已达到时不重复，状态未知或屏幕不一致时停止并说明。",
+                "required": true
+              },
+              {
+                "id": "history_updated_or_reported",
+                "description": "A历史保留可验证的首次结果并记录实际当前值；无法验证的字段明确标记不可用。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "screen_before": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                },
+                "history_status": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "screen_before",
+                "current_result",
+                "history_status"
+              ]
+            },
+            "constraints": [
+              "只操作指定设备计算器；不得用shell替代点击。",
+              "保持A原有子Session、连接和历史；不得清空或重输旧值、旧算式。",
+              "不得假设取消回滚；不重复已确认完成的+10，不重试不确定操作。",
+              "只有在只读核对确认+10未完成且屏幕与核对值一致时才执行+10和等号。",
+              "execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+              "statuses": [
+                "succeeded"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        }
+      ],
+      "finish": false,
+      "missing_input": null,
+      "diagnostics": [],
+      "recoveries": [
+        {
+          "failed_task_id": "d0103c14-0dcb-4da4-8d25-1640e49ea846",
+          "replacement_task_ids": [
+            "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+            "b4255ba9-60f1-4e30-990a-98d5ec2adf23"
+          ]
+        },
+        {
+          "failed_task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+          "replacement_task_ids": [
+            "ad72eb73-1dc0-4a3d-9804-62d5794c9102"
+          ]
+        },
+        {
+          "failed_task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5",
+          "replacement_task_ids": [
+            "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+            "b4255ba9-60f1-4e30-990a-98d5ec2adf23"
+          ]
+        }
+      ],
+      "restart_roles": []
+    }
+  },
+  {
+    "observed_at": "2026-10-20T18:06:35.088981+00:00",
+    "kind": "model_proposal",
+    "proposal": {
+      "base_plan_revision": 2,
+      "tasks": [
+        {
+          "task_id": "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+          "display_name": "verify-post-cancel-A",
+          "role_id": "A",
+          "spec": {
+            "goal": "在A原有子Session和连接中只读核对cancel-A状态（已知终态为cancelled）、重新读取计算器屏幕，并检查可用的A任务记录和持续Role历史。分别记录首次125+75、continue-A乘3、cancel-A的已观察+1次数及最后值、post-cancel-A的+10是否已达到。证据不足的字段写unknown或unavailable；不操作计算器、不改历史。",
+            "inputs": {
+              "device_id": "21850fc5",
+              "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+              "cancel_a_status": "cancelled"
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "screen_read",
+                "description": "已在A原有子Session重新读取当前屏幕值；不可读时明确标记unavailable。",
+                "required": true
+              },
+              {
+                "id": "status_checked",
+                "description": "已核对cancel-A终态及可用任务记录，分别记录首次计算、乘3、已观察递增次数和+10是否达到；证据不足时标记unknown。",
+                "required": true
+              },
+              {
+                "id": "history_checked",
+                "description": "已只读检查A持续Role历史中的首次值和当前值；缺失项标记unavailable。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "screen_value": {
+                  "type": "string"
+                },
+                "initial_result": {
+                  "type": "string"
+                },
+                "continue_a_applied": {
+                  "type": "string"
+                },
+                "increments_completed": {
+                  "type": "string"
+                },
+                "cancel_last_observed": {
+                  "type": "string"
+                },
+                "plus_ten_applied": {
+                  "type": "string"
+                },
+                "history_first": {
+                  "type": "string"
+                },
+                "history_current": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "screen_value",
+                "initial_result",
+                "continue_a_applied",
+                "increments_completed",
+                "cancel_last_observed",
+                "plus_ten_applied",
+                "history_first",
+                "history_current"
+              ]
+            },
+            "constraints": [
+              "仅只读观察A指定计算器、任务记录和Role历史；不得点击或改变设备状态。",
+              "保持原子Session和连接；不得清空或重输任何值或算式。",
+              "按实际证据记录；不推断取消回滚或未完成的操作。",
+              "execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "d0103c14-0dcb-4da4-8d25-1640e49ea846",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            },
+            {
+              "task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            },
+            {
+              "task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            },
+            {
+              "task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        },
+        {
+          "task_id": "b4255ba9-60f1-4e30-990a-98d5ec2adf23",
+          "display_name": "recover-post-cancel-A",
+          "role_id": "A",
+          "spec": {
+            "goal": "在A原有子Session和连接中先重新读取当前屏幕。仅当只读核对明确确认原post-cancel-A的+10未达到，且当前屏幕值与核对值一致、可安全继续时，接屏幕现有值执行+10并等号，观察实际结果。已达到时不重复；状态未知、屏幕不一致或无法安全判断时不操作并如实记录。保留可验证的首次结果并更新A历史当前值；不可验证项标记unavailable。",
+            "inputs": {
+              "device_id": "21850fc5",
+              "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8"
+            },
+            "input_sources": {
+              "verified_screen_value": {
+                "from_task": "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+                "key": "screen_value"
+              },
+              "verified_plus_ten_status": {
+                "from_task": "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+                "key": "plus_ten_applied"
+              },
+              "verified_first_result": {
+                "from_task": "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+                "key": "initial_result"
+              }
+            },
+            "completion": [
+              {
+                "id": "post_cancel_state_handled",
+                "description": "已在同一子Session重读屏幕；仅在核实+10未达到且屏幕与核对值一致时执行+10并观察，已达到时不重复，状态未知或屏幕不一致时停止并说明。",
+                "required": true
+              },
+              {
+                "id": "history_updated_or_reported",
+                "description": "A历史保留可验证的首次结果并记录实际当前值；无法验证的字段明确标记不可用。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "screen_before": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                },
+                "history_status": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "screen_before",
+                "current_result",
+                "history_status"
+              ]
+            },
+            "constraints": [
+              "只操作指定设备计算器；不得用shell替代点击。",
+              "保持A原有子Session、连接和历史；不得清空或重输旧值、旧算式。",
+              "不得假设取消回滚；不重复已确认完成的+10，不重试不确定操作。",
+              "只有只读核对确认+10未达到且重读屏幕与核对值一致时才执行+10和等号。",
+              "execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "ad72eb73-1dc0-4a3d-9804-62d5794c9102",
+              "statuses": [
+                "succeeded"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": "plus_ten_applied",
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        },
+        {
+          "task_id": "c6e6bb5b-d555-4d4a-a59b-288a180c8b57",
+          "display_name": "report-B-reconciled",
+          "role_id": "B",
+          "spec": {
+            "goal": "仅根据B自己的持续Role历史，以及B自己先前任务保存的历史输出，报告首次计算结果和当前结果。核对48÷6、后续+17及×4的历史记录；如历史显示的实际值与期望链条不同，照实报告，不推测或伪造。绑定值缺失时读取B自己的Role历史；仍无记录则明确标记不可用。不得读取A的数据。",
+            "inputs": {
+              "fallback": "绑定值缺失时读取B自己的持续Role历史；不可用则如实说明。"
+            },
+            "input_sources": {
+              "first_result": {
+                "from_task": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+                "key": "first_result"
+              },
+              "current_result": {
+                "from_task": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+                "key": "current_result"
+              }
+            },
+            "completion": [
+              {
+                "id": "report_history",
+                "description": "报告B历史中的首次结果和当前结果；缺失项明确标记不可用，按B历史记录的实际值报告，未引用A的数据。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "report": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "report"
+              ]
+            },
+            "constraints": [
+              "只使用B自己的计算器历史、Role记忆及B任务输出；不得读取或引用A的数据。",
+              "不得操作计算器、清空或重输任何值。",
+              "execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            },
+            {
+              "task_id": "84651aa3-19cf-480f-a66a-13d1d9e63bf1",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            },
+            {
+              "task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            },
+            {
+              "task_id": "64b2d762-0ba5-45fa-8f9c-b39e56ed2605",
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": null,
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all"
+        }
+      ],
+      "finish": false,
+      "missing_input": null,
+      "diagnostics": [],
+      "recoveries": [
+        {
+          "failed_task_id": "d0103c14-0dcb-4da4-8d25-1640e49ea846",
+          "replacement_task_ids": [
+            "ad72eb73-1dc0-4a3d-9804-62d5794c9102"
+          ]
+        },
+        {
+          "failed_task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+          "replacement_task_ids": [
+            "ad72eb73-1dc0-4a3d-9804-62d5794c9102"
+          ]
+        },
+        {
+          "failed_task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+          "replacement_task_ids": [
+            "ad72eb73-1dc0-4a3d-9804-62d5794c9102"
+          ]
+        },
+        {
+          "failed_task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5",
+          "replacement_task_ids": [
+            "ad72eb73-1dc0-4a3d-9804-62d5794c9102"
+          ]
+        },
+        {
+          "failed_task_id": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+          "replacement_task_ids": [
+            "c6e6bb5b-d555-4d4a-a59b-288a180c8b57"
+          ]
+        },
+        {
+          "failed_task_id": "84651aa3-19cf-480f-a66a-13d1d9e63bf1",
+          "replacement_task_ids": [
+            "c6e6bb5b-d555-4d4a-a59b-288a180c8b57"
+          ]
+        },
+        {
+          "failed_task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+          "replacement_task_ids": [
+            "c6e6bb5b-d555-4d4a-a59b-288a180c8b57"
+          ]
+        },
+        {
+          "failed_task_id": "64b2d762-0ba5-45fa-8f9c-b39e56ed2605",
+          "replacement_task_ids": [
+            "c6e6bb5b-d555-4d4a-a59b-288a180c8b57"
+          ]
+        }
+      ],
+      "restart_roles": []
+    }
+  },
+  {
+    "observed_at": "2026-10-20T18:07:40.517931+00:00",
+    "kind": "model_proposal",
+    "proposal": {
+      "base_plan_revision": 2,
+      "tasks": [],
+      "finish": false,
+      "missing_input": null,
+      "diagnostics": [
+        {
+          "role_id": "A",
+          "kind": "inspect",
+          "query": {
+            "level": "transcript",
+            "offset": 10,
+            "limit": 100,
+            "snapshot_id": "86e23240-fb6b-41fd-8f4f-ab79b6c6abb3"
+          }
+        }
+      ],
+      "recoveries": [],
+      "restart_roles": []
+    }
+  }
+]

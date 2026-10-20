@@ -1,0 +1,3 @@
+- [x] Check only B's bound calculator-history output and, if missing, B's own persistent Role history; record the first and latest results or mark missing entries unavailable in `B_calculator_history_report`
+- [x] Consolidate the evidence into the B-only report without interacting with the calculator or using A's data
+- assert@end: 报告B历史中的首次结果和最新当前结果，缺失项明确标记不可用，未引用A的数据。

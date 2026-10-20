@@ -1,0 +1,322 @@
+{
+  "offline_only": true,
+  "replay_note": "Replays the production Scheduler validator against recorded model proposals and terminal results. It creates no workflow, device action, or replacement model decision.",
+  "planner_replay": [
+    {
+      "proposal_index": 1,
+      "base_revision": 1,
+      "tasks": 8,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "accepted"
+    },
+    {
+      "proposal_index": 2,
+      "base_revision": 2,
+      "tasks": 2,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "rejected",
+      "reason": "Recovery must preserve the original role and acceptance contract"
+    },
+    {
+      "proposal_index": 3,
+      "base_revision": 2,
+      "tasks": 3,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "rejected",
+      "reason": "Recovery must preserve the original role and acceptance contract"
+    },
+    {
+      "proposal_index": 4,
+      "base_revision": 2,
+      "tasks": 0,
+      "diagnostics": 1,
+      "missing_input": null,
+      "validation": "not applied by production control flow"
+    }
+  ],
+  "final_task_statuses": {
+    "blocked": 4,
+    "cancelled": 3,
+    "failed": 1
+  },
+  "bindings": [
+    {
+      "observed_at": "2026-10-20T17:20:32.167536+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "d0103c14-0dcb-4da4-8d25-1640e49ea846",
+      "attempt_id": "de638217-b0df-4a81-9204-83ff441dd6ac",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+      "pid": 27344,
+      "display_name": "initial-A"
+    },
+    {
+      "observed_at": "2026-10-20T17:20:32.167536+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+      "attempt_id": "ac261bea-56d0-48cc-918e-214e5338f7fb",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "570caa92-a5e2-460a-893b-8d547145ac42",
+      "pid": 22940,
+      "display_name": "initial-B"
+    },
+    {
+      "observed_at": "2026-10-20T17:34:53.248121+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "84651aa3-19cf-480f-a66a-13d1d9e63bf1",
+      "attempt_id": "7a346b61-0179-4900-80f7-a629e6230550",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "570caa92-a5e2-460a-893b-8d547145ac42",
+      "pid": 22940,
+      "display_name": "continue-B"
+    },
+    {
+      "observed_at": "2026-10-20T17:35:32.540181+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+      "attempt_id": "efb3e80e-bba3-441c-91b7-070e9b8e9510",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+      "pid": 27344,
+      "display_name": "continue-A"
+    },
+    {
+      "observed_at": "2026-10-20T17:42:04.297006+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+      "attempt_id": "609e381f-b88a-474f-8835-e4e58580c37f",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "570caa92-a5e2-460a-893b-8d547145ac42",
+      "pid": 22940,
+      "display_name": "reuse-B"
+    },
+    {
+      "observed_at": "2026-10-20T17:42:25.059755+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+      "attempt_id": "1a398744-e0c2-4650-bc68-f0b95d8613fa",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+      "pid": 27344,
+      "display_name": "cancel-A"
+    },
+    {
+      "observed_at": "2026-10-20T17:42:45.502231+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5",
+      "attempt_id": "f1ec3f76-8539-4f8b-a0b6-723e80d7f3e3",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+      "pid": 27344,
+      "display_name": "post-cancel-A"
+    },
+    {
+      "observed_at": "2026-10-20T17:54:42.657783+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "64b2d762-0ba5-45fa-8f9c-b39e56ed2605",
+      "attempt_id": "d71c481e-848d-4da3-8265-6c5f2eec1881",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "570caa92-a5e2-460a-893b-8d547145ac42",
+      "pid": 22940,
+      "display_name": "report-B"
+    }
+  ],
+  "runtime_interpreters": [
+    {
+      "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+      "pid": 35468,
+      "start_time": 1792516738.8061817,
+      "end_time": 1792519660.4430304,
+      "status": "cancelled"
+    },
+    {
+      "session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+      "pid": 39616,
+      "start_time": 1792516739.333633,
+      "end_time": 1792519660.4430304,
+      "status": "cancelled"
+    }
+  ],
+  "cancel_request": {
+    "attempt_id": "1a398744-e0c2-4650-bc68-f0b95d8613fa",
+    "kind": "harness_cancel_request",
+    "task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+    "time": "2026-10-20T17:42:45.236108+00:00",
+    "worker_state": "EXECUTING"
+  },
+  "cancel_ack": {
+    "time": "2026-10-20T17:42:45.243299+00:00",
+    "task": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+    "attempt": "1a398744-e0c2-4650-bc68-f0b95d8613fa",
+    "reply": {
+      "accepted": true
+    }
+  },
+  "request_to_ack_seconds": 0.007191,
+  "request_to_task_result_seconds": 0.08150792121887207,
+  "cancel_task_action_count": 0,
+  "cancel_stage": "Planner/LLM wait before first device action; queued/device-operation cancel not exercised",
+  "B_action_records_after_A_cancel": [
+    {
+      "timestamp": 1792518379.8963478,
+      "duration": 0.5710186958312988,
+      "session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+      "name": "tap",
+      "task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+      "attempt_id": "609e381f-b88a-474f-8835-e4e58580c37f"
+    },
+    {
+      "timestamp": 1792518407.9474611,
+      "duration": 0.5247931480407715,
+      "session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+      "name": "tap",
+      "task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+      "attempt_id": "609e381f-b88a-474f-8835-e4e58580c37f"
+    },
+    {
+      "timestamp": 1792518442.6452246,
+      "duration": 0.5369789600372314,
+      "session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+      "name": "tap",
+      "task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+      "attempt_id": "609e381f-b88a-474f-8835-e4e58580c37f"
+    }
+  ],
+  "late_actions_after_task_result": [],
+  "action_intervals_ending_after_task_result": [],
+  "actions_without_duration": 0,
+  "boundary_inspections": [
+    {
+      "task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5",
+      "display_name": "post-cancel-A",
+      "source": {
+        "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14",
+        "role_id": "A",
+        "child_session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+        "worker_epoch": "c7f6ebd9-1883-4ddb-bd99-d00acc964a33",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249",
+      "display_name": "initial-B",
+      "source": {
+        "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14",
+        "role_id": "B",
+        "child_session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+        "worker_epoch": "1bc8faeb-9a3b-41af-a75d-257ee4e3e179",
+        "active_task_id": "84651aa3-19cf-480f-a66a-13d1d9e63bf1",
+        "active_attempt_id": "7a346b61-0179-4900-80f7-a629e6230550"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+      "display_name": "continue-A",
+      "source": {
+        "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14",
+        "role_id": "A",
+        "child_session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+        "worker_epoch": "c7f6ebd9-1883-4ddb-bd99-d00acc964a33",
+        "active_task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+        "active_attempt_id": "1a398744-e0c2-4650-bc68-f0b95d8613fa"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "64b2d762-0ba5-45fa-8f9c-b39e56ed2605",
+      "display_name": "report-B",
+      "source": {
+        "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14",
+        "role_id": "B",
+        "child_session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+        "worker_epoch": "1bc8faeb-9a3b-41af-a75d-257ee4e3e179",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+      "display_name": "cancel-A",
+      "source": {
+        "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14",
+        "role_id": "A",
+        "child_session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+        "worker_epoch": "c7f6ebd9-1883-4ddb-bd99-d00acc964a33",
+        "active_task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5",
+        "active_attempt_id": "f1ec3f76-8539-4f8b-a0b6-723e80d7f3e3"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "84651aa3-19cf-480f-a66a-13d1d9e63bf1",
+      "display_name": "continue-B",
+      "source": {
+        "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14",
+        "role_id": "B",
+        "child_session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+        "worker_epoch": "1bc8faeb-9a3b-41af-a75d-257ee4e3e179",
+        "active_task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+        "active_attempt_id": "609e381f-b88a-474f-8835-e4e58580c37f"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "d0103c14-0dcb-4da4-8d25-1640e49ea846",
+      "display_name": "initial-A",
+      "source": {
+        "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14",
+        "role_id": "A",
+        "child_session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+        "worker_epoch": "c7f6ebd9-1883-4ddb-bd99-d00acc964a33",
+        "active_task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+        "active_attempt_id": "efb3e80e-bba3-441c-91b7-070e9b8e9510"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "e6b73f62-f4cf-49d0-b167-6de77df28f77",
+      "display_name": "reuse-B",
+      "source": {
+        "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14",
+        "role_id": "B",
+        "child_session_id": "570caa92-a5e2-460a-893b-8d547145ac42",
+        "worker_epoch": "1bc8faeb-9a3b-41af-a75d-257ee4e3e179",
+        "active_task_id": "64b2d762-0ba5-45fa-8f9c-b39e56ed2605",
+        "active_attempt_id": "d71c481e-848d-4da3-8265-6c5f2eec1881"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    }
+  ],
+  "limitations": "Native traces omit direct Role/device/task fields; action-task joins use immutable step metadata and worker Session bindings. Boundary inspections can already describe the next task. Zero late records is bounded by trace coverage."
+}

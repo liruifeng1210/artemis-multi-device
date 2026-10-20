@@ -15,6 +15,7 @@ traces=[json.loads(line) for line in (root/'trace-timeline.jsonl').read_text(enc
 actions=[r for r in traces if r['type']=='action']
 terminals={r['task']:datetime.fromisoformat(r['time']).timestamp() for r in events if r['kind']=='terminal'}
 late=[r for r in actions if r['execution'].get('task_id') in terminals and r['timestamp']>terminals[r['execution']['task_id']]]
+overlaps=[r for r in actions if r['execution'].get('task_id') in terminals and r['timestamp']+(r.get('duration') or 0)>terminals[r['execution']['task_id']]]
 request=next((r for r in events if r['kind']=='cancel_request'),None)
 returned=next((r for r in events if r['kind']=='cancel_return'),None)
 cancel_actions=[r for r in actions if request and r['execution'].get('task_id')==request['task']]
@@ -36,12 +37,15 @@ out={'read_only':True,'execution_status_counts':dict(Counter(r['status'] for r i
  'cancel_task_device_actions':cancel_actions,
  'cancel_stage':'LLM/planner wait before first action' if request and not cancel_actions else 'inspect trace before classifying',
  'B_actions_after_A_cancel':after,'late_actions_after_task_terminal':late,
+ 'action_intervals_ending_after_task_terminal':overlaps,
+ 'actions_without_duration':sum(r.get('duration') is None for r in actions),
  'persistent_resource_boundaries':boundaries,'resource_identity_unchanged_per_session':identity,
  'history_chunk_status_counts':dict(Counter(r['status'] for r in db['history_chunks'])),
+ 'history_chunk_latest_range_status_counts':db.get('history_chunk_latest_range_status_counts'),
  'task_start_state_records':len(read('task-start-states.json')) if (root/'task-start-states.json').exists() else 0,
  'limitations':['Action timestamps are trace records, not device-side atomic commits.',
  'Template-context background counters do not enumerate every active task context.',
  'Activation observer in a2afa8d lacked parent mkdir; missing files are an instrumentation gap. Graph-start log evidence is separate.',
  'Queue and in-flight device-operation cancellation were not exercised. No crash injection.']}
-(root/'execution-audit.json').write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding='utf-8')
+(root/'execution-audit.json').write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding='utf-8',newline='\n')
 print(json.dumps({k:out[k] for k in ['execution_status_counts','native_check_totals','cancel_latency_seconds','resource_identity_unchanged_per_session','task_start_state_records']},ensure_ascii=False))
