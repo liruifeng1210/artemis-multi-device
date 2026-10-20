@@ -3,6 +3,7 @@
 import asyncio
 import os
 import sys
+import subprocess
 from uuid import UUID
 
 import pytest
@@ -10,6 +11,42 @@ import pytest
 from artemis.data_engine.storage import StorageManager
 from artemis.runtime.session_orchestration.models import new_id
 from artemis.runtime.session_orchestration.paths import absolute_path
+from artemis.runtime.session_storage import native_storage_startup
+
+
+@pytest.mark.asyncio
+async def test_native_startup_lock_is_released_when_owner_crashes(tmp_path):
+    code = """
+import asyncio, sys
+from artemis.runtime.session_storage import native_storage_startup
+async def run():
+    async with native_storage_startup(sys.argv[1]):
+        print('locked', flush=True)
+        await asyncio.sleep(60)
+asyncio.run(run())
+"""
+    process = await asyncio.create_subprocess_exec(
+        sys.executable,
+        "-c",
+        code,
+        str(tmp_path),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+        creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+    )
+    try:
+        assert (await asyncio.wait_for(process.stdout.readline(), 20)).strip() == b"locked"
+        with pytest.raises(TimeoutError):
+            async with native_storage_startup(tmp_path, timeout_seconds=0.1):
+                pytest.fail("Two processes acquired the startup lock")
+        process.kill()
+        await process.wait()
+        async with native_storage_startup(tmp_path, timeout_seconds=1):
+            pass
+    finally:
+        if process.returncode is None:
+            process.kill()
+        await process.wait()
 
 
 @pytest.mark.asyncio
@@ -23,16 +60,21 @@ from uuid import UUID
 from artemis.context import ArtemisContext, DeviceContext, ExecutionSetup
 from artemis.data_engine.engine import DataEngine
 from artemis.runtime.session_scope import TaskScope
+from artemis.runtime.session_storage import native_storage_startup
 async def run():
     root, sid = Path(sys.argv[1]), sys.argv[2]
     DataEngine._connect_ipc_locked = lambda *a, **k: False
     ctx = ArtemisContext(device=DeviceContext(),
         execution_setup=ExecutionSetup(traces_path=root, trace_name=sid))
-    engine = DataEngine(ctx)
-    ctx.data_engine = engine
-    engine.start_session(goal=sid, session_id=UUID(sid))
+    async with native_storage_startup(root):
+        engine = DataEngine(ctx)
+        ctx.data_engine = engine
+        engine.start_session(goal=sid, session_id=UUID(sid))
+        await engine.flush(10)
     (root/(sid + ".ready")).touch()
-    async with asyncio.timeout(15):
+    # Native SQLite permits 30s of lock waiting. Startup synchronization must
+    # cover that budget plus independent Python imports on a loaded host.
+    async with asyncio.timeout(45):
         while len(list(root.glob("*.ready"))) < 2:
             await asyncio.sleep(0.01)
     for index in range(3):
@@ -60,12 +102,13 @@ asyncio.run(run())
         for sid in sessions
     ]
     try:
-        for process in processes:
-            stdout, stderr = await asyncio.wait_for(process.communicate(), 40)
-            assert process.returncode == 0, (
-                stdout.decode(errors="replace"),
-                stderr.decode(errors="replace"),
-            )
+        outputs = await asyncio.wait_for(
+            asyncio.gather(*(process.communicate() for process in processes)), 75
+        )
+        assert all(process.returncode == 0 for process in processes), [
+            (process.returncode, stdout.decode(errors="replace"), stderr.decode(errors="replace"))
+            for process, (stdout, stderr) in zip(processes, outputs)
+        ]
         storage = StorageManager(root / "data_engine.db", root)
         for sid in sessions:
             steps = storage.get_steps(UUID(sid))

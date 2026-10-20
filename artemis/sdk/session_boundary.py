@@ -37,12 +37,15 @@ async def settle_task(ctx, state, timeout_seconds=30.0) -> dict:
             raise RuntimeError("Native producers did not stop")
     tracker = getattr(ctx, "operation_tracker", None)
     if tracker is not None:
+        tracker.accepting = False
         await tracker.stop_processes(remaining())
         report = await tracker.drain(remaining())
         if not report.drained:
             raise RuntimeError(f"Device operations still active: {report.pending}")
         if report.failures:
             raise RuntimeError(f"Device operations failed: {report.failures}")
+        # A spawn already in flight can register after the first process sweep.
+        await tracker.stop_processes(remaining())
     from artemis.tools.command_tool import shutdown_adb_background_tasks
 
     await asyncio.wait_for(shutdown_adb_background_tasks(ctx), remaining())
@@ -58,9 +61,10 @@ async def settle_task(ctx, state, timeout_seconds=30.0) -> dict:
     for service in (ctx.step_memory, getattr(ctx.transcript_ledger, "chunker", None)):
         if service is not None:
             try:
-                await asyncio.wait_for(service.flush(timeout_seconds=remaining()), remaining())
+                await asyncio.wait_for(service.flush(timeout_seconds=remaining() / 2), remaining())
             except Exception as exc:
-                warnings.append(repr(exc))
+                # A failed flush cannot prove that its private producers stopped.
+                raise RuntimeError("Memory producers did not settle") from exc
     # Flush services may have scheduled writes. Their flush must be harvested first.
     if ctx.data_engine is not None:
         await ctx.data_engine.flush(remaining())

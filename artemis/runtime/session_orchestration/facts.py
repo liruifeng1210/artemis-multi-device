@@ -9,9 +9,11 @@ class FactStore:
         self.journal = journal
         self.versions = []
         self.results = {}
+        self.sources = {}
 
     def accept(self, task_id, attempt_id, role, result, session_id=None):
         self.results[task_id] = (attempt_id, result)
+        self.sources[task_id] = (role, session_id)
         for key, value in result.outputs.items():
             fact = {
                 "fact_id": new_id(),
@@ -76,12 +78,22 @@ class FactStore:
             }
         return sources
 
-    def invalidate_role(self, role):
+    def invalidate_role(self, role, session_id=None):
+        tasks = {
+            task_id
+            for task_id, source in self.sources.items()
+            if source[0] == role and (session_id is None or source[1] == session_id)
+        }
+        self.invalidate_tasks(tasks)
+        return tasks
+
+    def invalidate_tasks(self, tasks):
         for item in self.versions:
-            if item["source_role"] == role:
+            if item["task_id"] in tasks:
                 self.journal.append(
                     {"kind": "fact_invalidated", "fact_id": item["fact_id"], "observed_at": now()}
                 )
         # Conservatively invalidate outputs from a lost session.
-        for task_id in {x["task_id"] for x in self.versions if x["source_role"] == role}:
+        for task_id in tasks:
             self.results.pop(task_id, None)
+            self.sources.pop(task_id, None)

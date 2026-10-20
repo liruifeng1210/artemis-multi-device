@@ -192,6 +192,10 @@ async def test_native_session_two_tasks_keep_context_memory_and_data(tmp_path, m
 
     async def run(task, ctx, state, output_config, **kwargs):
         assert pause_path(tmp_path / "global") == ctx.execution_setup.pause_path
+        plan = ctx.data_engine.base_dir / "notes" / "task_plan.md"
+        assert not plan.exists(), "Previous task's active plan leaked into the next task"
+        plan.parent.mkdir(exist_ok=True)
+        plan.write_text(state.initial_goal)
         contexts.append(ctx)
         if ctx.transcript_ledger is None:
             ctx.transcript_ledger = TranscriptLedger()
@@ -221,6 +225,17 @@ async def test_native_session_two_tasks_keep_context_memory_and_data(tmp_path, m
             result = await execution
             assert result.session_reusable
             assert session.state == "READY"
+            assert not (session.context.data_engine.base_dir / "notes" / "task_plan.md").exists()
+            archived = (
+                session.context.data_engine.base_dir
+                / "tasks"
+                / scope.task_id
+                / scope.attempt_id
+                / "native"
+                / "notes"
+                / "task_plan.md"
+            )
+            assert archived.read_text() == goal
             assert session.context.data_engine.current_session_id == sid
         assert contexts[0] is contexts[1]
         assert session.context.transcript_ledger.turn_count == 2

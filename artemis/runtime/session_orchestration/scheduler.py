@@ -11,6 +11,7 @@ class Scheduler:
         self.running = set()
         self.executed = set()
         self.recoveries = {}
+        self.invalidated = set()
         self.revision = 0
         self.apply(workflow.tasks, 0)
 
@@ -69,7 +70,9 @@ class Scheduler:
         recovery_map = dict(self.recoveries)
         for recovery in recoveries:
             failed = self.results.get(recovery.failed_task_id)
-            if failed is None or failed.status == "succeeded":
+            if failed is None or (
+                failed.status == "succeeded" and recovery.failed_task_id not in self.invalidated
+            ):
                 raise ValueError("Recovery must identify a terminal unsuccessful task")
             if recovery.failed_task_id in recovery.replacement_task_ids:
                 raise ValueError("Recovery cannot replace itself")
@@ -92,8 +95,8 @@ class Scheduler:
                     )
                 if (
                     failed.side_effect_state == "uncertain"
-                    and updated[key].spec.effect_policy != "read_only"
-                ):
+                    or recovery.failed_task_id in self.invalidated
+                ) and updated[key].spec.effect_policy != "read_only":
                     raise ValueError("Uncertain effects require a read-only reconciliation task")
             recovery_map[recovery.failed_task_id] = recovery.replacement_task_ids
 
@@ -116,7 +119,11 @@ class Scheduler:
         conditions = []
         for dep in task.depends_on:
             value = self.results.get(dep.task_id)
-            valid = value is not None and value.status in dep.statuses
+            valid = (
+                dep.task_id not in self.invalidated
+                and value is not None
+                and value.status in dep.statuses
+            )
             if valid and dep.check_id:
                 valid = any(c.id == dep.check_id and c.verdict == dep.verdict for c in value.checks)
             if valid and dep.output_key:
@@ -131,16 +138,43 @@ class Scheduler:
         ):
             return False
         return all(
-            v["from_task"] in self.results and self.results[v["from_task"]].status == "succeeded"
+            v["from_task"] not in self.invalidated
+            and v["from_task"] in self.results
+            and self.results[v["from_task"]].status == "succeeded"
             for v in task.spec.inputs.values()
             if isinstance(v, dict) and "from_task" in v
         )
+
+    def invalidate(self, task_ids):
+        """Invalidate executed descendants without rewriting historical results."""
+        affected = set(task_ids)
+        while True:
+            before = len(affected)
+            for key, task in self.tasks.items():
+                if key not in self.executed and key not in self.results:
+                    continue
+                sources = {dep.task_id for dep in task.depends_on}
+                sources.update(
+                    v["from_task"]
+                    for v in task.spec.inputs.values()
+                    if isinstance(v, dict) and "from_task" in v
+                )
+                if sources & affected:
+                    affected.add(key)
+            if len(affected) == before:
+                break
+        self.invalidated.update(affected)
+        return affected
 
     @property
     def completed(self):
         def succeeded(key):
             if key in self.recoveries:
                 return all(succeeded(child) for child in self.recoveries[key])
-            return key in self.results and self.results[key].status == "succeeded"
+            return (
+                key not in self.invalidated
+                and key in self.results
+                and self.results[key].status == "succeeded"
+            )
 
         return bool(self.tasks) and all(succeeded(key) for key in self.tasks)

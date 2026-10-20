@@ -24,7 +24,12 @@ class MainPlanner:
             "revision": scheduler.revision,
             "tasks": [t.model_dump(mode="json") for t in scheduler.tasks.values()],
             "results": {k: v.model_dump(mode="json") for k, v in scheduler.results.items()},
-            "facts": facts.versions[-100:],
+            "facts": [
+                f
+                for f in facts.versions
+                if facts.sources.get(f["task_id"]) == (f["source_role"], f["child_session_id"])
+            ][-100:],
+            "invalidated_tasks": sorted(scheduler.invalidated),
             "diagnostics": diagnostics,
             "recoveries": scheduler.recoveries,
             "recent_proposals": self.history[-10:],
@@ -43,7 +48,10 @@ class MainPlanner:
                     "read_only tasks verifying whether the original intended state was reached. "
                     "Never claim completion from an observation unrelated to the original contract. "
                     "For FAULTED/EXITED roles use restart_roles before scheduling recovery. A restart "
-                    "loses in-memory context and invalidates that role's old output facts. "
+                    "loses in-memory context and invalidates that role's old results, including tasks "
+                    "without output fields. Invalidated results are history only; add read-only "
+                    "reconciliation with the original contract and rebind unexecuted dependents "
+                    "to the new tasks before proceeding. "
                     "Set missing_input when no safe progress is possible. Return PlanProposal JSON."
                 )
             ),

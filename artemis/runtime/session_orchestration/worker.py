@@ -44,6 +44,8 @@ class Worker:
         self.diagnostics = Diagnostics()
         self.state = "STARTING"
         self.close_reason = "main_disconnected"
+        self._execution_started = False
+        self._cancel_before_start = False
 
     def message(self, kind, payload=None, reply=None, task=None, attempt=None):
         self.sequence += 1
@@ -85,7 +87,11 @@ class Worker:
         hello = self.message("hello", {"token": self.secret, "reconnect": self.reconnecting})
         await conn.send(hello)
         response = await asyncio.wait_for(conn.receive(), 10)
-        if response.kind != "ack" or response.in_reply_to != hello.message_id:
+        if (
+            response.kind != "ack"
+            or response.in_reply_to != hello.message_id
+            or any(getattr(response, k) != v for k, v in self.binding.items())
+        ):
             await conn.close()
             raise ValueError("Handshake rejected")
         self.secret = response.payload["reconnect_secret"]
@@ -123,11 +129,7 @@ class Worker:
                             message.attempt_id,
                         )
                 elif message.kind == "cancel_task":
-                    result = (
-                        self.session.request_cancel(message.task_id, message.attempt_id)
-                        if self.session
-                        else {"accepted": False, "code": "not_ready"}
-                    )
+                    result = self.cancel(message.task_id, message.attempt_id)
                     await self.send(
                         "cancel_received",
                         result,
@@ -244,20 +246,40 @@ class Worker:
         require_clean_boundary(self.root)
         self.active_identity = (msg.task_id, msg.attempt_id)
         self.active_hash = digest(msg.payload)
+        self._execution_started = False
+        self._cancel_before_start = False
         self.active = asyncio.create_task(self.execute(msg, spec, store))
 
-    async def execute(self, msg, spec, store):
-        await self.send("accepted", {}, msg.message_id, msg.task_id, msg.attempt_id)
-        await self.send("started", {}, msg.message_id, msg.task_id, msg.attempt_id)
+    def cancel(self, task_id, attempt_id):
+        if (
+            self.active_identity != (task_id, attempt_id)
+            or self.active is None
+            or self.active.done()
+        ):
+            return {"accepted": False, "code": "stale_attempt"}
+        if not self._execution_started:
+            self._cancel_before_start = True
+            return {"accepted": True}
+        return self.session.request_cancel(task_id, attempt_id)
 
+    async def execute(self, msg, spec, store):
         async def watchdog():
             await asyncio.sleep(spec.execution_timeout_seconds)
             if self.session.state == "EXECUTING":
                 self.session.request_cancel(msg.task_id, msg.attempt_id)
 
-        guard = asyncio.create_task(watchdog())
+        guard = None
         try:
-            if self.config.get("fake_worker", False):
+            await self.send("accepted", {}, msg.message_id, msg.task_id, msg.attempt_id)
+            await self.send("started", {}, msg.message_id, msg.task_id, msg.attempt_id)
+            guard = asyncio.create_task(watchdog())
+            self._execution_started = True
+            if self._cancel_before_start:
+                result = TaskResult(
+                    status="cancelled", side_effect_state="none", session_reusable=True
+                )
+                store.finish(result.model_dump(mode="json"))
+            elif self.config.get("fake_worker", False):
                 result = await self.session.execute_spec(spec, store, msg.task_id, msg.attempt_id)
             else:
                 from artemis.runtime.session_scope import TaskScope
@@ -298,8 +320,10 @@ class Worker:
                 msg.attempt_id,
             )
         finally:
-            guard.cancel()
-            await asyncio.gather(guard, return_exceptions=True)
+            if guard is not None:
+                guard.cancel()
+                await asyncio.gather(guard, return_exceptions=True)
+            self.active_identity = None
 
     async def heartbeat(self):
         while not self.stop.is_set():
@@ -356,24 +380,62 @@ class Worker:
             if self.query_tasks:
                 await asyncio.gather(*self.query_tasks, return_exceptions=True)
             if self.active is not None and not self.active.done():
-                self.session.request_cancel(*self.active_identity)
+                if self.active_identity is not None:
+                    self.cancel(*self.active_identity)
                 try:
-                    await asyncio.wait_for(asyncio.shield(self.active), 35)
-                except TimeoutError:
+                    await asyncio.wait_for(
+                        asyncio.shield(self.active), self.config.get("close_timeout_seconds", 45)
+                    )
+                except Exception:
                     self.session.state = "FAULTED"
-            report = await self.session.close(self.close_reason) if self.session else {"errors": []}
             try:
-                await self.send("closed", report)
+                if self.active is not None and not self.active.done():
+                    raise RuntimeError("Active attempt did not settle before close deadline")
+                report = (
+                    await self.session.close(self.close_reason) if self.session else {"errors": []}
+                )
+            except Exception as exc:
+                report = {"errors": [repr(exc)], "lease_released": False}
+            try:
+                try:
+                    await self.send("closed", report)
+                except (OSError, ConnectionError, TimeoutError):
+                    pass
                 if report.get("errors"):
-                    # Main must verify process-tree termination before releasing
-                    # this owner. Exiting here could orphan an active command.
-                    await asyncio.Event().wait()
+                    # Do not normally exit and orphan operations. Give Main a
+                    # bounded opportunity to reap us, then terminate our own tree
+                    # even when Main is gone. No graceful lease release is claimed.
+                    await asyncio.sleep(min(5, self.config.get("close_timeout_seconds", 45)))
+                    await self.terminate_self()
             finally:
                 controls.cancel()
                 pulse.cancel()
                 await asyncio.gather(controls, pulse, return_exceptions=True)
                 if self.conn:
                     await self.conn.close()
+
+    async def terminate_self(self):
+        import os
+        import psutil
+
+        owner = psutil.Process(os.getpid())
+        # Freeze asyncio producers during this final synchronous teardown. Kill
+        # and reap descendants before killing their owner (also on POSIX).
+        try:
+            children = owner.children(recursive=True)
+            for child in reversed(children):
+                try:
+                    child.kill()
+                except psutil.NoSuchProcess:
+                    pass
+            _, alive = psutil.wait_procs(children, timeout=3)
+            if not alive:
+                owner.kill()
+        except (psutil.Error, OSError) as exc:
+            print("Emergency process cleanup failed:", repr(exc), file=sys.stderr, flush=True)
+        # A failed platform termination must retain the quarantined owner rather
+        # than release its lease with potentially live device operations.
+        await asyncio.Event().wait()
 
 
 def main():

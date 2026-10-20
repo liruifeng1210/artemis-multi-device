@@ -34,6 +34,10 @@ class WorkerHandle:
         self.last_heartbeat = time.monotonic()
         self.pending = {}
         self.inflight = {}
+        self.abandoned = {}
+        self._close_lock = asyncio.Lock()
+        self._exit_task = None
+        self._closing = False
         self.readers = set()
         self.log_tasks = []
         self.root = workflow.root / workflow.workflow_id / "roles" / role.role_id
@@ -46,6 +50,24 @@ class WorkerHandle:
         }
 
     async def start(self, host, port):
+        if self.process is not None or self._closing:
+            raise RuntimeError("Worker cannot be started twice or after close")
+        # Retain ownership when cancellation races with OS process creation.
+        start = asyncio.create_task(self._start(host, port))
+        cancelled = False
+        while True:
+            try:
+                result = await asyncio.shield(start)
+                break
+            except asyncio.CancelledError:
+                if start.done():
+                    raise
+                cancelled = True
+        if cancelled:
+            raise asyncio.CancelledError
+        return result
+
+    async def _start(self, host, port):
         source_root = Path(__file__).resolve().parents[3]
         env = os.environ.copy()
         env.update(
@@ -86,15 +108,16 @@ class WorkerHandle:
             "fake_worker": self.workflow.fake_worker,
             "heartbeat_interval_seconds": self.workflow.heartbeat_interval_seconds,
             "reconnect_grace_seconds": self.workflow.reconnect_grace_seconds,
+            "close_timeout_seconds": self.workflow.close_timeout_seconds,
         }
-        self.process.stdin.write(json.dumps(bootstrap).encode() + b"\n")
-        await self.process.stdin.drain()
-        self.process.stdin.close()
         self.log_tasks = [
             asyncio.create_task(self.drain_log(self.process.stdout, "stdout.log")),
             asyncio.create_task(self.drain_log(self.process.stderr, "stderr.log")),
         ]
-        asyncio.create_task(self.watch_exit())
+        self._exit_task = asyncio.create_task(self.watch_exit())
+        self.process.stdin.write(json.dumps(bootstrap).encode() + b"\n")
+        await asyncio.wait_for(self.process.stdin.drain(), 10)
+        self.process.stdin.close()
         atomic_json(
             self.root / "worker.json",
             {**self.binding, "pid": self.process.pid, "created_at": self.created_at},
@@ -139,17 +162,21 @@ class WorkerHandle:
         previous = self.conn
         self.conn = conn
         self.authenticated = True
-        await conn.send(
-            self.message("ack", {"reconnect_secret": self.reconnect_secret}, reply=hello.message_id)
-        )
-        if previous:
-            await previous.close()
-        self.connected.set()
-        self.last_heartbeat = time.monotonic()
-        # A dispatch lost on a broken connection is retried with its original identity.
-        for request in list(self.inflight.values()):
-            await conn.send(request)
         try:
+            await conn.send(
+                self.message(
+                    "ack", {"reconnect_secret": self.reconnect_secret}, reply=hello.message_id
+                )
+            )
+            if previous:
+                await previous.close()
+            self.connected.set()
+            self.last_heartbeat = time.monotonic()
+            # A dispatch lost on a broken connection is retried with its original identity.
+            for request in (
+                [] if self.quarantined or self._closing else list(self.inflight.values())
+            ):
+                await conn.send(request)
             while True:
                 message = await conn.receive()
                 if any(getattr(message, k) != v for k, v in self.binding.items()):
@@ -176,7 +203,10 @@ class WorkerHandle:
                             / message.attempt_id
                             / "result.json"
                         )
-                        if not path.exists():
+                        abandoned = self.abandoned.get(message.attempt_id)
+                        if not path.exists() and (
+                            abandoned is None or abandoned.task_id != message.task_id
+                        ):
                             raise ValueError("Unsolicited result")
                     else:
                         request = self.inflight[message.attempt_id]
@@ -219,6 +249,8 @@ class WorkerHandle:
             await conn.close()
 
     async def request(self, kind, payload=None, task=None, attempt=None, timeout=30):
+        if kind == "execute" and (self.quarantined or self._closing):
+            raise RuntimeError("Worker is quarantined or closing")
         message = self.message(kind, payload, task, attempt)
         future = asyncio.get_running_loop().create_future()
         self.pending[message.message_id] = future
@@ -252,13 +284,12 @@ class WorkerHandle:
             )
         finally:
             self.pending.pop(message.message_id, None)
-            if (
-                kind == "execute"
-                and future.done()
-                and not future.cancelled()
-                and future.exception() is None
-            ):
+            if kind == "execute":
                 self.inflight.pop(attempt, None)
+                if not future.done() or future.cancelled() or future.exception() is not None:
+                    self.abandoned[attempt] = message
+                    self.quarantined = True
+                    self.state = "FAULTED"
             if not future.done():
                 future.cancel()
 
@@ -274,6 +305,11 @@ class WorkerHandle:
         )
 
     async def close(self, reason):
+        self._closing = True
+        async with self._close_lock:
+            return await self._close(reason)
+
+    async def _close(self, reason):
         if self.process is None:
             return {"errors": []}
         if self.process.returncode is None:
@@ -288,12 +324,21 @@ class WorkerHandle:
                 await self.terminate()
         if self.conn is not None:
             await self.conn.close()
-        await asyncio.gather(*self.log_tasks, return_exceptions=True)
+        if self._exit_task is not None:
+            await self._exit_task
+        try:
+            await asyncio.wait_for(asyncio.gather(*self.log_tasks, return_exceptions=True), 5)
+        except TimeoutError:
+            raise RuntimeError("Worker log pipes remain open after process exit")
         return {
             "exited": self.process.returncode is not None,
             "returncode": self.process.returncode,
             "session": self.close_report,
-            "graceful": bool(self.close_report is not None and not self.close_report.get("errors")),
+            "graceful": bool(
+                self.process.returncode == 0
+                and self.close_report is not None
+                and not self.close_report.get("errors")
+            ),
         }
 
     async def terminate(self):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 import asyncio
+import copy
 import json
 import time
 from pathlib import Path
@@ -35,6 +36,69 @@ class MainSession:
         self._closing = False
         self.restart_counts = {}
         self.recovering = set()
+        self._invalid_sessions = set()
+        self._lifecycle_lock = asyncio.Lock()
+        self._event_task = None
+        self._monitor_task = None
+        self._event_error = None
+        self._close_task = None
+        self._dependency_cancellations = set()
+
+    async def _record_events(self):
+        while True:
+            role, kind, payload = await self.events.get()
+            try:
+                self.journal.append({"kind": kind, "role_id": role, "payload": payload})
+            except Exception as exc:
+                # Keep draining so a disk failure cannot deadlock process reaping.
+                self._event_error = exc
+            finally:
+                self.events.task_done()
+
+    def invalidate_worker(self, worker):
+        if worker.session_id in self._invalid_sessions:
+            return
+        self._invalid_sessions.add(worker.session_id)
+        invalidated = self.facts.invalidate_role(worker.role.role_id, worker.session_id)
+        invalidated = self.scheduler.invalidate(invalidated)
+        self.facts.invalidate_tasks(invalidated)
+        for key in invalidated & self.running.keys():
+            attempt, future = self.running[key]
+            if not future.done():
+                owner = self.dispatched_workers[(key, attempt)]
+                cancellation = asyncio.create_task(self._cancel_invalidated(owner, key, attempt))
+                self._dependency_cancellations.add(cancellation)
+                cancellation.add_done_callback(self._dependency_cancellations.discard)
+        self.journal.append(
+            {"kind": "session_invalidated", **worker.binding, "task_ids": sorted(invalidated)}
+        )
+
+    async def _cancel_invalidated(self, worker, task_id, attempt_id):
+        try:
+            await worker.request(
+                "cancel_task", {"reason": "dependency_invalidated"}, task_id, attempt_id, timeout=10
+            )
+        except Exception:
+            # The result remains invalid even when the owner cannot acknowledge
+            # cancellation. Its process is still reaped during normal shutdown.
+            pass
+
+    async def _monitor_workers(self):
+        while not self._closing:
+            for worker in list(self.workers.values()):
+                if (
+                    worker.ready.is_set()
+                    and worker.process is not None
+                    and worker.process.returncode is None
+                    and time.monotonic() - worker.last_heartbeat
+                    > self.workflow.heartbeat_timeout_seconds
+                    + self.workflow.reconnect_grace_seconds
+                ):
+                    worker.state = "FAULTED"
+                    worker.quarantined = True
+                    self.invalidate_worker(worker)
+                    await worker.terminate()
+            await asyncio.sleep(min(1, self.workflow.heartbeat_interval_seconds))
 
     async def connect(self, reader, writer):
         task = asyncio.current_task()
@@ -70,15 +134,35 @@ class MainSession:
             self.connect, "127.0.0.1", 0, limit=MAX_FRAME_BYTES + 1
         )
         self.host, self.port = self.server.sockets[0].getsockname()[:2]
+        self._event_task = asyncio.create_task(self._record_events())
         deadline = time.monotonic() + workflow.max_workflow_seconds
         next_artifact_scan = time.monotonic()
         self.deadline = deadline
-        self.workers = {
-            role.role_id: WorkerHandle(workflow, role, self.events) for role in workflow.roles
-        }
         interrupted = None
         try:
-            await asyncio.gather(*(w.start(self.host, self.port) for w in self.workers.values()))
+            self.workers = {
+                role.role_id: WorkerHandle(workflow, role, self.events) for role in workflow.roles
+            }
+            async with self._lifecycle_lock:
+                if self._closing:
+                    raise asyncio.CancelledError
+                starts = [
+                    asyncio.create_task(w.start(self.host, self.port))
+                    for w in self.workers.values()
+                ]
+                try:
+                    await asyncio.wait_for(
+                        asyncio.gather(*starts),
+                        min(
+                            workflow.startup_timeout_seconds,
+                            max(0.001, deadline - time.monotonic()),
+                        ),
+                    )
+                finally:
+                    for start in starts:
+                        if not start.done():
+                            start.cancel()
+                    await asyncio.gather(*starts, return_exceptions=True)
             await asyncio.wait_for(
                 asyncio.gather(*(w.ready.wait() for w in self.workers.values())),
                 min(workflow.startup_timeout_seconds, max(0.001, deadline - time.monotonic())),
@@ -86,12 +170,23 @@ class MainSession:
             if any(w.state != "READY" for w in self.workers.values()):
                 raise RuntimeError("Worker startup failed; inspect role stderr.log")
             self.state = "RUNNING"
+            self._monitor_task = asyncio.create_task(self._monitor_workers())
             if not self.scheduler.tasks:
                 await self.replan()
             while time.monotonic() < deadline:
                 if self._closing:
                     self.state = "CANCELLED"
                     break
+                if self._event_error is not None:
+                    raise self._event_error
+                for background in (self._event_task, self._monitor_task):
+                    if background.done():
+                        background.result()
+                for worker in self.workers.values():
+                    if worker.quarantined or (
+                        worker.process and worker.process.returncode is not None
+                    ):
+                        self.invalidate_worker(worker)
                 if self.scheduler.completed:
                     self.state = "COMPLETED"
                     break
@@ -144,6 +239,12 @@ class MainSession:
                     worker = self.dispatched_workers[(key, attempt)]
                     try:
                         message = future.result()
+                        if (
+                            worker.session_id in self._invalid_sessions
+                            or self.workers[task.role_id] is not worker
+                            or key in self.scheduler.invalidated
+                        ):
+                            raise RuntimeError("Result belongs to a retired worker session")
                         result = TaskResult.model_validate(message.payload)
                         if result.status == "succeeded":
                             accept_result(task.spec, result)
@@ -160,6 +261,8 @@ class MainSession:
                             )
                             self.facts.accept(key, attempt, task.role_id, result, worker.session_id)
                         worker.state = "READY" if result.session_reusable else "FAULTED"
+                        if not result.session_reusable:
+                            worker.quarantined = True
                     except Exception as exc:
                         result = TaskResult(
                             status="unknown",
@@ -167,8 +270,8 @@ class MainSession:
                         )
                         worker.state = "FAULTED"
                         worker.quarantined = True
-                    if result.status == "unknown":
-                        self.facts.invalidate_role(task.role_id)
+                    if result.status == "unknown" or not result.session_reusable:
+                        self.invalidate_worker(worker)
                     self.scheduler.results[key] = result
                     self.scheduler.running.discard(key)
                     self.running.pop(key)
@@ -188,9 +291,6 @@ class MainSession:
                         and self.attempt_counts[key] < workflow.max_attempts_per_task
                     ):
                         self.scheduler.results.pop(key)
-                while not self.events.empty():
-                    role, kind, payload = self.events.get_nowait()
-                    self.journal.append({"kind": kind, "role_id": role, "payload": payload})
                 if not self.running and not self.scheduler.completed:
                     if self.recovering:
                         await asyncio.sleep(0.02)
@@ -214,17 +314,14 @@ class MainSession:
                     if self.scheduler.revision == revision:
                         self.state = "BLOCKED"
                         break
-                # Detect lost heartbeat independently of model/operation completion.
-                for worker in self.workers.values():
-                    if (
-                        time.monotonic() - worker.last_heartbeat
-                        > workflow.heartbeat_timeout_seconds + workflow.reconnect_grace_seconds
-                    ):
-                        worker.state = "FAULTED"
-                        worker.quarantined = True
-                        await worker.terminate()
                 if time.monotonic() >= next_artifact_scan:
-                    total = sum(p.stat().st_size for p in root.rglob("*") if p.is_file())
+                    total = 0
+                    for path in root.rglob("*"):
+                        try:
+                            if path.is_file():
+                                total += path.stat().st_size
+                        except FileNotFoundError:
+                            pass  # Task archives atomically clear active files.
                     next_artifact_scan = time.monotonic() + 1
                     if total > workflow.max_artifact_bytes:
                         self.state = "FAILED"
@@ -258,6 +355,7 @@ class MainSession:
                 ],
                 "error": repr(interrupted),
             }
+        outcome["invalidated_tasks"] = sorted(self.scheduler.invalidated)
         outcome["cleanup_status"] = cleanup
         atomic_json(root / "result.json", outcome)
         if interrupted is not None:
@@ -265,16 +363,28 @@ class MainSession:
         return outcome
 
     async def replan(self):
-        if self.scheduler.tasks and not any(
-            r.status != "succeeded" for r in self.scheduler.results.values()
-        ):
-            return
+        async with asyncio.timeout(max(0.001, self.deadline - time.monotonic())):
+            return await self._replan()
+
+    async def _replan(self):
+        self.diagnostic_history.append(
+            {
+                "role_states": {
+                    key: {
+                        "state": w.state,
+                        "session_id": w.session_id,
+                        "quarantined": w.quarantined,
+                    }
+                    for key, w in self.workers.items()
+                }
+            }
+        )
         # Capture bounded native checkpoints before asking the model to diagnose a
         # failure. Read-only RPCs never acquire a second device action owner.
         failed_roles = {
             self.scheduler.tasks[key].role_id
             for key, result in self.scheduler.results.items()
-            if result.status != "succeeded"
+            if result.status != "succeeded" or key in self.scheduler.invalidated
         }
         for role in sorted(failed_roles):
             try:
@@ -314,6 +424,9 @@ class MainSession:
                     continue
                 if proposal.missing_input:
                     return
+                # Validate the complete proposal before performing any restart.
+                candidate = copy.deepcopy(self.scheduler)
+                candidate.apply(proposal.tasks, proposal.base_plan_revision, proposal.recoveries)
                 for role in proposal.restart_roles:
                     if role not in self.workers or self.workers[role].state not in (
                         "FAULTED",
@@ -322,6 +435,7 @@ class MainSession:
                         raise ValueError("Only a failed or exited role may be restarted")
                     if self.restart_counts.get(role, 0) >= self.workflow.max_attempts_per_task:
                         raise ValueError("Role restart budget exhausted")
+                for role in dict.fromkeys(proposal.restart_roles):
                     self.restart_counts[role] = self.restart_counts.get(role, 0) + 1
                     await self.takeover(role, "planner_recovery")
                 if proposal.tasks or proposal.recoveries:
@@ -373,7 +487,7 @@ class MainSession:
 
     async def cancel(self, task_id, reason="cancelled"):
         attempt, _ = self.running[task_id]
-        worker = self.workers[self.scheduler.tasks[task_id].role_id]
+        worker = self.dispatched_workers[(task_id, attempt)]
         reply = await worker.request(
             "cancel_task", {"reason": reason}, task_id, attempt, timeout=10
         )
@@ -384,20 +498,30 @@ class MainSession:
             raise RuntimeError("Role recovery already in progress")
         self.recovering.add(role_id)
         try:
-            return await self._takeover(role_id, reason)
+            async with self._lifecycle_lock:
+                if self._closing:
+                    raise RuntimeError("Main session is closing")
+                return await self._takeover(role_id, reason)
         finally:
             self.recovering.discard(role_id)
 
     async def _takeover(self, role_id, reason):
         old = self.workers[role_id]
-        self.facts.invalidate_role(role_id)
+        self.invalidate_worker(old)
+        old.quarantined = True
         replacement = await self.device_manager.takeover(old, self.host, self.port)
         self.workers[role_id] = replacement
-        await replacement.start(self.host, self.port)
-        await asyncio.wait_for(replacement.ready.wait(), self.workflow.startup_timeout_seconds)
-        if replacement.state != "READY":
-            raise RuntimeError("Replacement failed to acquire the device")
-        observed = await self.observe(role_id, {"mode": "fresh"})
+        try:
+            await replacement.start(self.host, self.port)
+            await asyncio.wait_for(replacement.ready.wait(), self.workflow.startup_timeout_seconds)
+            if replacement.state != "READY":
+                raise RuntimeError("Replacement failed to acquire the device")
+            observed = await self.observe(role_id, {"mode": "fresh"})
+        except BaseException:
+            replacement.quarantined = True
+            replacement.state = "FAULTED"
+            await replacement.close("takeover_failed")
+            raise
         self.journal.append(
             {
                 "kind": "takeover",
@@ -412,9 +536,32 @@ class MainSession:
         return {"session_id": replacement.session_id, "epoch": replacement.epoch}
 
     async def close(self, reason="close"):
+        self._closing = True
+        if self._close_task is None:
+            self._close_task = asyncio.create_task(self._locked_close(reason))
+        cancelled = False
+        while True:
+            try:
+                report = await asyncio.shield(self._close_task)
+                break
+            except asyncio.CancelledError:
+                if self._close_task.done():
+                    raise
+                cancelled = True
+        if cancelled:
+            raise asyncio.CancelledError
+        return report
+
+    async def _locked_close(self, reason):
+        async with self._lifecycle_lock:
+            return await self._close(reason)
+
+    async def _close(self, reason):
         if self.closed_report is not None:
             return self.closed_report
-        self._closing = True
+        if self._monitor_task is not None:
+            self._monitor_task.cancel()
+            await asyncio.gather(self._monitor_task, return_exceptions=True)
         reports = await asyncio.gather(
             *(w.close(reason) for w in self.workers.values()), return_exceptions=True
         )
@@ -423,6 +570,10 @@ class MainSession:
                 future.cancel()
         if self.running:
             await asyncio.gather(*(f for _, f in self.running.values()), return_exceptions=True)
+        for cancellation in list(self._dependency_cancellations):
+            cancellation.cancel()
+        if self._dependency_cancellations:
+            await asyncio.gather(*self._dependency_cancellations, return_exceptions=True)
         if self.server:
             self.server.close()
         for task in list(self._connections):
@@ -431,5 +582,16 @@ class MainSession:
             await asyncio.gather(*self._connections, return_exceptions=True)
         if self.server:
             await asyncio.wait_for(self.server.wait_closed(), 5)
+        if self._event_task is not None:
+            if not self._event_task.done():
+                await self.events.join()
+                self._event_task.cancel()
+            event_result = await asyncio.gather(self._event_task, return_exceptions=True)
+            if isinstance(event_result[0], Exception):
+                reports.append(event_result[0])
         self.closed_report = [str(r) if isinstance(r, BaseException) else r for r in reports]
+        if self._event_error is not None:
+            self.closed_report.append(
+                {"errors": [repr(self._event_error)], "source": "event_journal"}
+            )
         return self.closed_report

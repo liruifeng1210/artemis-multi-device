@@ -176,3 +176,129 @@ async def test_takeover_confirms_exit_and_uses_new_identity(tmp_path):
         if not running.done():
             running.cancel()
         await asyncio.gather(running, return_exceptions=True)
+
+
+@pytest.mark.asyncio
+async def test_startup_cancellation_retains_and_closes_spawned_processes(tmp_path, monkeypatch):
+    from artemis.runtime.session_orchestration.worker_handle import WorkerHandle
+
+    entered, release = asyncio.Event(), asyncio.Event()
+    original = WorkerHandle._start
+
+    async def delayed_start(worker, host, port):
+        entered.set()
+        await release.wait()
+        await original(worker, host, port)
+
+    monkeypatch.setattr(WorkerHandle, "_start", delayed_start)
+    main = MainSession(planner=StopPlanner())
+    running = asyncio.create_task(main.run(workflow_at(tmp_path)))
+    try:
+        await entered.wait()
+        running.cancel()
+        await asyncio.sleep(0)
+        assert not running.done()
+        release.set()
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(running, 20)
+        assert all(
+            w.process is not None and w.process.returncode is not None
+            for w in main.workers.values()
+        )
+    finally:
+        release.set()
+        if not running.done():
+            running.cancel()
+        await asyncio.gather(running, return_exceptions=True)
+
+
+@pytest.mark.asyncio
+async def test_late_success_from_retired_worker_is_not_accepted(tmp_path):
+    workflow = workflow_at(tmp_path, delay=0.3)
+    main = MainSession(planner=StopPlanner())
+    running = asyncio.create_task(main.run(workflow))
+    try:
+        await wait_until(lambda: len(main.running) == 2)
+        old = main.workers["a"]
+        close = old.close
+
+        async def delayed_close(reason):
+            # Old execution finishes after invalidation but before termination.
+            await asyncio.sleep(0.6)
+            return await close(reason)
+
+        old.close = delayed_close
+        await main.takeover("a")
+        result = await asyncio.wait_for(running, 20)
+        assert result["tasks"][workflow.tasks[0].task_id]["status"] == "unknown"
+        assert workflow.tasks[0].task_id not in main.facts.results
+        assert main.attempt_counts[workflow.tasks[0].task_id] == 1
+    finally:
+        if not running.done():
+            running.cancel()
+        await asyncio.gather(running, return_exceptions=True)
+
+
+@pytest.mark.asyncio
+async def test_close_waits_for_takeover_and_closes_replacement(tmp_path):
+    main = MainSession(planner=StopPlanner())
+    running = asyncio.create_task(main.run(workflow_at(tmp_path, delay=2)))
+    recovery = closing = None
+    try:
+        await wait_until(lambda: len(main.running) == 2)
+        old = main.workers["a"]
+        recovery = asyncio.create_task(main.takeover("a"))
+        await wait_until(lambda: "a" in main.recovering)
+        closing = asyncio.create_task(main.close("test close"))
+        await asyncio.wait_for(asyncio.gather(recovery, closing, running), 25)
+        assert old.process.returncode is not None
+        assert main.workers["a"] is not old
+        assert all(w.process.returncode is not None for w in main.workers.values())
+    finally:
+        for task in (recovery, closing, running):
+            if task is not None and not task.done():
+                task.cancel()
+        await asyncio.gather(
+            *(t for t in (recovery, closing, running) if t is not None), return_exceptions=True
+        )
+
+
+@pytest.mark.asyncio
+async def test_orphan_emergency_shutdown_kills_descendant_before_owner():
+    import os
+    import subprocess
+    import sys
+    import psutil
+
+    script = """
+import asyncio, subprocess, sys, os
+from artemis.runtime.session_orchestration.worker import Worker
+child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'],
+    creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+print(child.pid, flush=True)
+asyncio.run(Worker.terminate_self(None))
+"""
+    owner = await asyncio.create_subprocess_exec(
+        sys.executable,
+        "-c",
+        script,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+        creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+    )
+    child = None
+    try:
+        child_pid = int(await asyncio.wait_for(owner.stdout.readline(), 15))
+        try:
+            child = psutil.Process(child_pid)
+        except psutil.NoSuchProcess:
+            pass
+        await asyncio.wait_for(owner.wait(), 10)
+        assert owner.returncode != 0
+        assert child is None or not child.is_running()
+    finally:
+        if owner.returncode is None:
+            owner.kill()
+        await owner.wait()
+        if child is not None and child.is_running():
+            child.kill()

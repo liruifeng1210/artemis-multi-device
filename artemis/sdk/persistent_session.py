@@ -3,6 +3,7 @@
 from __future__ import annotations
 import asyncio
 import copy
+import os
 import threading
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -13,7 +14,9 @@ from artemis.config import OutputConfig
 from artemis.context import ArtemisContext
 from artemis.runtime import DeviceExecutionLock
 from artemis.runtime.session_operations import TaskOperationTracker
+from artemis.runtime.session_artifacts import AttemptStore, require_clean_boundary
 from artemis.runtime.session_scope import SESSION_PAUSE_PATH, TaskScope
+from artemis.runtime.session_storage import native_storage_startup
 from artemis.sdk.session_boundary import settle_task
 from third_party.mobile_use.sdk.types.task import Task, TaskRequest
 
@@ -56,6 +59,9 @@ class PersistentSession:
         self.current = None
         self.latest_state = None
         self._busy = False
+        self._execution = None
+        self._cancel_requested = False
+        self._identity = None
         self._lease = None
         self._pause_token = None
         self._entered = False
@@ -69,6 +75,8 @@ class PersistentSession:
             raise RuntimeError("PersistentSession can only be opened once")
         if self.options.profile.lower() not in ("pro", "default"):
             raise ValueError("Persistent sessions support Pro only")
+        if os.environ.get("ARTEMIS_CLOUD_MODE") == "1":
+            raise ValueError("Persistent sessions require local device ownership")
         from artemis.config import load_agent_config
 
         if not load_agent_config().memory.transcript.enabled:
@@ -105,6 +113,8 @@ class PersistentSession:
                 raise
             if not self.agent._initialized:
                 await self.agent.init()
+            if hasattr(self.agent._adb_client, "_bridge"):
+                raise ValueError("Persistent sessions do not support bridge device clients")
             profile = self.agent._config.agent_profiles.get(self.options.profile)
             profile = profile or self.agent._config.default_profile
             self.context = ArtemisContext(
@@ -128,7 +138,9 @@ class PersistentSession:
                 request=request,
                 created_at=datetime.now(),
             )
-            self.agent._prepare_tracing(task=task, context=self.context)
+            async with native_storage_startup(self.agent._tmp_traces_dir):
+                self.agent._prepare_tracing(task=task, context=self.context)
+                await self.context.data_engine.flush(self.options.settlement_timeout_seconds)
             self.context.execution_setup.pause_path = pause
             if self.agent._ui_adb_client is not None:
                 await self.agent._connect_screen_client(self.context, self.options.session_id)
@@ -166,12 +178,35 @@ class PersistentSession:
         if request.app_path or request.locked_app_package:
             raise ValueError("Task cannot repeat session application preparation")
         self._busy = True
+        self._cancel_requested = False
+        self._identity = (scope.task_id, scope.attempt_id)
         self.state = "EXECUTING"
+        self._execution = asyncio.create_task(self._execute(request, scope, completion))
+        cancelled = False
+        # The caller may abandon its await; native cleanup still owns its task.
+        while True:
+            try:
+                result = await asyncio.shield(self._execution)
+                break
+            except asyncio.CancelledError:
+                if self._execution.done():
+                    raise
+                cancelled = True
+                self.request_cancel(*self._identity)
+        if cancelled:
+            raise asyncio.CancelledError
+        return result
+
+    async def _execute(self, request, scope, completion):
         result = NativeExecutionResult()
         ctx = self.context
         pause_token = SESSION_PAUSE_PATH.set(ctx.execution_setup.pause_path)
         task = None
         try:
+            require_clean_boundary(ctx.data_engine.base_dir)
+            store = AttemptStore(ctx.data_engine.base_dir, scope.task_id, scope.attempt_id)
+            if (store.path / "manifest.json").exists():
+                raise ValueError("An attempt identity cannot be executed twice")
             ctx.reset_task_state()
             ctx.operation_tracker = TaskOperationTracker()
             scope.start_step_exclusive = ctx.data_engine.current_step_number
@@ -202,6 +237,8 @@ class PersistentSession:
                     task, ctx, state, config, finalize_session=False, on_state=self._publish_state
                 )
             )
+            if self._cancel_requested:
+                self.current.cancel()
             try:
                 result.output, self.latest_state = await self.current
                 result.native_outcome = getattr(self.latest_state, "run_outcome", None)
@@ -221,6 +258,9 @@ class PersistentSession:
                 ctx, self.latest_state, self.options.settlement_timeout_seconds
             )
             scope.end_step_inclusive = ctx.data_engine.current_step_number
+            if self._cancel_requested:
+                result.cancelled = True
+                result.execution_error = "cancelled"
             if completion is not None and not result.cancelled and not result.execution_error:
                 self.state = "VERIFYING"
                 ctx.operation_tracker = TaskOperationTracker()
@@ -236,6 +276,13 @@ class PersistentSession:
             result.settlement_report = await settle_task(
                 ctx, self.latest_state, self.options.settlement_timeout_seconds
             )
+            if self._cancel_requested:
+                result.cancelled = True
+                result.execution_error = "cancelled"
+            # This is a native lifecycle guarantee, including SDK callers which
+            # do not install an orchestration completion callback.
+            store.archive(getattr(ctx, "task_artifact_paths", ()))
+            self.state = "COMMITTING"
             result.session_reusable = True
             if completion is not None:
                 result.persistence_ref = await completion.persist(ctx, result)
@@ -251,12 +298,15 @@ class PersistentSession:
         finally:
             self.current = None
             self._busy = False
+            self._identity = None
             SESSION_PAUSE_PATH.reset(pause_token)
 
     def request_cancel(self, task_id, attempt_id):
-        scope = getattr(self.context, "active_task", None)
-        if scope is None or (scope.task_id, scope.attempt_id) != (task_id, attempt_id):
+        if not self._busy or self._identity != (task_id, attempt_id):
             return {"accepted": False, "code": "stale_attempt"}
+        if self.state == "COMMITTING":
+            return {"accepted": False, "code": "already_committing"}
+        self._cancel_requested = True
         if self.current is not None and not self.current.done():
             self.current.cancel()
         return {"accepted": True}
@@ -303,9 +353,7 @@ class PersistentSession:
         if self._closed_report is not None:
             return self._closed_report
         if self._busy:
-            self.request_cancel(
-                self.context.active_task.task_id, self.context.active_task.attempt_id
-            )
+            self.request_cancel(*self._identity)
             raise RuntimeError("Wait for active execute to settle before closing")
         self.state = "CLOSING"
         errors = []

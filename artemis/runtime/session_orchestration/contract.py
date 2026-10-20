@@ -2,8 +2,17 @@
 
 from __future__ import annotations
 import json
-from typing import Literal
-from pydantic import ConfigDict, StrictBool, StrictFloat, StrictInt, StrictStr, create_model
+from typing import Annotated, Literal
+from pydantic import (
+    BeforeValidator,
+    ConfigDict,
+    StrictBool,
+    StrictFloat,
+    StrictInt,
+    StrictStr,
+    TypeAdapter,
+    create_model,
+)
 
 
 def output_model(schema):
@@ -51,14 +60,16 @@ def output_model(schema):
             checker = create_model("EnumValue", value=(typ, ...))
             for value in values:
                 checker(value=value)
-            typ = Literal[tuple(values)]
+            typ = Annotated[
+                Literal[tuple(values)], BeforeValidator(TypeAdapter(typ).validate_python)
+            ]
         return typ | None if nullable else typ
 
     for name, value in props.items():
         if not isinstance(name, str) or not name.isidentifier() or name.startswith("_"):
             raise ValueError("Invalid output field name")
         typ = field_type(value)
-        fields[name] = (typ, ...) if name in required else (typ | None, None)
+        fields[name] = (typ, ...) if name in required else (typ, None)
     return create_model(
         "ContractOutput", __config__=ConfigDict(extra="forbid", strict=True), **fields
     )
@@ -67,7 +78,7 @@ def output_model(schema):
 def validated_outputs(schema, output):
     model = output_model(schema)
     if hasattr(output, "model_dump"):
-        output = output.model_dump()
+        output = output.model_dump(exclude_unset=True)
     if isinstance(output, str):
         output = json.loads(output)
     # Persistent execution returns the raw structured output; native test
