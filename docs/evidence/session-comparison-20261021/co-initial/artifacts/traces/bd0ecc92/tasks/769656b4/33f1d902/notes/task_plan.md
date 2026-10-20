@@ -1,0 +1,3 @@
+- [x] Inspect the current calculator display without changing it and record the actual displayed value, or that no value is visible, in `calculator_result`
+- [x] If a numeric result is visible, multiply that displayed value by 4, press equals, and record the actual final result in `calculator_result`; if no value is visible, leave the calculator unchanged and record why the calculation could not be performed without entering a value
+- assert@end: 期望100

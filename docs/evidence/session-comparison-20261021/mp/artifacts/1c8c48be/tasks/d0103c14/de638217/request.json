@@ -1,0 +1,62 @@
+{
+  "attempt_id": "de638217-b0df-4a81-9204-83ff441dd6ac",
+  "child_session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+  "in_reply_to": null,
+  "kind": "execute",
+  "message_id": "7146ecf8-308c-4beb-85ad-1ae9937b3052",
+  "payload": {
+    "completion": [
+      {
+        "description": "计算器屏幕显示125+75=200。",
+        "id": "screen_200",
+        "required": true
+      },
+      {
+        "description": "A的持续Role历史记录首次结果和当前结果。",
+        "id": "history_saved",
+        "required": true
+      }
+    ],
+    "constraints": [
+      "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+      "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+      "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+      "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+      "只操作指定设备计算器；不得用shell替代点击。",
+      "仅本任务清空一次；不得重连或重置子Session。",
+      "若操作结果不确定，先观察核实，不重试有不确定副作用的操作。"
+    ],
+    "effect_policy": "verify_before_retry",
+    "execution_timeout_seconds": 900.0,
+    "goal": "在现有子Session和连接中操作com.miui.calculator。仅清空一次，输入125+75并等号；观察屏幕确认结果200。将首次结果和当前结果记入A的持续Role历史，供后续任务读取。",
+    "input_sources": {},
+    "inputs": {
+      "device_id": "21850fc5",
+      "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8"
+    },
+    "max_steps": 100,
+    "outputs_schema": {
+      "properties": {
+        "current_result": {
+          "type": "string"
+        },
+        "first_result": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "first_result",
+        "current_result"
+      ],
+      "type": "object"
+    },
+    "settlement_timeout_seconds": 60.0,
+    "verification_timeout_seconds": 600.0
+  },
+  "protocol_version": 1,
+  "role_id": "A",
+  "sequence": 2,
+  "task_id": "d0103c14-0dcb-4da4-8d25-1640e49ea846",
+  "worker_epoch": "c7f6ebd9-1883-4ddb-bd99-d00acc964a33",
+  "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14"
+}

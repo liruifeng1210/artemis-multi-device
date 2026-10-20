@@ -1,0 +1,7 @@
+- [x] Continue from the calculator screen showing 8+17 with result 25; commit the current result if needed, multiply that live result by 4, press equals, and read/report the displayed result without clearing or re-entering 25
+  - [x] Multiply the displayed result by 4
+    - [x] Tap the multiplication key using the current result 25
+    - [x] Tap 4 to multiply the displayed result
+    - [x] Press equals and read the displayed result 100
+  - verify: The calculator displays the actual result after evaluating the current value times 4.
+- assert@end: 期望100

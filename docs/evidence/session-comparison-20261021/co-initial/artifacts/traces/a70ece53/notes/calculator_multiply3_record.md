@@ -1,0 +1,1 @@
+Initial live screen (T+17:20): calculator is on the 计算 tab. Faint history shows 125+75=200, so the earlier result visible is 200. Main display is an unfinished 125+ with =125 below it. The requested multiply-by-3 result is not yet shown. No dialog or loading state. Do not clear or re-enter the old expression.

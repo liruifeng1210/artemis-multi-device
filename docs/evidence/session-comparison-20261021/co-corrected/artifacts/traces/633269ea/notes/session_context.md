@@ -1,0 +1,11 @@
+# Calculator Session Context
+- Target app: com.coloros.calculator
+- Initial screen: calculator shows 8×4 = 32
+- Requested expression: 48 ÷ 6 =
+- Current input cleared once: confirmed; the calculator display was visibly blank before entering the requested expression
+- First observed result: 8 (calculator displayed 48 ÷ 6 with result 8 after equals; current assignment screenshot)
+- Result recorded: 8 as the first observed result
+- After recording, leave calculator state as-is; do not clear again.
+- Current calculation: continued from the existing result 8; the calculator now visibly shows 8+17 with result 25 after equals. No clearing or re-entry of the prior result/expression occurred.
+- Current observed result: 25
+- 当前任务已按等号：真实屏幕显示 25×4，结果 100。首次结果仍为 8；之前结果为 25。未清空或重输旧值。

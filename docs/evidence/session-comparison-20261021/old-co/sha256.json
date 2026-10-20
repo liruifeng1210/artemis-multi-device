@@ -1,0 +1,42 @@
+[
+  {
+    "path": "01-initial-A/screen.png",
+    "bytes": 101795,
+    "sha256": "6484d54dde982e67ad4d527e9929fc55f4f2c4324b341555d8a26a9a77aec29f"
+  },
+  {
+    "path": "01-initial-B/screen.png",
+    "bytes": 245199,
+    "sha256": "42ef5854530e5bd85c2fb7b4f6333cbd8104a5b4d25d56b112bbf0203343cc40"
+  },
+  {
+    "path": "02-continue-A/screen.png",
+    "bytes": 84896,
+    "sha256": "208da212b32e6cf8f54faa8baac3c6ee0baab6bb6746f5e188df6380c2972736"
+  },
+  {
+    "path": "02-continue-B/screen.png",
+    "bytes": 246391,
+    "sha256": "03ba76017c07e0c0eecb9ab4238eda7d8fd193557d849f107dc5301f5cf0733e"
+  },
+  {
+    "path": "artifact-index.json",
+    "bytes": 2,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "path": "ownership-audit.json",
+    "bytes": 1803,
+    "sha256": "722eafb4eff56cd39f068326105f33dd0155a9d1acf036a75b5bb045455d4bf8"
+  },
+  {
+    "path": "results.json",
+    "bytes": 3753,
+    "sha256": "fc630cbcb49357d3fb62867e2f2d1d81fa89a8a9330971bb92d47370c4066901"
+  },
+  {
+    "path": "sessions.json",
+    "bytes": 196,
+    "sha256": "fc169d9dfb673e8705788b2f599072dd5414ae5e4626fed2726f0b6ac0fa0111"
+  }
+]

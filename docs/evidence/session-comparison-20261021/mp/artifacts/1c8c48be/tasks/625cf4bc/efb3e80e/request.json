@@ -1,0 +1,60 @@
+{
+  "attempt_id": "efb3e80e-bba3-441c-91b7-070e9b8e9510",
+  "child_session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+  "in_reply_to": null,
+  "kind": "execute",
+  "message_id": "825605d5-7234-4b69-89c4-f4872c46007b",
+  "payload": {
+    "completion": [
+      {
+        "description": "已从屏幕现有值执行乘3并等号，未清空或重输；观察并记录实际结果。若初值为200，屏幕结果为600。",
+        "id": "continued_from_screen",
+        "required": true
+      },
+      {
+        "description": "A历史保留首次结果并更新当前结果；无法安全完成时如实记录原因。",
+        "id": "history_updated",
+        "required": true
+      }
+    ],
+    "constraints": [
+      "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+      "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+      "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+      "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+      "只操作指定设备计算器；不得用shell替代点击。",
+      "保持原子Session、连接和历史，不清空、不重输旧值或旧算式。",
+      "本任务失败不得阻止后续取消场景任务。",
+      "不重试有不确定副作用的操作。"
+    ],
+    "effect_policy": "verify_before_retry",
+    "execution_timeout_seconds": 900.0,
+    "goal": "在A原有子Session、连接、历史中观察当前屏幕，接屏幕上已有结果执行×3并等号；不清空、不重输旧值或旧算式。观察实际结果并更新A历史中的当前结果，保留首次结果。若当前屏幕不可读或无法安全继续，如实记录，不猜测、不重试不确定操作。",
+    "input_sources": {},
+    "inputs": {
+      "device_id": "21850fc5",
+      "expected_result": "600",
+      "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8"
+    },
+    "max_steps": 100,
+    "outputs_schema": {
+      "properties": {
+        "current_result": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "current_result"
+      ],
+      "type": "object"
+    },
+    "settlement_timeout_seconds": 60.0,
+    "verification_timeout_seconds": 600.0
+  },
+  "protocol_version": 1,
+  "role_id": "A",
+  "sequence": 4,
+  "task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+  "worker_epoch": "c7f6ebd9-1883-4ddb-bd99-d00acc964a33",
+  "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14"
+}

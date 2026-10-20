@@ -1,0 +1,33 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "最终屏幕显示算式“48÷6”和结果“8”。calculator_continuation_record 记载“+17 and =: not executed”，且继续后的实际结果“not produced / not observed”。",
+      "item_text": "[verify] (at_end) [contract:continued_from_screen] 已从屏幕现有值执行加17并等号，未清空或重输；观察并记录实际结果。若初值为8，屏幕结果为25。",
+      "kind": "verify",
+      "status": "failed",
+      "suggestion": "从当前显示的8继续输入+17并按等号，再观察并记录屏幕结果。"
+    },
+    {
+      "evidence": "calculator_continuation_record 记录首次历史结果无法验证、B历史未更新或验证，并说明因缺少设备交互和历史工具而停止；唯一观察到的计算器结果是8。记录如实说明了无法安全完成的原因。",
+      "item_text": "[verify] (at_end) [contract:history_updated] B历史保留首次结果并更新当前结果；无法安全完成时如实记录原因。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "no verdict produced for this item",
+      "item_text": "[contract:continued_from_screen] 已从屏幕现有值执行加17并等号，未清空或重输；观察并记录实际结果。若初值为8，屏幕结果为25。",
+      "kind": "verify",
+      "status": "inconclusive",
+      "suggestion": ""
+    },
+    {
+      "evidence": "no verdict produced for this item",
+      "item_text": "[contract:history_updated] B历史保留首次结果并更新当前结果；无法安全完成时如实记录原因。",
+      "kind": "verify",
+      "status": "inconclusive",
+      "suggestion": ""
+    }
+  ]
+}

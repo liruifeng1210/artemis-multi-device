@@ -1,0 +1,125 @@
+{
+  "roles": {
+    "A": {
+      "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f",
+      "device": "21850fc5",
+      "steps": 14,
+      "trace_counts": {
+        "log": 498,
+        "agent": 47,
+        "llm_call": 105,
+        "span": 12,
+        "tool": 69,
+        "raw_thinking": 13,
+        "action": 13
+      },
+      "running_traces": [
+        "a62ad6c0-b1d5-47f4-9ac5-6db9a7a7e1e7",
+        "01a15a0d-5212-7b71-928a-61a88a9b0a75",
+        "01a15a15-8a23-7091-a5a1-d8dd9a7b021e",
+        "01a15a15-b14c-7532-aa56-92cc72a80536",
+        "01a15a15-d88d-78b0-891d-3953bb62df4c",
+        "859535e7-f247-44c5-a45a-9725d8621add",
+        "977c0d23-db77-4e4e-83bb-1b6f5f48631b",
+        "01a15a1b-4ae7-73d2-ad60-d31880370200"
+      ],
+      "tasks": [
+        {
+          "round": "01-initial",
+          "task_id": "a88d0655-7bd5-41d4-a66a-7e991f2f2176",
+          "attempt_id": "1f668e63-3629-4224-b638-071a48291824",
+          "status": "completed",
+          "reusable": true,
+          "cleanup_errors": []
+        },
+        {
+          "round": "02-continue",
+          "task_id": "6e9bb311-2fc9-4af1-aeab-7be11ec6b5dc",
+          "attempt_id": "8cba99c9-d56f-498b-98cb-f8935213a4b3",
+          "status": "cancelled",
+          "reusable": true,
+          "cleanup_errors": []
+        }
+      ]
+    },
+    "B": {
+      "session_id": "22e26727-d330-4945-95ae-c68eb125cce2",
+      "device": "a8acf864",
+      "steps": 12,
+      "trace_counts": {
+        "log": 354,
+        "agent": 36,
+        "llm_call": 72,
+        "span": 3,
+        "tool": 51,
+        "raw_thinking": 7,
+        "action": 10
+      },
+      "running_traces": [
+        "5f36291f-58dc-4484-9df7-a0716fe44101",
+        "dc27422b-4e8f-4c50-afdc-1a23f2ff1271",
+        "01a15a15-9e77-7743-b4ab-ca6196ac7ece"
+      ],
+      "tasks": [
+        {
+          "round": "01-initial",
+          "task_id": "796b698d-69c6-42fd-9100-c5ba6303e3a8",
+          "attempt_id": "58fdf8c8-6a37-4c4a-a952-544f0e964a81",
+          "status": "completed",
+          "reusable": true,
+          "cleanup_errors": []
+        },
+        {
+          "round": "02-continue",
+          "task_id": "dbedad79-f17b-4f0c-9b5b-fc1170f32365",
+          "attempt_id": "40181a37-923d-4987-8545-ed064a3a7366",
+          "status": "completed",
+          "reusable": true,
+          "cleanup_errors": []
+        }
+      ]
+    }
+  },
+  "ownership_errors": [
+    [
+      "A",
+      "c8308be4-f8a0-46d7-b764-1f2c7114573f",
+      "missing or incorrect trace owner"
+    ],
+    [
+      "A",
+      "6925de80-08e5-429d-a072-37338d21368e",
+      "missing or incorrect trace owner"
+    ],
+    [
+      "A",
+      "70e0decd-31f1-42d5-911b-51a01f307fe8",
+      "missing or incorrect trace owner"
+    ],
+    [
+      "A",
+      "12d2dfe3-eb95-4237-93f7-542c4f6aea95",
+      "missing or incorrect trace owner"
+    ],
+    [
+      "B",
+      "1ae2ea7b-77c6-46af-a902-f15124f77230",
+      "missing or incorrect trace owner"
+    ],
+    [
+      "B",
+      "2f1e3508-033b-46b2-8cff-8d04d76e7293",
+      "missing or incorrect trace owner"
+    ],
+    [
+      "B",
+      "75aa2739-0628-4064-b881-435b89c5e5b8",
+      "missing or incorrect trace owner"
+    ],
+    [
+      "B",
+      "66dd3b38-d11c-45c6-8fd0-8bddc0dca829",
+      "missing or incorrect trace owner"
+    ]
+  ]
+}

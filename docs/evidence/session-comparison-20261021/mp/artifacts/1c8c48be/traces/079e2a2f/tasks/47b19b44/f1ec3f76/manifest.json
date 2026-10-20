@@ -1,0 +1,26 @@
+{
+  "archive_state": "ACTIVE_CLEARED",
+  "artifacts": {
+    "tasks\\47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5\\f1ec3f76-8539-4f8b-a0b6-723e80d7f3e3\\accepted.json": {
+      "sha256": "67d813913906bb35d21a659260066a1bb92486255c040d9654711b04c409eddb",
+      "size_bytes": 132
+    },
+    "tasks\\47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5\\f1ec3f76-8539-4f8b-a0b6-723e80d7f3e3\\native\\notes\\task_plan.md": {
+      "sha256": "fb8bd1833f81a43a631a1898ed56cd79730a621ab9b3abb8202e5c5e4b612382",
+      "size_bytes": 1766
+    },
+    "tasks\\47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5\\f1ec3f76-8539-4f8b-a0b6-723e80d7f3e3\\request.json": {
+      "sha256": "b06679550d8b7a480d7add849609f1d2a8b2a22231ca7e9c234a59f55ac67705",
+      "size_bytes": 1755
+    }
+  },
+  "attempt_id": "f1ec3f76-8539-4f8b-a0b6-723e80d7f3e3",
+  "files": {
+    "notes/task_plan.md": {
+      "sha256": "fb8bd1833f81a43a631a1898ed56cd79730a621ab9b3abb8202e5c5e4b612382",
+      "size_bytes": 1766
+    }
+  },
+  "result_hash": "8705dc59f122437ecbe6de1f45ba2147532abcd873b2a25aa4bb19f263b45aee",
+  "task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5"
+}

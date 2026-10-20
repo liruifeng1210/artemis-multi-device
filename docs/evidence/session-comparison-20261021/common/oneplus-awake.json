@@ -1,0 +1,19 @@
+{
+  "time": "2026-10-20T18:05:04.883750+00:00",
+  "device": "a8acf864",
+  "stay_on_while_plugged_in": "2",
+  "power": [
+    "mWakefulness=Awake",
+    "mIsPowered=true",
+    "mPlugType=2",
+    "mStayOn=true",
+    "mIsPowered=true"
+  ],
+  "charging": [
+    "AC powered: false",
+    "USB powered: true",
+    "Wireless powered: false",
+    "Dock powered: false"
+  ],
+  "action": "read-only verification; no calculator interaction"
+}

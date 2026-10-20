@@ -1,0 +1,24 @@
+{
+  "branch": "co",
+  "port": 8002,
+  "requests": [
+    {
+      "path": "/workspace",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "path": "/polyfills-5CFQRCPP.js",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "bytes": 34587
+    },
+    {
+      "path": "/main-BGAFACUZ.js",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "bytes": 1319206
+    }
+  ],
+  "test_server_children_alive": []
+}

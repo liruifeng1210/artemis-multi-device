@@ -1,0 +1,49 @@
+{
+  "completion": [
+    {
+      "description": "cancel-A终态后已重新读取A计算器屏幕实际值。",
+      "id": "screen_reread",
+      "required": true
+    },
+    {
+      "description": "基于该屏幕值执行+10并等号，观察并记录实际结果；若无法安全执行则如实说明。",
+      "id": "plus_ten",
+      "required": true
+    }
+  ],
+  "constraints": [
+    "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+    "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+    "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+    "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+    "只操作指定设备计算器；不得用shell替代点击。",
+    "必须保持A同一子Session和连接；不得假设取消回滚。",
+    "不得清空或重输旧值或旧算式；不重试有不确定副作用的操作。"
+  ],
+  "effect_policy": "verify_before_retry",
+  "execution_timeout_seconds": 900.0,
+  "goal": "在cancel-A进入任意终态后，使用A同一子Session和连接重新观察计算器实际屏幕值；基于该实际值接着执行+10并等号，观察并记录结果。不得假设取消回滚，不清空或重输旧值或旧算式。若屏幕值不可读或无法安全继续，不猜测或重试，报告实际观察和原因。",
+  "input_sources": {},
+  "inputs": {
+    "device_id": "21850fc5",
+    "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8"
+  },
+  "max_steps": 100,
+  "outputs_schema": {
+    "properties": {
+      "current_result": {
+        "type": "string"
+      },
+      "screen_before": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "screen_before",
+      "current_result"
+    ],
+    "type": "object"
+  },
+  "settlement_timeout_seconds": 60.0,
+  "verification_timeout_seconds": 600.0
+}

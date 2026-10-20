@@ -1,0 +1,11 @@
+{
+  "role_id": "A",
+  "session_id": "14127587-b5ff-45ad-9943-8879e13864cc",
+  "task_id": "4578493b-a5d0-4fc0-8d9f-982b5b51f9f4",
+  "attempt_id": "20ca8206-c8d1-4f7d-a3ce-ac10da9bf296",
+  "device_id": "21850fc5",
+  "goal": "上个任务已结束或取消。先重新读取真实屏幕当前值，不假设回滚，再在此值加10并按等号，不清空。报告前后值。",
+  "status": "completed",
+  "reusable": true,
+  "cleanup_errors": []
+}

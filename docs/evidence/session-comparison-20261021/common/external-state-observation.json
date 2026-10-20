@@ -1,0 +1,16 @@
+{
+  "last_calculator_boundary": "2026-10-20T17:54:42.657783+00:00",
+  "last_confirmed_calculator": "8x4=32",
+  "changed_boundary": "2026-10-20T18:01:44.785016+00:00",
+  "task": "report-B",
+  "task_id": "64b2d762-0ba5-45fa-8f9c-b39e56ed2605",
+  "observed_page": "Android Settings / About Phone",
+  "source_of_transition": "unconfirmed; no corresponding B action trace in the test",
+  "report_task_action_count": 0,
+  "history_report": {
+    "first_result": "8",
+    "current_result": "32"
+  },
+  "affected_claims": "Physical calculator foreground continuity at the final B history report is uncertain. Earlier 8x4=32 screen and three post-cancel actions remain separately evidenced. History report is evaluated from its own notes, not from the unrelated foreground page.",
+  "privacy": "Two unrelated device-information screenshots withheld; SHA256 retained in mp/evidence-omissions.json. No agent UI action was used to repair calculator values."
+}

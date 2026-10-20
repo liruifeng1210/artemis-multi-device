@@ -1,0 +1,11 @@
+{
+  "role_id": "A",
+  "session_id": "a70ece53-4d3f-4955-b390-508762f69333",
+  "task_id": "a85a63ac-b448-42cb-8786-85594fb1b8ad",
+  "attempt_id": "7b6ed50e-b46b-4722-926d-ae58bb3c6b7e",
+  "device_id": "21850fc5",
+  "goal": "在真实当前值上逐次加1并按等号30次，每次观察。不得合并成加30；收到取消立即停止。",
+  "status": "cancelled",
+  "reusable": true,
+  "cleanup_errors": []
+}

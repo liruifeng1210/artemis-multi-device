@@ -1,0 +1,13 @@
+- [/] In `com.miui.calculator`, clear the current entry, tap 1, 2, 5, +, 7, 5, and =, then read the displayed result
+  - [x] Clear the current entry so it can be re-entered
+  - [x] Entered and evaluated 125+75 in the prior attempt; current screen shows = 200
+  - [/] Clear the displayed result and perform a fresh 125+75 calculation
+    - [x] Tap clear to start a fresh calculation
+  - [/] Enter 125+75 and evaluate it
+    - [x] Tap 1
+    - [x] Tap 2
+    - [x] Tap 5
+    - [x] Tap +
+    - [/] Tap 7
+- [ ] Record the result from that fresh calculation in `session_context` and leave it displayed without clearing again
+- assert@end: 打开系统计算器 com.miui.calculator，清空本次输入，真实点击计算125+75并按等号。读取结果并记住首次结果，写入session_context，不再清空。

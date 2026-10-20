@@ -1,0 +1,150 @@
+{
+  "time": "2026-10-20T17:42:45.502748+00:00",
+  "task": {
+    "task_id": "6a59aef7-55c6-4cbd-843f-507f7af23b90",
+    "display_name": "cancel-A",
+    "role_id": "A",
+    "spec": {
+      "goal": "在A原有子Session和连接中，从当前屏幕值开始逐次执行+1并等号，共30次；每次等号后都观察并记录屏幕实际值。不得清空或重输旧值、旧算式。此任务派发20秒后测试员将通过正式Main.cancel取消它；持续执行到收到取消或30次完成，不要自行模拟取消。",
+      "inputs": {
+        "device_id": "21850fc5",
+        "session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+        "iterations": "30"
+      },
+      "input_sources": {},
+      "completion": [
+        {
+          "id": "increment_observed",
+          "description": "每次已完成的+1等号操作后均观察并记录实际屏幕值；任务可因正式取消而以cancelled终态结束。",
+          "required": true
+        },
+        {
+          "id": "no_reset",
+          "description": "全过程未清空、未重输旧值或旧算式，且未自行取消。",
+          "required": true
+        }
+      ],
+      "outputs_schema": {
+        "type": "object",
+        "properties": {
+          "increments_completed": {
+            "type": "string"
+          },
+          "last_observed": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "increments_completed",
+          "last_observed"
+        ]
+      },
+      "constraints": [
+        "仅操作指定设备计算器；不得用shell替代点击。",
+        "保持A原有子Session、连接和历史，不清空、不重输旧值或旧算式。",
+        "每次+1并等号后观察屏幕；按实际结果记录，不伪造期望值。",
+        "收到正式取消后停止；不要重试或重复任何结果不确定的操作。"
+      ],
+      "effect_policy": "verify_before_retry",
+      "execution_timeout_seconds": 900.0,
+      "verification_timeout_seconds": 600.0,
+      "settlement_timeout_seconds": 60.0,
+      "max_steps": 100
+    },
+    "depends_on": [
+      {
+        "task_id": "625cf4bc-0b38-466c-a6ea-0a3c85f78baf",
+        "statuses": [
+          "succeeded",
+          "failed",
+          "blocked",
+          "cancelled",
+          "unknown"
+        ],
+        "check_id": null,
+        "verdict": "passed",
+        "output_key": null,
+        "equals": null,
+        "max_age_seconds": null
+      }
+    ],
+    "dependency_mode": "all"
+  },
+  "result": {
+    "status": "cancelled",
+    "outputs": {},
+    "checks": [
+      {
+        "id": "increment_observed",
+        "verdict": "unchecked",
+        "evidence_refs": [],
+        "evidence": ""
+      },
+      {
+        "id": "no_reset",
+        "verdict": "unchecked",
+        "evidence_refs": [],
+        "evidence": ""
+      }
+    ],
+    "observations": [],
+    "blocker": null,
+    "suggested_next_actions": [],
+    "observed_at": "2026-10-20T17:42:45.317616+00:00",
+    "step_range": null,
+    "artifact_refs": [],
+    "side_effect_state": "uncertain",
+    "session_reusable": true,
+    "error": {
+      "code": "execution_failed",
+      "description": "cancelled"
+    }
+  },
+  "session": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+  "pid": 27344,
+  "device": "21850fc5",
+  "conversation_tail": [
+    {
+      "content": "Updated note 'task_plan'.",
+      "additional_kwargs": {},
+      "response_metadata": {},
+      "type": "tool",
+      "name": "update_note",
+      "id": null,
+      "tool_call_id": "7e720c3f73f84e88a64463a690fcddb8",
+      "artifact": null,
+      "status": "success"
+    },
+    {
+      "content": "Updated note 'task_plan'.",
+      "additional_kwargs": {},
+      "response_metadata": {},
+      "type": "tool",
+      "name": "update_note",
+      "id": null,
+      "tool_call_id": "4cecd2a506434362be04a4d7c9b8d079",
+      "artifact": null,
+      "status": "success"
+    }
+  ],
+  "transcript_next_offset": null,
+  "inspection_source": {
+    "workflow_id": "1c8c48be-0719-46e9-9271-5a95a84bfb14",
+    "role_id": "A",
+    "child_session_id": "079e2a2f-a1c9-4e70-8974-19c2c4fa86f8",
+    "worker_epoch": "c7f6ebd9-1883-4ddb-bd99-d00acc964a33",
+    "active_task_id": "47b19b44-c9f2-4edf-930c-b4ac1ac5f9f5",
+    "active_attempt_id": "f1ec3f76-8539-4f8b-a0b6-723e80d7f3e3"
+  },
+  "inspection_consistency": "stream_checkpoint",
+  "observed_temporary_state": {
+    "initial_goal": "在cancel-A进入任意终态后，使用A同一子Session和连接重新观察计算器实际屏幕值；基于该实际值接着执行+10并等号，观察并记录结果。不得假设取消回滚，不清空或重输旧值或旧算式。若屏幕值不可读或无法安全继续，不猜测或重试，报告实际观察和原因。\nInputs: {\"device_id\": \"21850fc5\", \"session_id\": \"079e2a2f-a1c9-4e70-8974-19c2c4fa86f8\"}\nRequired contract:\n[contract:screen_reread] cancel-A终态后已重新读取A计算器屏幕实际值。\n[contract:plus_ten] 基于该屏幕值执行+10并等号，观察并记录实际结果；若无法安全执行则如实说明。\nConstraints:\n仅操作指定设备计算器；不使用shell直接计算替代真实点击。\n任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。\n使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。\n不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。\n只操作指定设备计算器；不得用shell替代点击。\n必须保持A同一子Session和连接；不得假设取消回滚。\n不得清空或重输旧值或旧算式；不重试有不确定副作用的操作。\nEffect policy: verify_before_retry\nFinish only this task, then wait for Main.",
+    "injected_instruction": null,
+    "user_stop_requested": false,
+    "checker_success": null,
+    "run_outcome": null,
+    "current_step_id": null,
+    "open_incident": null,
+    "subagent_calls": []
+  }
+}

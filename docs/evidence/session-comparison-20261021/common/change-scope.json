@@ -1,0 +1,83 @@
+{
+  "common_base": "351ca8422f7b5b54e80a9c1ce03a222e02415b6b",
+  "method": "git diff --numstat and --name-status from shared ancestor; baseline already contains product changes; counts are not a reliability metric",
+  "branches": {
+    "mp": {
+      "sha": "b7045f32ba615f0f7c5fc55fa4d66076e5c8a681",
+      "files": 48,
+      "insertions": 6288,
+      "deletions": 100,
+      "modified_existing_native_files": [
+        "artemis/agents/checker/checker.py",
+        "artemis/agents/operator/operator.py",
+        "artemis/agents/outputter/outputter.py",
+        "artemis/context.py",
+        "artemis/data_engine/engine.py",
+        "artemis/graph/checkpoints.py",
+        "artemis/mcp/action_session.py",
+        "artemis/memory/transcript.py",
+        "artemis/services/llm.py",
+        "artemis/tools/command_tool.py",
+        "third_party/mobile_use/sdk/agent.py"
+      ],
+      "status_counts": {
+        "A": 36,
+        "M": 12,
+        "D": 0
+      }
+    },
+    "co": {
+      "sha": "f007d82e8f489ce9a3d2f5a2ee7242acc2b14eb6",
+      "files": 62,
+      "insertions": 4627,
+      "deletions": 278,
+      "modified_existing_native_files": [
+        "apps/admin_console/server.py",
+        "artemis/agents/checker/checker.py",
+        "artemis/agents/diagnoser/diagnoser.py",
+        "artemis/agents/explorer/explorer.py",
+        "artemis/agents/flash/summarizer.py",
+        "artemis/agents/object_detector/object_detector.py",
+        "artemis/agents/operator/operator.py",
+        "artemis/agents/outputter/outputter.py",
+        "artemis/agents/video_analyzer/video_analyzer.py",
+        "artemis/config/constants.py",
+        "artemis/config/llm.py",
+        "artemis/context.py",
+        "artemis/controllers/unified_controller.py",
+        "artemis/data_engine/engine.py",
+        "artemis/data_engine/trace.py",
+        "artemis/drivers/android/adb_driver.py",
+        "artemis/drivers/factory.py",
+        "artemis/graph/checkpoints.py",
+        "artemis/graph/graph.py",
+        "artemis/graph/perception.py",
+        "artemis/llm/router.py",
+        "artemis/mcp/action_server.py",
+        "artemis/mcp/action_session.py",
+        "artemis/memory/__init__.py",
+        "artemis/memory/chunking.py",
+        "artemis/memory/step_memory.py",
+        "artemis/memory/transcript.py",
+        "artemis/runtime/device_lock.py",
+        "artemis/sdk/__init__.py",
+        "artemis/sdk/agent.py",
+        "artemis/services/llm.py",
+        "artemis/tools/base.py",
+        "artemis/tools/command_tool.py",
+        "artemis/tools/history/__init__.py",
+        "artemis/tools/tool_wrapper.py",
+        "artemis/utils/notes.py",
+        "artemis/utils/task_tree.py",
+        "third_party/mobile_use/config/llm.py",
+        "third_party/mobile_use/sdk/agent.py",
+        "third_party/mobile_use/utils/logger.py"
+      ],
+      "status_counts": {
+        "A": 20,
+        "M": 42,
+        "D": 0
+      }
+    }
+  }
+}

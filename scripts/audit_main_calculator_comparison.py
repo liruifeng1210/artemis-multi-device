@@ -45,11 +45,12 @@ actions=[];connections=[]
 for db in root.rglob('data_engine.db'):
     c=sqlite3.connect(db.resolve().as_uri()+'?mode=ro',uri=True);c.row_factory=sqlite3.Row
     connections += [dict(r) for r in c.execute('select session_id,pid,start_time,end_time,status from sessions')]
-    for r in c.execute("select t.timestamp,t.session_id,t.name,s.extra_metadata from traces t left join steps s on s.step_id=t.step_id where t.type='action' order by t.timestamp"):
+    for r in c.execute("select t.timestamp,t.duration,t.session_id,t.name,s.extra_metadata from traces t left join steps s on s.step_id=t.step_id where t.type='action' order by t.timestamp"):
         r=dict(r);meta=json.loads(r.pop('extra_metadata') or '{}')
         r['task_id']=meta.get('task_id');r['attempt_id']=meta.get('attempt_id');actions.append(r)
     c.close()
 late=[r for r in actions if r['task_id'] in terminal and r['timestamp']>datetime.fromisoformat(terminal[r['task_id']].observed_at).timestamp()]
+overlaps=[r for r in actions if r['task_id'] in terminal and r['timestamp']+(r['duration'] or 0)>datetime.fromisoformat(terminal[r['task_id']].observed_at).timestamp()]
 b_after=[r for r in actions if dispatch.get(r['task_id'],{}).get('role')=='B' and r['timestamp']>cancel_epoch]
 inspections=[]
 for f in (root/'boundaries').glob('*/result.json'):
@@ -67,6 +68,8 @@ result={'offline_only':True,'replay_note':'Replays the production Scheduler vali
     'cancel_task_action_count':sum(r['task_id']==cancel_id for r in actions),
     'cancel_stage':'Planner/LLM wait before first device action; queued/device-operation cancel not exercised',
     'B_action_records_after_A_cancel':b_after,'late_actions_after_task_result':late,
+    'action_intervals_ending_after_task_result':overlaps,
+    'actions_without_duration':sum(r['duration'] is None for r in actions),
     'boundary_inspections':inspections,
     'limitations':'Native traces omit direct Role/device/task fields; action-task joins use immutable step metadata and worker Session bindings. Boundary inspections can already describe the next task. Zero late records is bounded by trace coverage.'}
 (root/'execution-audit.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')

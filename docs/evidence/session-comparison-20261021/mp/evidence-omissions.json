@@ -1,0 +1,14 @@
+[
+  {
+    "source_relative_path": "boundaries/64b2d762-0ba5-45fa-8f9c-b39e56ed2605/screen.png",
+    "withheld_public_path": "boundaries/64b2d762-0ba5-45fa-8f9c-b39e56ed2605/screen.png",
+    "sha256": "44a4dd486cd7e229f658c50a5b4920e09478976b795a7504927e6d6cddd42fa9",
+    "reason": "Non-calculator About Phone screen contains unrelated device information; original retained only in ignored local evidence. No corresponding B action record exists after multiplication; foreground transition source unconfirmed."
+  },
+  {
+    "source_relative_path": "1c8c48be-0719-46e9-9271-5a95a84bfb14/traces/570caa92-a5e2-460a-893b-8d547145ac42/tasks/64b2d762-0ba5-45fa-8f9c-b39e56ed2605/d71c481e-848d-4da3-8265-6c5f2eec1881/contract-screen.jpg",
+    "withheld_public_path": "artifacts/1c8c48be/traces/570caa92/tasks/64b2d762/d71c481e/contract-screen.jpg",
+    "sha256": "9562852af4a8298804d2279f3233a7e2b2cdd841e5c4e5aae7d7412fb990d655",
+    "reason": "Non-calculator About Phone screen contains unrelated device information; original retained only in ignored local evidence. No corresponding B action record exists after multiplication; foreground transition source unconfirmed."
+  }
+]

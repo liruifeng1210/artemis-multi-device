@@ -1,0 +1,14 @@
+[
+  {
+    "pid": 31536,
+    "ppid": 11824,
+    "executable_name": "codex.exe",
+    "model": "gpt-6-luna",
+    "reasoning": [
+      "model_reasoning_effort=\"xhigh\""
+    ],
+    "ephemeral": true,
+    "ignore_user_config": true,
+    "read_only": true
+  }
+]

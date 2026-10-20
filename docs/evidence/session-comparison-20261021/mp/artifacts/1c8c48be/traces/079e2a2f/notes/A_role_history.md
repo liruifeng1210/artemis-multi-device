@@ -1,0 +1,1 @@
+Calculator task record (device 21850fc5, child session 079e2a2f-a1c9-4e70-8974-19c2c4fa86f8; com.miui.calculator): first result observed before this run's single clear action was 125+75=200 in the faint calculator history. Current result after entering 125+75 and tapping equals was 200, visibly displayed as 125+75 and = 200 at T+10:18.

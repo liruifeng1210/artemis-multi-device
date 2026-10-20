@@ -1,0 +1,14 @@
+{
+  "mp": {
+    "ipc_connect_timeout_lines": 0,
+    "note": "Observed local IPC notification warnings; no causal attribution to calculator failures. Full log withheld."
+  },
+  "co-initial": {
+    "ipc_connect_timeout_lines": 0,
+    "note": "Observed local IPC notification warnings; no causal attribution to calculator failures. Full log withheld."
+  },
+  "co-corrected": {
+    "ipc_connect_timeout_lines": 128,
+    "note": "Observed local IPC notification warnings; no causal attribution to calculator failures. Full log withheld."
+  }
+}

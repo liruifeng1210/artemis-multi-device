@@ -1,0 +1,52 @@
+# Assignment history (runtime records)
+
+[
+  {
+    "task_id": "4742a5ef-c16f-4fea-9385-5645935a4ea9",
+    "attempt_id": "881fbdd8-6c7f-4547-bc22-3cbb987878b5",
+    "goal": "打开系统计算器 com.miui.calculator，清空本次输入，真实点击计算125+75并按等号。读取结果并记住首次结果，写入session_context，不再清空。",
+    "status": "failed",
+    "reported_output": null,
+    "historical_plan": "- [x] Use the visible system calculator and clear the current input once before starting the requested calculation\n  - [x] Tap 清除 once to clear current input\n- [/] Enter 125+75 by tapping calculator keys, tap equals, and read the displayed result; treat the faint prior history as separate from this fresh calculation\n  - [/] Enter 125+75 by tapping calculator keys\n    - [x] Tap 1\n    - [x] Tap 2\n    - [x] Tap 5\n    - [/] Tap +\n  - verify: The fresh calculation's displayed result is read after equals\n- [ ] Record this calculation's first result in `session_context` and leave the calculator input uncleared\n  - verify: The first result is recorded in `session_context` and the input has not been cleared after calculation",
+    "error": "GraphRecursionError: Recursion limit of 30 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT",
+    "reusable": true,
+    "cleanup_errors": [],
+    "workspace": "E:\\workplace\\artemis\\scratch\\comparison-20261021\\co\\traces\\a70ece53-4d3f-4955-b390-508762f69333\\tasks\\4742a5ef-c16f-4fea-9385-5645935a4ea9\\881fbdd8-6c7f-4547-bc22-3cbb987878b5"
+  },
+  {
+    "task_id": "6f72ce47-ea9a-4f36-896a-828f041212e5",
+    "attempt_id": "9290ce36-8394-4d71-af0f-9179c0d890e6",
+    "goal": "接着屏幕上轮结果乘3并按等号，期望600。不得清空或重新输入旧结果或旧算式。读真实屏幕，报告首次及当前结果。",
+    "status": "failed",
+    "reported_output": null,
+    "historical_plan": "- [x] 读取并记录计算器初始实时屏幕状态到 `calculator_multiply3_record`，区分上一轮已完成结果 200 与当前未完成的 125+（下方 =125）\n  - verify: 记录初始屏幕可见结果及当前主计算区读数\n- [/] 从屏幕上一轮结果 200 继续乘 3 并按等号；使用计算器可见的历史结果沿用方式，不清空，也不重新输入旧结果或旧算式\n  - [/] 打开右上角菜单，查找历史记录入口以载入200\n  - verify: 屏幕显示沿用 200 计算 ×3 后的结果\n- [ ] 读取最终实时屏幕并将当前结果写入 `calculator_multiply3_record`，报告首次结果与当前结果\n- assert@end: 期望600",
+    "error": "GraphRecursionError: Recursion limit of 30 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT",
+    "reusable": true,
+    "cleanup_errors": [],
+    "workspace": "E:\\workplace\\artemis\\scratch\\comparison-20261021\\co\\traces\\a70ece53-4d3f-4955-b390-508762f69333\\tasks\\6f72ce47-ea9a-4f36-896a-828f041212e5\\9290ce36-8394-4d71-af0f-9179c0d890e6"
+  },
+  {
+    "task_id": "a85a63ac-b448-42cb-8786-85594fb1b8ad",
+    "attempt_id": "7b6ed50e-b46b-4722-926d-ae58bb3c6b7e",
+    "goal": "在真实当前值上逐次加1并按等号30次，每次观察。不得合并成加30；收到取消立即停止。",
+    "status": "cancelled",
+    "reported_output": null,
+    "historical_plan": null,
+    "error": "Task cancelled",
+    "reusable": true,
+    "cleanup_errors": [],
+    "workspace": "E:\\workplace\\artemis\\scratch\\comparison-20261021\\co\\traces\\a70ece53-4d3f-4955-b390-508762f69333\\tasks\\a85a63ac-b448-42cb-8786-85594fb1b8ad\\7b6ed50e-b46b-4722-926d-ae58bb3c6b7e"
+  },
+  {
+    "task_id": "1f9ac77e-6353-488c-b490-c67f545353bc",
+    "attempt_id": "ce7f6fbd-f085-4e2c-997c-7659905eb544",
+    "goal": "上个任务已结束或取消。先重新读取真实屏幕当前值，不假设回滚，再在此值加10并按等号，不清空。报告前后值。",
+    "status": "failed",
+    "reported_output": null,
+    "historical_plan": "- [x] 返回计算器主界面并读取当前实时显示值\n  - [x] 点击返回箭头回到计算器主界面\n- [/] 在刚读取的当前值2上执行 +10 并按等号，记录实际结果并报告前后值\n  - [/] 用当前实时值2继续计算 +10\n    - [/] 点击加号，从当前实时结果2继续计算\n  - verify: 操作后值等于本次读取值加10，报告包含操作前值和操作后值",
+    "error": "GraphRecursionError: Recursion limit of 30 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT",
+    "reusable": true,
+    "cleanup_errors": [],
+    "workspace": "E:\\workplace\\artemis\\scratch\\comparison-20261021\\co\\traces\\a70ece53-4d3f-4955-b390-508762f69333\\tasks\\1f9ac77e-6353-488c-b490-c67f545353bc\\ce7f6fbd-f085-4e2c-997c-7659905eb544"
+  }
+]

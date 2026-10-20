@@ -1,0 +1,14 @@
+- [x] Operate the specified calculator: enter 125+75 and press equals after clearing once
+  - [x] Prepare the calculator for the expression
+    - [x] Tap Clear once
+    - [x] Enter 125+75 and equals
+      - [x] Tap 1
+      - [x] Tap 2
+      - [x] Tap 5
+      - [x] Tap +
+      - [x] Tap 7
+      - [x] Tap 5
+      - [x] Press equals
+- [x] Verify 125+75=200 and record the first and current results in A's persistent Role history
+- assert@end: 计算器屏幕显示125+75=200。
+- assert@end: A的持续Role历史记录首次结果和当前结果。

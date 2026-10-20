@@ -1,0 +1,11 @@
+{
+  "role_id": "A",
+  "session_id": "14127587-b5ff-45ad-9943-8879e13864cc",
+  "task_id": "393d24d4-1162-423a-b5d4-92fc4219ce83",
+  "attempt_id": "8f40a219-cf84-413d-a006-f94b174a7a4b",
+  "device_id": "21850fc5",
+  "goal": "打开系统计算器 com.miui.calculator，清空本次输入，真实点击计算125+75并按等号。读取结果并记住首次结果，写入session_context，不再清空。",
+  "status": "failed",
+  "reusable": true,
+  "cleanup_errors": []
+}

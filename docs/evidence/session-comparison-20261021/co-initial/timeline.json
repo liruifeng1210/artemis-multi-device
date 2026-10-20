@@ -1,0 +1,215 @@
+[
+  {
+    "time": "2026-10-20T16:37:09.359182+00:00",
+    "kind": "open",
+    "role": "A",
+    "device": "21850fc5",
+    "session": "a70ece53-4d3f-4955-b390-508762f69333"
+  },
+  {
+    "time": "2026-10-20T16:37:12.288005+00:00",
+    "kind": "open",
+    "role": "B",
+    "device": "a8acf864",
+    "session": "bd0ecc92-21b0-497c-bf2c-d1f9c584ac16"
+  },
+  {
+    "time": "2026-10-20T16:37:12.289595+00:00",
+    "kind": "submit",
+    "role": "A",
+    "label": "01-initial",
+    "session": "a70ece53-4d3f-4955-b390-508762f69333",
+    "device": "21850fc5",
+    "task": "4742a5ef-c16f-4fea-9385-5645935a4ea9",
+    "attempt": "881fbdd8-6c7f-4547-bc22-3cbb987878b5",
+    "goal": "打开系统计算器 com.miui.calculator，清空本次输入，真实点击计算125+75并按等号。读取结果并记住首次结果，写入session_context，不再清空。"
+  },
+  {
+    "time": "2026-10-20T16:37:12.290114+00:00",
+    "kind": "submit",
+    "role": "B",
+    "label": "01-initial",
+    "session": "bd0ecc92-21b0-497c-bf2c-d1f9c584ac16",
+    "device": "a8acf864",
+    "task": "ec6cea96-4611-445d-90e0-5a5e12acadc4",
+    "attempt": "c302ca56-e172-4402-b106-6f019884f4dd",
+    "goal": "打开系统计算器 com.coloros.calculator，清空本次输入，真实点击计算48÷6并按等号。读取结果并记住首次结果，写入session_context，不再清空。"
+  },
+  {
+    "time": "2026-10-20T16:41:45.473489+00:00",
+    "kind": "terminal",
+    "role": "A",
+    "task": "4742a5ef-c16f-4fea-9385-5645935a4ea9",
+    "status": "failed",
+    "reusable": true,
+    "cleanup": []
+  },
+  {
+    "time": "2026-10-20T16:52:12.341114+00:00",
+    "kind": "guard_timeout",
+    "role": "B",
+    "task": "ec6cea96-4611-445d-90e0-5a5e12acadc4"
+  },
+  {
+    "time": "2026-10-20T16:52:12.399737+00:00",
+    "kind": "terminal",
+    "role": "B",
+    "task": "ec6cea96-4611-445d-90e0-5a5e12acadc4",
+    "status": "cancelled",
+    "reusable": true,
+    "cleanup": []
+  },
+  {
+    "time": "2026-10-20T16:52:15.144994+00:00",
+    "kind": "submit",
+    "role": "A",
+    "label": "02-continue",
+    "session": "a70ece53-4d3f-4955-b390-508762f69333",
+    "device": "21850fc5",
+    "task": "6f72ce47-ea9a-4f36-896a-828f041212e5",
+    "attempt": "9290ce36-8394-4d71-af0f-9179c0d890e6",
+    "goal": "接着屏幕上轮结果乘3并按等号，期望600。不得清空或重新输入旧结果或旧算式。读真实屏幕，报告首次及当前结果。"
+  },
+  {
+    "time": "2026-10-20T16:52:15.145997+00:00",
+    "kind": "submit",
+    "role": "B",
+    "label": "02-continue",
+    "session": "bd0ecc92-21b0-497c-bf2c-d1f9c584ac16",
+    "device": "a8acf864",
+    "task": "58026a66-2c7e-4032-8ec0-16f8b73fc5e5",
+    "attempt": "64311e26-6b3a-4212-89e2-e6a66713694c",
+    "goal": "接着屏幕上轮结果加17并按等号，期望25。不得清空或重新输入旧结果或旧算式。读真实屏幕，报告首次及当前结果。"
+  },
+  {
+    "time": "2026-10-20T17:00:19.534626+00:00",
+    "kind": "terminal",
+    "role": "B",
+    "task": "58026a66-2c7e-4032-8ec0-16f8b73fc5e5",
+    "status": "failed",
+    "reusable": true,
+    "cleanup": []
+  },
+  {
+    "time": "2026-10-20T17:05:44.094941+00:00",
+    "kind": "terminal",
+    "role": "A",
+    "task": "6f72ce47-ea9a-4f36-896a-828f041212e5",
+    "status": "failed",
+    "reusable": true,
+    "cleanup": []
+  },
+  {
+    "time": "2026-10-20T17:05:46.305617+00:00",
+    "kind": "submit",
+    "role": "A",
+    "label": "03-cancel",
+    "session": "a70ece53-4d3f-4955-b390-508762f69333",
+    "device": "21850fc5",
+    "task": "a85a63ac-b448-42cb-8786-85594fb1b8ad",
+    "attempt": "7b6ed50e-b46b-4722-926d-ae58bb3c6b7e",
+    "goal": "在真实当前值上逐次加1并按等号30次，每次观察。不得合并成加30；收到取消立即停止。"
+  },
+  {
+    "time": "2026-10-20T17:05:46.306672+00:00",
+    "kind": "submit",
+    "role": "B",
+    "label": "03-independent",
+    "session": "bd0ecc92-21b0-497c-bf2c-d1f9c584ac16",
+    "device": "a8acf864",
+    "task": "769656b4-a7ab-47cd-8ed8-1b06372913ab",
+    "attempt": "33f1d902-3f7c-46f7-9b0f-79ed55f4913e",
+    "goal": "在真实当前结果上乘4并按等号，期望100。不清空或重输旧值；读取并报告真实结果。"
+  },
+  {
+    "time": "2026-10-20T17:06:06.308943+00:00",
+    "kind": "cancel_request",
+    "role": "A",
+    "task": "a85a63ac-b448-42cb-8786-85594fb1b8ad",
+    "attempt": "7b6ed50e-b46b-4722-926d-ae58bb3c6b7e",
+    "status": "running",
+    "active": true,
+    "children": [
+      "codex.exe",
+      "codex.exe",
+      "conhost.exe",
+      "conhost.exe"
+    ]
+  },
+  {
+    "time": "2026-10-20T17:06:06.342033+00:00",
+    "kind": "cancel_return",
+    "role": "A",
+    "task": "a85a63ac-b448-42cb-8786-85594fb1b8ad"
+  },
+  {
+    "time": "2026-10-20T17:06:06.357607+00:00",
+    "kind": "terminal",
+    "role": "A",
+    "task": "a85a63ac-b448-42cb-8786-85594fb1b8ad",
+    "status": "cancelled",
+    "reusable": true,
+    "cleanup": []
+  },
+  {
+    "time": "2026-10-20T17:09:27.660910+00:00",
+    "kind": "terminal",
+    "role": "B",
+    "task": "769656b4-a7ab-47cd-8ed8-1b06372913ab",
+    "status": "completed",
+    "reusable": true,
+    "cleanup": []
+  },
+  {
+    "time": "2026-10-20T17:09:30.413154+00:00",
+    "kind": "submit",
+    "role": "A",
+    "label": "04-reuse",
+    "session": "a70ece53-4d3f-4955-b390-508762f69333",
+    "device": "21850fc5",
+    "task": "1f9ac77e-6353-488c-b490-c67f545353bc",
+    "attempt": "ce7f6fbd-f085-4e2c-997c-7659905eb544",
+    "goal": "上个任务已结束或取消。先重新读取真实屏幕当前值，不假设回滚，再在此值加10并按等号，不清空。报告前后值。"
+  },
+  {
+    "time": "2026-10-20T17:09:30.413672+00:00",
+    "kind": "submit",
+    "role": "B",
+    "label": "04-reuse",
+    "session": "bd0ecc92-21b0-497c-bf2c-d1f9c584ac16",
+    "device": "a8acf864",
+    "task": "9a01b1a0-2f49-40d3-a11c-e91345bf9b9e",
+    "attempt": "5c4bbf2e-0f08-42d9-ad58-fd6e290674cd",
+    "goal": "不操作设备，仅根据本Session历史报告首次计算结果和当前结果；不要通过重新计算替代记忆。"
+  },
+  {
+    "time": "2026-10-20T17:16:29.468061+00:00",
+    "kind": "terminal",
+    "role": "B",
+    "task": "9a01b1a0-2f49-40d3-a11c-e91345bf9b9e",
+    "status": "completed",
+    "reusable": true,
+    "cleanup": []
+  },
+  {
+    "time": "2026-10-20T17:17:44.639538+00:00",
+    "kind": "terminal",
+    "role": "A",
+    "task": "1f9ac77e-6353-488c-b490-c67f545353bc",
+    "status": "failed",
+    "reusable": true,
+    "cleanup": []
+  },
+  {
+    "time": "2026-10-20T17:17:46.997732+00:00",
+    "kind": "closed",
+    "role": "A",
+    "status": "closed"
+  },
+  {
+    "time": "2026-10-20T17:17:47.076173+00:00",
+    "kind": "closed",
+    "role": "B",
+    "status": "closed"
+  }
+]

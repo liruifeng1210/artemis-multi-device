@@ -1,0 +1,10 @@
+- [x] Observe the calculator already open in B's existing sub-session and record the displayed expression and current value in `calculator_execution_result`; preserve the existing connection and history
+  - verify: The pre-action expression and displayed value are recorded from the screen
+- [x] Continue from the existing calculator value without clearing or re-entering the expression; append ×4 and evaluate, then update B history
+  - [x] Apply ×4 to the displayed value 8
+    - [x] Tap multiplication
+    - [x] Tap digit 4
+    - [x] Tap equals; observed expression 8×4 and result 32
+  - [x] Update B history with actual result 32 while preserving first result 8
+  - verify: B history retains the first result and its current result matches the observed calculator result
+- assert@end: 若乘前为25，结果应为100；否则如实报告实际值，不伪造期望值

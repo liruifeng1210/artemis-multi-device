@@ -1,0 +1,13 @@
+{
+  "time": "2026-10-20T19:05:53.282653+00:00",
+  "device": "a8acf864",
+  "power_flags": [
+    "mWakefulness=Awake",
+    "mIsPowered=true",
+    "mPlugType=2",
+    "mStayOn=true",
+    "mIsPowered=true"
+  ],
+  "stay_on_while_plugged_in": "2",
+  "action": "read-only; no setting or screen timeout changed"
+}

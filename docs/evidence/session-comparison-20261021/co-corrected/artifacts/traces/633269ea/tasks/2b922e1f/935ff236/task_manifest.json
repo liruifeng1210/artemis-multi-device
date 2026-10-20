@@ -1,0 +1,11 @@
+{
+  "role_id": "B",
+  "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+  "task_id": "2b922e1f-3bff-4adb-b6fc-f23c7186d488",
+  "attempt_id": "935ff236-fb70-4eb9-9266-9e43bf09809b",
+  "device_id": "a8acf864",
+  "goal": "在真实当前结果上乘4并按等号，期望100。不清空或重输旧值；读取并报告真实结果。",
+  "status": "failed",
+  "reusable": true,
+  "cleanup_errors": []
+}

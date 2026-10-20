@@ -1,0 +1,4 @@
+# This directory contains explicitly reviewed exported evidence.
+# Override broad repository ignores for traces, notes and screenshots here only.
+!*
+!*/

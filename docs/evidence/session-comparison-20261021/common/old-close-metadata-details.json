@@ -1,0 +1,98 @@
+[
+  {
+    "trace_id": "c8308be4-f8a0-46d7-b764-1f2c7114573f",
+    "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f",
+    "role": "A",
+    "type": "log",
+    "status": "success",
+    "execution": {
+      "role_id": "A",
+      "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f"
+    },
+    "message": "✅ Artemis agent stopped."
+  },
+  {
+    "trace_id": "6925de80-08e5-429d-a072-37338d21368e",
+    "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f",
+    "role": "A",
+    "type": "log",
+    "status": "success",
+    "execution": {
+      "role_id": "A",
+      "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f"
+    },
+    "message": "LLM usage for session 49a0708e-47c8-4a7d-9181-fe243ac11e1f: 50 calls, 1783220 prompt tokens, 0 cached (cached_ratio=0.000, cache-hit calls 0); codex:gpt-6-luna: 34 calls, cached_ratio=0.000; lens:visual_transition:gpt-6-luna: 13 calls, cached_ratio=0.000; lens:step_capsule:gpt-6-luna: 3 calls, cached_ratio=0.000"
+  },
+  {
+    "trace_id": "70e0decd-31f1-42d5-911b-51a01f307fe8",
+    "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f",
+    "role": "A",
+    "type": "log",
+    "status": "success",
+    "execution": {
+      "role_id": "A",
+      "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f"
+    },
+    "message": "Session ended: 49a0708e-47c8-4a7d-9181-fe243ac11e1f with status: completed"
+  },
+  {
+    "trace_id": "12d2dfe3-eb95-4237-93f7-542c4f6aea95",
+    "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f",
+    "role": "A",
+    "type": "log",
+    "status": "success",
+    "execution": {
+      "role_id": "A",
+      "session_id": "49a0708e-47c8-4a7d-9181-fe243ac11e1f"
+    },
+    "message": "DataEngine shutdown complete. All data persisted."
+  },
+  {
+    "trace_id": "1ae2ea7b-77c6-46af-a902-f15124f77230",
+    "session_id": "22e26727-d330-4945-95ae-c68eb125cce2",
+    "role": "B",
+    "type": "log",
+    "status": "success",
+    "execution": {
+      "role_id": "B",
+      "session_id": "22e26727-d330-4945-95ae-c68eb125cce2"
+    },
+    "message": "✅ Artemis agent stopped."
+  },
+  {
+    "trace_id": "2f1e3508-033b-46b2-8cff-8d04d76e7293",
+    "session_id": "22e26727-d330-4945-95ae-c68eb125cce2",
+    "role": "B",
+    "type": "log",
+    "status": "success",
+    "execution": {
+      "role_id": "B",
+      "session_id": "22e26727-d330-4945-95ae-c68eb125cce2"
+    },
+    "message": "LLM usage for session 22e26727-d330-4945-95ae-c68eb125cce2: 35 calls, 1123573 prompt tokens, 0 cached (cached_ratio=0.000, cache-hit calls 0); codex:gpt-6-luna: 23 calls, cached_ratio=0.000; lens:visual_transition:gpt-6-luna: 10 calls, cached_ratio=0.000; lens:step_capsule:gpt-6-luna: 2 calls, cached_ratio=0.000"
+  },
+  {
+    "trace_id": "75aa2739-0628-4064-b881-435b89c5e5b8",
+    "session_id": "22e26727-d330-4945-95ae-c68eb125cce2",
+    "role": "B",
+    "type": "log",
+    "status": "success",
+    "execution": {
+      "role_id": "B",
+      "session_id": "22e26727-d330-4945-95ae-c68eb125cce2"
+    },
+    "message": "Session ended: 22e26727-d330-4945-95ae-c68eb125cce2 with status: completed"
+  },
+  {
+    "trace_id": "66dd3b38-d11c-45c6-8fd0-8bddc0dca829",
+    "session_id": "22e26727-d330-4945-95ae-c68eb125cce2",
+    "role": "B",
+    "type": "log",
+    "status": "success",
+    "execution": {
+      "role_id": "B",
+      "session_id": "22e26727-d330-4945-95ae-c68eb125cce2"
+    },
+    "message": "DataEngine shutdown complete. All data persisted."
+  }
+]

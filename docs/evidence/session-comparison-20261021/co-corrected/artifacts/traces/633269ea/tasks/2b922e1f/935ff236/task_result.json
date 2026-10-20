@@ -1,0 +1,48 @@
+{
+  "role_id": "B",
+  "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+  "task_id": "2b922e1f-3bff-4adb-b6fc-f23c7186d488",
+  "attempt_id": "935ff236-fb70-4eb9-9266-9e43bf09809b",
+  "status": "failed",
+  "output": {
+    "test_summary": {
+      "task_status": "completed",
+      "passed": 1,
+      "failed": 1,
+      "inconclusive": 0,
+      "unchecked": 0,
+      "failed_items": [
+        {
+          "item_text": "期望100",
+          "kind": "assert",
+          "evidence": "Steps 15–18 record multiplying the displayed 25 by 4 and tapping equals. The final screen shows ‘8+17’ and ‘25’; it does not show 100."
+        }
+      ],
+      "retired": 0,
+      "retired_items": []
+    }
+  },
+  "error": "Native task outcome contains blocked criteria or failed checks",
+  "workspace": "<LOCAL_EVIDENCE>/comparison-20261021\\co-corrected\\traces\\633269ea-9548-43bc-bfed-ad37525de38e\\tasks\\2b922e1f-3bff-4adb-b6fc-f23c7186d488\\935ff236-fb70-4eb9-9266-9e43bf09809b",
+  "cleanup_errors": [],
+  "reusable": true,
+  "native_run_outcome": {
+    "task_status": "completed",
+    "tests": {
+      "passed": 1,
+      "failed": 1,
+      "inconclusive": 0,
+      "unchecked": 0,
+      "failed_items": [
+        {
+          "item_text": "期望100",
+          "kind": "assert",
+          "evidence": "Steps 15–18 record multiplying the displayed 25 by 4 and tapping equals. The final screen shows ‘8+17’ and ‘25’; it does not show 100."
+        }
+      ],
+      "retired": 0,
+      "retired_items": []
+    }
+  },
+  "checker_success_flag": true
+}

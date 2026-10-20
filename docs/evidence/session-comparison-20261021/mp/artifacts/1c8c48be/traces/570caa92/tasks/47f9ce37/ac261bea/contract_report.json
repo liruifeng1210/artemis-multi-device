@@ -1,0 +1,33 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "最终截图显示计算器表达式“48÷6”，其结果为“8”。",
+      "item_text": "- [verify] (at_end) [contract:screen_8] 计算器屏幕显示48÷6=8。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "历史查询显示已追加到 B 的记录：“首次结果：8（屏幕显示表达式48÷6，结果8）；当前结果：8（当前屏幕显示表达式48÷6，结果8）。”",
+      "item_text": "- [verify] (at_end) [contract:history_saved] B的持续Role历史记录首次结果和当前结果。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "no verdict produced for this item",
+      "item_text": "[contract:screen_8] 计算器屏幕显示48÷6=8。",
+      "kind": "verify",
+      "status": "inconclusive",
+      "suggestion": ""
+    },
+    {
+      "evidence": "no verdict produced for this item",
+      "item_text": "[contract:history_saved] B的持续Role历史记录首次结果和当前结果。",
+      "kind": "verify",
+      "status": "inconclusive",
+      "suggestion": ""
+    }
+  ]
+}

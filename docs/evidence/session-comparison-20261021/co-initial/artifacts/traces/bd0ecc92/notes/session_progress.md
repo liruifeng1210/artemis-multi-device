@@ -1,0 +1,63 @@
+# Assignment history (runtime records)
+
+[
+  {
+    "task_id": "ec6cea96-4611-445d-90e0-5a5e12acadc4",
+    "attempt_id": "c302ca56-e172-4402-b106-6f019884f4dd",
+    "goal": "打开系统计算器 com.coloros.calculator，清空本次输入，真实点击计算48÷6并按等号。读取结果并记住首次结果，写入session_context，不再清空。",
+    "status": "cancelled",
+    "reported_output": null,
+    "historical_plan": "- [/] 在当前系统计算器 com.coloros.calculator 中执行一次真实计算：当前屏幕显示 8+17=25；仅点一次 AC 清空当前输入，再依次输入 48、÷、6 并按等号，读取首次显示的结果，之后不再清空\n  - [/] 点一次清除键，清空当前输入\n  - verify: 已读取等号后的实际结果，且之后未再次清空\n- [ ] 将读取到的首次实际结果写入 session_context 的 first_result 字段\n  - verify: session_context 记录了 48÷6 的首次实际计算结果",
+    "error": "Task cancelled",
+    "reusable": true,
+    "cleanup_errors": [],
+    "workspace": "E:\\workplace\\artemis\\scratch\\comparison-20261021\\co\\traces\\bd0ecc92-21b0-497c-bf2c-d1f9c584ac16\\tasks\\ec6cea96-4611-445d-90e0-5a5e12acadc4\\c302ca56-e172-4402-b106-6f019884f4dd"
+  },
+  {
+    "task_id": "58026a66-2c7e-4032-8ec0-16f8b73fc5e5",
+    "attempt_id": "64311e26-6b3a-4212-89e2-e6a66713694c",
+    "goal": "接着屏幕上轮结果加17并按等号，期望25。不得清空或重新输入旧结果或旧算式。读真实屏幕，报告首次及当前结果。",
+    "status": "failed",
+    "reported_output": null,
+    "historical_plan": "- [!] 从计算器当前显示的旧结果继续加17并按等号，在 `calculator_result_report` 记录首次及当前结果。截图中的显示区为空白，没有可见的旧结果可供继续；停止操作，不触碰按键，并请求提供显示旧结果的屏幕。\n- assert@end: 期望25。\n- assert@end: 不得清空或重新输入旧结果或旧算式。",
+    "error": "GraphRecursionError: Recursion limit of 30 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT",
+    "reusable": true,
+    "cleanup_errors": [],
+    "workspace": "E:\\workplace\\artemis\\scratch\\comparison-20261021\\co\\traces\\bd0ecc92-21b0-497c-bf2c-d1f9c584ac16\\tasks\\58026a66-2c7e-4032-8ec0-16f8b73fc5e5\\64311e26-6b3a-4212-89e2-e6a66713694c"
+  },
+  {
+    "task_id": "769656b4-a7ab-47cd-8ed8-1b06372913ab",
+    "attempt_id": "33f1d902-3f7c-46f7-9b0f-79ed55f4913e",
+    "goal": "在真实当前结果上乘4并按等号，期望100。不清空或重输旧值；读取并报告真实结果。",
+    "status": "completed",
+    "reported_output": {
+      "test_summary": {
+        "task_status": "completed",
+        "passed": 0,
+        "failed": 0,
+        "inconclusive": 1,
+        "unchecked": 0,
+        "failed_items": [],
+        "retired": 0,
+        "retired_items": []
+      }
+    },
+    "historical_plan": "- [x] Inspect the current calculator display without changing it and record the actual displayed value, or that no value is visible, in `calculator_result`\n- [x] If a numeric result is visible, multiply that displayed value by 4, press equals, and record the actual final result in `calculator_result`; if no value is visible, leave the calculator unchanged and record why the calculation could not be performed without entering a value\n- assert@end: 期望100",
+    "error": null,
+    "reusable": true,
+    "cleanup_errors": [],
+    "workspace": "E:\\workplace\\artemis\\scratch\\comparison-20261021\\co\\traces\\bd0ecc92-21b0-497c-bf2c-d1f9c584ac16\\tasks\\769656b4-a7ab-47cd-8ed8-1b06372913ab\\33f1d902-3f7c-46f7-9b0f-79ed55f4913e"
+  },
+  {
+    "task_id": "9a01b1a0-2f49-40d3-a11c-e91345bf9b9e",
+    "attempt_id": "5c4bbf2e-0f08-42d9-ad58-fd6e290674cd",
+    "goal": "不操作设备，仅根据本Session历史报告首次计算结果和当前结果；不要通过重新计算替代记忆。",
+    "status": "completed",
+    "reported_output": null,
+    "historical_plan": "- [x] Reconcile the saved session history and attached calculator screenshot without interacting with the device; identify the first recorded calculation and the current displayed state\n- [x] Report the historical result and current result, distinguishing prior 8+17=25 from the later unperformed 48÷6 operation and blank display",
+    "error": null,
+    "reusable": true,
+    "cleanup_errors": [],
+    "workspace": "E:\\workplace\\artemis\\scratch\\comparison-20261021\\co\\traces\\bd0ecc92-21b0-497c-bf2c-d1f9c584ac16\\tasks\\9a01b1a0-2f49-40d3-a11c-e91345bf9b9e\\5c4bbf2e-0f08-42d9-ad58-fd6e290674cd"
+  }
+]

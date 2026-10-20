@@ -1,0 +1,23 @@
+{
+  "session": "bd0ecc92-21b0-497c-bf2c-d1f9c584ac16",
+  "context_id": 2222831398624,
+  "driver_id": 2223460021312,
+  "ledger_id": 2223438450944,
+  "role_status": "idle",
+  "continuity": {
+    "c302ca56-e172-4402-b106-6f019884f4dd": {
+      "task_id": "ec6cea96-4611-445d-90e0-5a5e12acadc4",
+      "attempt_id": "c302ca56-e172-4402-b106-6f019884f4dd",
+      "goal": "打开系统计算器 com.coloros.calculator，清空本次输入，真实点击计算48÷6并按等号。读取结果并记住首次结果，写入session_context，不再清空。",
+      "status": "cancelled",
+      "reported_output": null,
+      "historical_plan": "- [/] 在当前系统计算器 com.coloros.calculator 中执行一次真实计算：当前屏幕显示 8+17=25；仅点一次 AC 清空当前输入，再依次输入 48、÷、6 并按等号，读取首次显示的结果，之后不再清空\n  - [/] 点一次清除键，清空当前输入\n  - verify: 已读取等号后的实际结果，且之后未再次清空\n- [ ] 将读取到的首次实际结果写入 session_context 的 first_result 字段\n  - verify: session_context 记录了 48÷6 的首次实际计算结果",
+      "error": "Task cancelled",
+      "reusable": true,
+      "cleanup_errors": [],
+      "workspace": "<LOCAL_EVIDENCE>/comparison-20261021\\co\\traces\\bd0ecc92-21b0-497c-bf2c-d1f9c584ac16\\tasks\\ec6cea96-4611-445d-90e0-5a5e12acadc4\\c302ca56-e172-4402-b106-6f019884f4dd"
+    }
+  },
+  "background_tasks": 0,
+  "background_jobs": 0
+}

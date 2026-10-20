@@ -1,0 +1,17 @@
+{
+  "task_status": "completed",
+  "tests": {
+    "passed": 2,
+    "failed": 0,
+    "inconclusive": 2,
+    "unchecked": 0,
+    "failed_items": [],
+    "retired": 0,
+    "retired_items": []
+  },
+  "environment": {
+    "backend": "helper",
+    "helper_version": "1.2.0",
+    "switches": []
+  }
+}

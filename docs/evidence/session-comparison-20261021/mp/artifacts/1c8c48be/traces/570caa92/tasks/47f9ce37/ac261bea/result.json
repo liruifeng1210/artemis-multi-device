@@ -1,0 +1,42 @@
+{
+  "artifact_refs": [
+    "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract_report.json",
+    "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract-screen.jpg"
+  ],
+  "blocker": null,
+  "checks": [
+    {
+      "evidence": "no verdict produced for this item",
+      "evidence_refs": [
+        "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract_report.json",
+        "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract-screen.jpg"
+      ],
+      "id": "screen_8",
+      "verdict": "inconclusive"
+    },
+    {
+      "evidence": "no verdict produced for this item",
+      "evidence_refs": [
+        "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract_report.json",
+        "tasks\\47f9ce37-8a02-4f3f-8f41-9c7b3ab1d249\\ac261bea-56d0-48cc-918e-214e5338f7fb\\contract-screen.jpg"
+      ],
+      "id": "history_saved",
+      "verdict": "inconclusive"
+    }
+  ],
+  "error": null,
+  "observations": [],
+  "observed_at": "2026-10-20T17:34:52.948592+00:00",
+  "outputs": {
+    "current_result": "8",
+    "first_result": "8"
+  },
+  "session_reusable": true,
+  "side_effect_state": "confirmed",
+  "status": "blocked",
+  "step_range": {
+    "first": 1,
+    "last": 7
+  },
+  "suggested_next_actions": []
+}

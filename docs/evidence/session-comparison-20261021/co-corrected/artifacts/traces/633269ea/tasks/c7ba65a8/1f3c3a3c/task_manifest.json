@@ -1,0 +1,11 @@
+{
+  "role_id": "B",
+  "session_id": "633269ea-9548-43bc-bfed-ad37525de38e",
+  "task_id": "c7ba65a8-8271-46fd-b937-5c00f6c3c266",
+  "attempt_id": "1f3c3a3c-0072-48ae-9fe8-a8686f7cbf94",
+  "device_id": "a8acf864",
+  "goal": "不操作设备，仅根据本Session历史报告首次计算结果和当前结果；不要通过重新计算替代记忆。",
+  "status": "completed",
+  "reusable": true,
+  "cleanup_errors": []
+}

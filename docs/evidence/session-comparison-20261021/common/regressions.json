@@ -1,0 +1,19 @@
+{
+  "mp": {
+    "initial": "96 passed, 1 failed: bundled Google fixture needs a key; no product/model failure inferred",
+    "config_retest": "33 passed with GOOGLE_API_KEY=unit-test-placeholder in test process only",
+    "full_retest": "98 passed in 101.76s, same synthetic fixture key",
+    "diagnoser_fix": "13 passed in 0.27s",
+    "object_detector_budget": "8 passed in 0.14s; first new fixture omitted label and was corrected before real-device retest",
+    "safe_cli_pid_logging": "10 passed in 0.18s; uncommitted initial logging edit failed 5 tests due ArtemisLogger positional formatting and was corrected before real-device run"
+  },
+  "co": {
+    "selected": "44 passed in 6.92s",
+    "close_metadata_fix": "26 passed in 5.64s",
+    "diagnoser_fix": "13 passed in 0.27s",
+    "object_detector_budget": "8 passed in 0.14s; first new fixture omitted label and was corrected before real-device retest",
+    "safe_cli_pid_logging": "10 passed in 0.18s; uncommitted initial logging edit failed 5 tests due ArtemisLogger positional formatting and was corrected before real-device run"
+  },
+  "prior_262": "User-provided historical figure, not rerun or claimed as current test total",
+  "note": "Overlapping test sets; do not add these into unique test counts. Initial restricted-sandbox process test was aborted; elevated regression run completed."
+}

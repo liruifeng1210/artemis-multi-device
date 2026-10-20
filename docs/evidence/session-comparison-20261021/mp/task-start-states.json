@@ -1,0 +1,130 @@
+[
+  {
+    "log": "1c8c48be-0719-46e9-9271-5a95a84bfb14/roles/A/stderr.log",
+    "attempt": "de638217-b0df-4a81-9204-83ff441dd6ac",
+    "state": {
+      "initial_goal": "在现有子Session和连接中操作com.miui.calculator。仅清空一次，输入125+75并等号；观察屏幕确认结果200。将首次结果和当前结果记入A的持续Role历史，供后续任务读取。\nInputs: {\"device_id\": \"21850fc5\", \"session_id\": \"079e2a2f-a1c9-4e70-8974-19c2c4fa86f8\"}\nRequired contract:\n[contract:screen_200] 计算器屏幕显示125+75=200。\n[contract:history_saved] A的持续Role历史记录首次结果和当前结果。\nConstraints:\n仅操作指定设备计算器；不使用shell直接计算替代真实点击。\n任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。\n使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。\n不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。\n只操作指定设备计算器；不得用shell替代点击。\n仅本任务清空一次；不得重连或重置子Session。\n若操作结果不确定，先观察核实，不重试有不确定副作用的操作。\nEffect policy: verify_before_retry\nFinish only this task, then wait for Main.",
+      "injected_instruction": null,
+      "user_stop_requested": false,
+      "checker_success": null,
+      "run_outcome": null,
+      "current_step_id": null,
+      "open_incident": null,
+      "subagent_calls": []
+    },
+    "screenshot_present": false,
+    "hierarchy_present": false
+  },
+  {
+    "log": "1c8c48be-0719-46e9-9271-5a95a84bfb14/roles/A/stderr.log",
+    "attempt": "efb3e80e-bba3-441c-91b7-070e9b8e9510",
+    "state": {
+      "initial_goal": "在A原有子Session、连接、历史中观察当前屏幕，接屏幕上已有结果执行×3并等号；不清空、不重输旧值或旧算式。观察实际结果并更新A历史中的当前结果，保留首次结果。若当前屏幕不可读或无法安全继续，如实记录，不猜测、不重试不确定操作。\nInputs: {\"device_id\": \"21850fc5\", \"session_id\": \"079e2a2f-a1c9-4e70-8974-19c2c4fa86f8\", \"expected_result\": \"600\"}\nRequired contract:\n[contract:continued_from_screen] 已从屏幕现有值执行乘3并等号，未清空或重输；观察并记录实际结果。若初值为200，屏幕结果为600。\n[contract:history_updated] A历史保留首次结果并更新当前结果；无法安全完成时如实记录原因。\nConstraints:\n仅操作指定设备计算器；不使用shell直接计算替代真实点击。\n任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。\n使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。\n不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。\n只操作指定设备计算器；不得用shell替代点击。\n保持原子Session、连接和历史，不清空、不重输旧值或旧算式。\n本任务失败不得阻止后续取消场景任务。\n不重试有不确定副作用的操作。\nEffect policy: verify_before_retry\nFinish only this task, then wait for Main.",
+      "injected_instruction": null,
+      "user_stop_requested": false,
+      "checker_success": null,
+      "run_outcome": null,
+      "current_step_id": null,
+      "open_incident": null,
+      "subagent_calls": []
+    },
+    "screenshot_present": false,
+    "hierarchy_present": false
+  },
+  {
+    "log": "1c8c48be-0719-46e9-9271-5a95a84bfb14/roles/A/stderr.log",
+    "attempt": "1a398744-e0c2-4650-bc68-f0b95d8613fa",
+    "state": {
+      "initial_goal": "在A原有子Session和连接中，从当前屏幕值开始逐次执行+1并等号，共30次；每次等号后都观察并记录屏幕实际值。不得清空或重输旧值、旧算式。此任务派发20秒后测试员将通过正式Main.cancel取消它；持续执行到收到取消或30次完成，不要自行模拟取消。\nInputs: {\"device_id\": \"21850fc5\", \"session_id\": \"079e2a2f-a1c9-4e70-8974-19c2c4fa86f8\", \"iterations\": \"30\"}\nRequired contract:\n[contract:increment_observed] 每次已完成的+1等号操作后均观察并记录实际屏幕值；任务可因正式取消而以cancelled终态结束。\n[contract:no_reset] 全过程未清空、未重输旧值或旧算式，且未自行取消。\nConstraints:\n仅操作指定设备计算器；不使用shell直接计算替代真实点击。\n任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。\n使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。\n不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。\n仅操作指定设备计算器；不得用shell替代点击。\n保持A原有子Session、连接和历史，不清空、不重输旧值或旧算式。\n每次+1并等号后观察屏幕；按实际结果记录，不伪造期望值。\n收到正式取消后停止；不要重试或重复任何结果不确定的操作。\nEffect policy: verify_before_retry\nFinish only this task, then wait for Main.",
+      "injected_instruction": null,
+      "user_stop_requested": false,
+      "checker_success": null,
+      "run_outcome": null,
+      "current_step_id": null,
+      "open_incident": null,
+      "subagent_calls": []
+    },
+    "screenshot_present": false,
+    "hierarchy_present": false
+  },
+  {
+    "log": "1c8c48be-0719-46e9-9271-5a95a84bfb14/roles/A/stderr.log",
+    "attempt": "f1ec3f76-8539-4f8b-a0b6-723e80d7f3e3",
+    "state": {
+      "initial_goal": "在cancel-A进入任意终态后，使用A同一子Session和连接重新观察计算器实际屏幕值；基于该实际值接着执行+10并等号，观察并记录结果。不得假设取消回滚，不清空或重输旧值或旧算式。若屏幕值不可读或无法安全继续，不猜测或重试，报告实际观察和原因。\nInputs: {\"device_id\": \"21850fc5\", \"session_id\": \"079e2a2f-a1c9-4e70-8974-19c2c4fa86f8\"}\nRequired contract:\n[contract:screen_reread] cancel-A终态后已重新读取A计算器屏幕实际值。\n[contract:plus_ten] 基于该屏幕值执行+10并等号，观察并记录实际结果；若无法安全执行则如实说明。\nConstraints:\n仅操作指定设备计算器；不使用shell直接计算替代真实点击。\n任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。\n使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。\n不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。\n只操作指定设备计算器；不得用shell替代点击。\n必须保持A同一子Session和连接；不得假设取消回滚。\n不得清空或重输旧值或旧算式；不重试有不确定副作用的操作。\nEffect policy: verify_before_retry\nFinish only this task, then wait for Main.",
+      "injected_instruction": null,
+      "user_stop_requested": false,
+      "checker_success": null,
+      "run_outcome": null,
+      "current_step_id": null,
+      "open_incident": null,
+      "subagent_calls": []
+    },
+    "screenshot_present": false,
+    "hierarchy_present": false
+  },
+  {
+    "log": "1c8c48be-0719-46e9-9271-5a95a84bfb14/roles/B/stderr.log",
+    "attempt": "ac261bea-56d0-48cc-918e-214e5338f7fb",
+    "state": {
+      "initial_goal": "在现有子Session和连接中操作com.coloros.calculator。仅清空一次，输入48÷6并等号；观察屏幕确认结果8。将首次结果和当前结果记入B的持续Role历史，供后续任务读取。\nInputs: {\"device_id\": \"a8acf864\", \"session_id\": \"570caa92-a5e2-460a-893b-8d547145ac42\"}\nRequired contract:\n[contract:screen_8] 计算器屏幕显示48÷6=8。\n[contract:history_saved] B的持续Role历史记录首次结果和当前结果。\nConstraints:\n仅操作指定设备计算器；不使用shell直接计算替代真实点击。\n任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。\n使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。\n不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。\n只操作指定设备计算器；不得用shell替代点击。\n仅本任务清空一次；不得重连或重置子Session。\n若操作结果不确定，先观察核实，不重试有不确定副作用的操作。\nEffect policy: verify_before_retry\nFinish only this task, then wait for Main.",
+      "injected_instruction": null,
+      "user_stop_requested": false,
+      "checker_success": null,
+      "run_outcome": null,
+      "current_step_id": null,
+      "open_incident": null,
+      "subagent_calls": []
+    },
+    "screenshot_present": false,
+    "hierarchy_present": false
+  },
+  {
+    "log": "1c8c48be-0719-46e9-9271-5a95a84bfb14/roles/B/stderr.log",
+    "attempt": "7a346b61-0179-4900-80f7-a629e6230550",
+    "state": {
+      "initial_goal": "在B原有子Session、连接、历史中观察当前屏幕，接屏幕上已有结果执行+17并等号；不清空、不重输旧值或旧算式。观察实际结果并更新B历史中的当前结果，保留首次结果。若当前屏幕不可读或无法安全继续，如实记录，不猜测、不重试不确定操作。\nInputs: {\"device_id\": \"a8acf864\", \"session_id\": \"570caa92-a5e2-460a-893b-8d547145ac42\", \"expected_result\": \"25\"}\nRequired contract:\n[contract:continued_from_screen] 已从屏幕现有值执行加17并等号，未清空或重输；观察并记录实际结果。若初值为8，屏幕结果为25。\n[contract:history_updated] B历史保留首次结果并更新当前结果；无法安全完成时如实记录原因。\nConstraints:\n仅操作指定设备计算器；不使用shell直接计算替代真实点击。\n任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。\n使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。\n不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。\n只操作指定设备计算器；不得用shell替代点击。\n保持原子Session、连接和历史，不清空、不重输旧值或旧算式。\n不重试有不确定副作用的操作。\nEffect policy: verify_before_retry\nFinish only this task, then wait for Main.",
+      "injected_instruction": null,
+      "user_stop_requested": false,
+      "checker_success": null,
+      "run_outcome": null,
+      "current_step_id": null,
+      "open_incident": null,
+      "subagent_calls": []
+    },
+    "screenshot_present": false,
+    "hierarchy_present": false
+  },
+  {
+    "log": "1c8c48be-0719-46e9-9271-5a95a84bfb14/roles/B/stderr.log",
+    "attempt": "609e381f-b88a-474f-8835-e4e58580c37f",
+    "state": {
+      "initial_goal": "与A的cancel-A场景独立运行。在B原有子Session、连接和历史中观察当前屏幕，接屏幕现有值执行×4并等号；不清空或重输旧值或旧算式。观察实际结果并更新B历史当前结果。若当前值为25，结果应为100；否则如实报告实际值，不伪造期望值。\nInputs: {\"device_id\": \"a8acf864\", \"session_id\": \"570caa92-a5e2-460a-893b-8d547145ac42\", \"expected_result\": \"100\"}\nRequired contract:\n[contract:reuse_observed] 从屏幕现有值执行乘4并等号，观察并记录实际结果；若乘前为25则结果为100。\n[contract:history_updated] B持续Role历史保留首次结果并更新当前结果；不得伪造期望值。\nConstraints:\n仅操作指定设备计算器；不使用shell直接计算替代真实点击。\n任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。\n使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。\n不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。\n只操作指定设备计算器；不得用shell替代点击。\n保持B原有子Session、连接和历史，不清空、不重输旧值或旧算式。\n此任务不依赖A的任务状态；不重试有不确定副作用的操作。\nEffect policy: verify_before_retry\nFinish only this task, then wait for Main.",
+      "injected_instruction": null,
+      "user_stop_requested": false,
+      "checker_success": null,
+      "run_outcome": null,
+      "current_step_id": null,
+      "open_incident": null,
+      "subagent_calls": []
+    },
+    "screenshot_present": false,
+    "hierarchy_present": false
+  },
+  {
+    "log": "1c8c48be-0719-46e9-9271-5a95a84bfb14/roles/B/stderr.log",
+    "attempt": "d71c481e-848d-4da3-8265-6c5f2eec1881",
+    "state": {
+      "initial_goal": "仅根据B自己的持续Role历史报告首次计算结果和当前结果，不读取或引用A的数据。优先使用绑定的B历史输出；绑定缺失时读取B自己的Role历史，如无记录则明确报告不可用，不猜测。\nInputs: {\"fallback\": \"绑定值缺失时读取B自己的持续Role历史；不可用则如实说明。\"}\nRequired contract:\n[contract:report_history] 报告B历史中的首次结果和最新当前结果，缺失项明确标记不可用，未引用A的数据。\nConstraints:\n仅操作指定设备计算器；不使用shell直接计算替代真实点击。\n任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。\n使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。\n不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。\n只使用B自己的计算器历史和Role记忆；不得读取或引用A的数据。\n不得操作计算器、清空或重输任何值。\nEffect policy: read_only\nRead-only task: observe and verify; do not modify device or business state.\nFinish only this task, then wait for Main.",
+      "injected_instruction": null,
+      "user_stop_requested": false,
+      "checker_success": null,
+      "run_outcome": null,
+      "current_step_id": null,
+      "open_incident": null,
+      "subagent_calls": []
+    },
+    "screenshot_present": false,
+    "hierarchy_present": false
+  }
+]
