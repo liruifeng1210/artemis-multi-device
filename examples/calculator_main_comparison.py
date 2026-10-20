@@ -99,7 +99,10 @@ async def monitor(main, folder, done):
                         "pid":worker.process.pid,"device":worker.role.device_id}
                     # Observe only at task boundaries. Busy workers return cached state.
                     try:
-                        snapshot["inspection"] = await main.inspect(task.role_id, {"limit":10})
+                        snapshot["inspection"] = await main.inspect(task.role_id, {"limit":100})
+                        transcript = snapshot["inspection"].get("sections",{}).get("transcript") or {}
+                        snapshot["conversation_tail"] = transcript.get("messages",[])[-2:]
+                        snapshot["transcript_next_offset"] = transcript.get("next_offset")
                     except Exception as exc:
                         snapshot["inspection_error"] = repr(exc)
                     save(folder / "boundaries" / key / "result.json", snapshot)
