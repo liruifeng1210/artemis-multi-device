@@ -41,6 +41,10 @@ def capture(serial, path):
 
 async def monitor(main, folder, done):
     captured, cancel_at, cancelled = set(), {}, set()
+    dispatched, proposals = set(), set()
+    def observed(kind, **data):
+        with (folder / "observer-events.jsonl").open("a", encoding="utf-8") as out:
+            out.write(json.dumps({"observed_at":stamp(),"kind":kind,**data},ensure_ascii=False)+"\n")
     with (folder / "process-samples.jsonl").open("a", encoding="utf-8") as stream:
         last_sample = 0
         while not done.is_set():
@@ -56,8 +60,21 @@ async def monitor(main, folder, done):
                 stream.flush()
                 last_sample = time.monotonic()
             if hasattr(main, "scheduler"):
+                for proposal in main.planner.history:
+                    digest = json.dumps(proposal, sort_keys=True)
+                    if digest not in proposals:
+                        proposals.add(digest)
+                        observed("model_proposal", proposal=proposal)
                 for key in list(main.running):
                     task = main.scheduler.tasks[key]
+                    attempt = main.running[key][0]
+                    if (key, attempt) not in dispatched:
+                        dispatched.add((key, attempt))
+                        worker = main.dispatched_workers[(key, attempt)]
+                        observed("dispatch_seen",task_id=key,attempt_id=attempt,
+                            role=task.role_id,device=worker.role.device_id,
+                            session=worker.session_id,pid=worker.process.pid,
+                            display_name=task.display_name)
                     if task.role_id == "A" and task.display_name == "cancel-A" and key not in cancelled:
                         cancel_at.setdefault(key, time.monotonic()+20)
                         if time.monotonic() >= cancel_at[key]:
