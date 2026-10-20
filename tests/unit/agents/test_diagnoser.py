@@ -337,7 +337,8 @@ async def test_run_tool_message_status_is_structural(
 # --- submit_answer rendering ------------------------------------------------------------
 
 
-def test_submit_answer_renders_numbered_steps(mock_context):
+@pytest.mark.asyncio
+async def test_submit_answer_renders_numbered_steps(mock_context):
     agent = Diagnoser(mock_context)
     call = {
         "name": "submit_answer",
@@ -347,7 +348,7 @@ def test_submit_answer_renders_numbered_steps(mock_context):
         },
     }
 
-    outcome = agent._handle_submit_call(call, [])
+    outcome = await agent._handle_submit_call(call, [])
 
     assert outcome == (
         "Analysis: Airplane mode blocks the toggle.\n"
@@ -357,14 +358,29 @@ def test_submit_answer_renders_numbered_steps(mock_context):
     )
 
 
-def test_submit_answer_without_steps_omits_section(mock_context):
+@pytest.mark.asyncio
+async def test_submit_answer_without_steps_omits_section(mock_context):
     agent = Diagnoser(mock_context)
     call = {
         "name": "submit_answer",
         "args": {"analysis": "Nothing to fix.", "actionable_steps": []},
     }
 
-    outcome = agent._handle_submit_call(call, [])
+    outcome = await agent._handle_submit_call(call, [])
 
     assert outcome == "Analysis: Nothing to fix."
     assert "Actionable" not in outcome
+
+
+@pytest.mark.asyncio
+async def test_submit_answer_uses_managed_roles_async_tool(mock_context):
+    from types import SimpleNamespace
+    from artemis.tools.diagnoser_submit_answer_tool import submit_answer
+    # A real managed Role tool deliberately rejects sync invoke. The actual
+    # submission must stay on this event loop and still return the diagnosis.
+    ctx = SimpleNamespace(session_resources=object(), device=None)
+    tool = submit_answer.to_langchain_tool(ctx)
+    agent = Diagnoser(mock_context)
+    call = {"name":"submit_answer","args":{"analysis":"screen is blank","actionable_steps":[]}}
+    result = await agent._handle_submit_call(call, [tool])
+    assert result == "Analysis: screen is blank"

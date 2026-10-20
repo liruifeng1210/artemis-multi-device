@@ -339,7 +339,7 @@ class Diagnoser:
             None,
         )
 
-    def _handle_submit_call(self, submit_call: dict, traced_tools: list) -> str:
+    async def _handle_submit_call(self, submit_call: dict, traced_tools: list) -> str:
         """Records the submitted answer and renders it as the run's outcome."""
         args = submit_call["args"]
         analysis = args.get("analysis", "No analysis provided.")
@@ -354,7 +354,7 @@ class Diagnoser:
             None,
         )
         if submit_tool:
-            submit_tool.invoke(args)
+            await submit_tool.ainvoke(args)
 
         outcome = f"Analysis: {analysis}"
         if steps:
@@ -575,7 +575,7 @@ class Diagnoser:
 
                 submit_call = self._find_submit_call(response.tool_calls)
                 if submit_call:
-                    outcome = self._handle_submit_call(submit_call, traced_tools)
+                    outcome = await self._handle_submit_call(submit_call, traced_tools)
                     break
 
                 if i == _MAX_ITERATIONS - 1:
