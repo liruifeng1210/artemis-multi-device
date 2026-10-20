@@ -60,13 +60,6 @@ from artemis.tools.tool_wrapper import (
 )
 from artemis.utils.task_tree import format_actions_clean
 from artemis.utils.ocr_api import is_ocr_configured, perform_ocr
-from artemis.utils.ocr_xml_fusion import (
-    _crop_image_remove_status_bar,
-    _detect_status_bar_height,
-    _map_coordinates_back,
-    fuse_ocr_with_xml,
-)
-from artemis.utils.visualization import format_minimal_list_with_elements
 from third_party.mobile_use.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -409,6 +402,18 @@ def _display_check_item(item) -> str:
     return f"- [{item.kind}] ({item.when}) {item.text}"
 
 
+def _matches_check_item_text(item, text: str) -> bool:
+    if text in (item.text, _display_check_item(item), _display_check_item(item).removeprefix("- ")):
+        return True
+    # Contract labels are presentation metadata. A completely omitted label is
+    # recoverable only from the exact full description; an explicit label is
+    # never discarded or corrected, even when its description happens to match.
+    if "[contract:" in text.lower():
+        return False
+    contract = re.fullmatch(r"\[contract:[A-Za-z0-9_-]{1,64}\] (.+)", item.text, flags=re.DOTALL)
+    return contract is not None and text == contract[1]
+
+
 # --- Shared tool loop ----------------------------------------------------------------
 
 
@@ -440,13 +445,12 @@ def _normalize_report(report: CheckReport, check_items: list) -> CheckReport:
     verdicts: list[CheckVerdict] = []
     for v in report.verdicts:
         # Models sometimes quote our complete display line. Only undo that exact
-        # presentation wrapper for one declared item of the same kind. Never
-        # infer identity from a contract id or from a paraphrased description.
+        # presentation wrapper or omitted contract label for one declared item
+        # of the same kind. Count all alias candidates together, so a plain item
+        # and contract item sharing a description remain ambiguous.
         matches = [
             ci for ci in check_items
-            if ci.kind == v.kind and v.item_text in (
-                ci.text, _display_check_item(ci), _display_check_item(ci).removeprefix("- ")
-            )
+            if ci.kind == v.kind and _matches_check_item_text(ci, v.item_text)
         ]
         if len(matches) == 1:
             v = v.model_copy(update={"item_text": matches[0].text})
@@ -758,38 +762,31 @@ async def run_checkpoint_check(
 
 
 async def _capture_final_screen(ctx: ArtemisContext) -> tuple[str | None, str]:
-    """Best-effort capture of the final live screen (final entry only)."""
+    """Capture final visual evidence without mixing in unverified hierarchy text."""
+    omitted = "Device hierarchy omitted because its freshness is not guaranteed."
     try:
         from artemis.controllers.unified_controller import UnifiedMobileController
 
         controller = UnifiedMobileController(ctx)
         device_data = await controller.get_screen_data()
         screenshot_b64 = device_data.base64
-        xml_hierarchy = device_data.elements
-        width = device_data.width
-        height = device_data.height
-
-        ocr_results = []
-        if is_ocr_configured():
-            try:
-                status_bar_height = _detect_status_bar_height(xml_hierarchy, height)
-                if status_bar_height > 0:
-                    cropped_b64, _, _ = _crop_image_remove_status_bar(
-                        screenshot_b64, status_bar_height
-                    )
-                    raw_ocr = await perform_ocr(cropped_b64)
-                    ocr_results = _map_coordinates_back(raw_ocr, status_bar_height)
-                else:
-                    ocr_results = await perform_ocr(screenshot_b64)
-            except Exception as e:
-                logger.warning(f"Final check OCR failed, proceeding without OCR: {e}")
-
-        fused_xml = fuse_ocr_with_xml(xml_hierarchy, ocr_results)
-        minimal_list, _, _ = format_minimal_list_with_elements(fused_xml, width, height)
-        return screenshot_b64, minimal_list
+        if not isinstance(screenshot_b64, str) or not screenshot_b64:
+            return None, "Final screenshot unavailable. " + omitted
+        if not is_ocr_configured():
+            return screenshot_b64, "OCR is not configured; inspect the attached screenshot directly. " + omitted
+        try:
+            # The snapshot API may deliver a newer screenshot beside stale UI
+            # nodes. Derive all text from this exact image, without XML-guided
+            # cropping or fusion with nodes captured at a different moment.
+            ocr_results = await perform_ocr(screenshot_b64)
+            recognized = json.dumps(ocr_results, ensure_ascii=False) if ocr_results else "(no text detected)"
+            return screenshot_b64, "OCR from the attached screenshot only. " + omitted + "\n" + recognized
+        except Exception as e:
+            logger.warning(f"Final check OCR failed, proceeding with screenshot only: {e}")
+            return screenshot_b64, "OCR unavailable; inspect the attached screenshot directly. " + omitted
     except Exception as e:
         logger.warning(f"Failed to capture final screen state: {e}")
-        return None, "Final screen state unavailable."
+        return None, "Final screenshot unavailable. " + omitted
 
 
 def _format_ledger(ledger: list[dict]) -> str:

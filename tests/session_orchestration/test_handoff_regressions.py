@@ -360,3 +360,28 @@ async def test_formal_main_cancel_completes_expected_terminal_and_reuses_worker(
         if not run.done():
             run.cancel()
         await asyncio.gather(run, return_exceptions=True)
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("variants,expected", [(["bare"], "succeeded"), (["bare", "failed"], "blocked"), (["bare", "bare"], "blocked")])
+async def test_missing_contract_label_is_exact_and_duplicate_acceptance_stays_closed(tmp_path, variants, expected):
+    from artemis.agents.checker.checker import CheckReport, CheckVerdict, _normalize_report
+    from artemis.runtime.session_orchestration.contract import ContractVerifier
+    from artemis.utils.plan_grammar import CheckItem
+
+    description = "screen shows 125+75=200 and was cleared exactly once."
+    text = "[contract:value] " + description
+    spec = TaskSpec(goal="read", execution_timeout_seconds=10,
+                    completion=[Completion(id="value", description=description)])
+    report = _normalize_report(CheckReport(verdicts=[CheckVerdict(
+        item_text=description if variant == "bare" else text,
+        kind="verify", status="failed" if variant == "failed" else "passed", evidence="screen evidence",
+    ) for variant in variants]), [CheckItem(kind="verify", when="at_end", text=text, parent_key=None)])
+    store = SimpleNamespace(root=tmp_path, path=tmp_path / "task", finish=lambda result, paths: result)
+    verifier = ContractVerifier(spec, store)
+    native = SimpleNamespace(completion_data={"outputs": {}, "report": report.model_dump()},
+                             cancelled=False, execution_error=None, session_reusable=True)
+    ctx = SimpleNamespace(active_task=SimpleNamespace(start_step_exclusive=0, end_step_inclusive=0),
+                          task_artifact_paths=set())
+    await verifier.persist(ctx, native)
+    assert verifier.result.status == expected
+    assert verifier.result.checks[0].verdict == ("passed" if expected == "succeeded" else "inconclusive")

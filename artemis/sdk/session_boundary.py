@@ -62,6 +62,10 @@ async def settle_task(ctx, state, timeout_seconds=30.0) -> dict:
         if service is not None:
             try:
                 await asyncio.wait_for(service.flush(timeout_seconds=remaining() / 2), remaining())
+                runtime = getattr(service, "capsule_service", service)
+                pending = getattr(runtime, "_pending_tasks", {})
+                if any(not task.done() for task in pending.values()):
+                    raise RuntimeError("Memory flush returned with an active producer")
             except Exception as exc:
                 # A failed flush cannot prove that its private producers stopped.
                 raise RuntimeError("Memory producers did not settle") from exc

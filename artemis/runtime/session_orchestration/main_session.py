@@ -400,6 +400,7 @@ class MainSession:
                 self.diagnostic_history.append({"role_id": role, "error": repr(exc)})
         self.diagnostic_history[:] = self.diagnostic_history[-8:]
         for planning_attempt in range(1, 4):
+            proposal = None
             try:
                 proposal = await asyncio.wait_for(
                     self.planner.propose(
@@ -425,6 +426,16 @@ class MainSession:
                         self.diagnostic_history.append(
                             {"role_id": request.role_id, "kind": request.kind, "data": data}
                         )
+                    deferred = {
+                        "kind": "plan_deferred",
+                        "submitted_base_plan_revision": proposal.base_plan_revision,
+                        "current_plan_revision": self.scheduler.revision,
+                        "expected_base_plan_revision": self.scheduler.revision,
+                        "tasks_applied": False,
+                        "reason": "Diagnostic proposals only query; tasks, recoveries and restarts were not committed.",
+                    }
+                    self.journal.append(deferred)
+                    self.diagnostic_history.append(deferred)
                     self.diagnostic_history[:] = self.diagnostic_history[-8:]
                     continue
                 if proposal.missing_input:
@@ -463,6 +474,9 @@ class MainSession:
                     "kind": "plan_rejected" if isinstance(exc, ValueError) else "plan_timeout",
                     "planning_attempt": planning_attempt,
                     "base_plan_revision": self.scheduler.revision,
+                    "submitted_base_plan_revision": getattr(proposal, "base_plan_revision", None),
+                    "current_plan_revision": self.scheduler.revision,
+                    "expected_base_plan_revision": self.scheduler.revision,
                     "error": str(exc)[:4000] or type(exc).__name__,
                 }
                 self.journal.append(rejection)

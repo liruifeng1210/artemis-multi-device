@@ -231,7 +231,9 @@ class Recovery(Model):
 
 
 class PlanProposal(Model):
-    base_plan_revision: int = Field(ge=0)
+    base_plan_revision: int = Field(
+        ge=0, description="Copy the current plan revision exactly; this is not the next revision."
+    )
     tasks: list[WorkflowTask] = Field(default_factory=list)
     finish: bool = False
     missing_input: str | None = None

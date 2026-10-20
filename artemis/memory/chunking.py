@@ -1829,5 +1829,13 @@ class HistoryChunkManager:
             logger.debug(f"Capsule service flush failed; skipped: {exc}", exc_info=True)
         try:
             self._harvest_capsules()
+            # Readiness harvested at shutdown is evidence of a saved summary,
+            # not proof that it has replaced the original context.
+            for entry in self._awaiting:
+                chunk = entry["chunk"]
+                if chunk is not None and chunk.status == "ready":
+                    self._announce(
+                        chunk, "running", phase=COMPRESSION_PHASE_READY, note="ready_at_flush"
+                    )
         except Exception as e:
             logger.debug(f"Chunk capsule harvest at flush skipped: {e}")

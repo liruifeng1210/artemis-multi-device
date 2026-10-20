@@ -22,7 +22,7 @@ class Scheduler:
 
     def apply(self, tasks, base_revision, recoveries=()):
         if base_revision != self.revision:
-            raise ValueError("Stale plan revision")
+            raise ValueError(f"Stale plan revision: submitted {base_revision}, expected {self.revision}")
         updated = dict(self.tasks)
         for task in tasks:
             if task.role_id not in self.roles:

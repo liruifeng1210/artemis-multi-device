@@ -118,6 +118,11 @@ async def monitor(main, folder, done):
 async def main(args):
     folder = Path(args.output).resolve()
     folder.mkdir(parents=True, exist_ok=True)
+    history_semantics = (
+        "本次“历史/首次结果保留”指当前Role/Session真实已归档任务结果、步骤、截图和持久notes，"
+        "不是计算器应用的历史记录界面，不要求打开该界面。首次结果必须来自这些原始执行证据或真实观察；"
+        "需要报告当前值时重新观察屏幕，不得凭目标中的预填数值推断已完成。"
+    )
     continuity = (
         "在两台计算器完成连续计算。第一轮A清空一次后125+75=200，B清空一次后48÷6=8，可并发。"
         "第二轮各自保持原Session、连接和历史：A接屏幕结果×3期望600，B接屏幕结果+17期望25。"
@@ -146,13 +151,13 @@ async def main(args):
         "A后续任务依赖cancel-A的任意终态（尤其cancelled）。B最后仅根据自己的历史报告"
         "首次计算结果和当前结果。不得清空或重输旧值。把这些任务全都纳入计划。"
     )
-    workflow = WorkflowSpec(goal={"continuity":continuity,"cancellation":cancellation,"all":combined}[args.scenario],
+    workflow = WorkflowSpec(goal={"continuity":continuity,"cancellation":cancellation,"all":combined}[args.scenario]+history_semantics,
         roles=[RoleSpec(role_id="A",device_id=args.device_a,description="MI6计算器com.miui.calculator；持续Role记忆首次和当前值"),
                RoleSpec(role_id="B",device_id=args.device_b,description="PJZ110计算器com.coloros.calculator；持续Role记忆首次和当前值")],
         root=folder, max_workflow_seconds=4500, max_artifact_bytes=1024**3,
         expected_cancellations=([{"role_id":"A", "display_name":"cancel-A"}] if args.scenario != "continuity" else []),
         startup_timeout_seconds=180, close_timeout_seconds=90, max_attempts_per_task=1,
-        constraints=["仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+        constraints=[history_semantics, "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
             "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
             "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
             "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。"])

@@ -53,7 +53,8 @@ def export(source, target, log=None):
         return target/compact
     for name in ['sessions.json','timeline.json','config.json','closed.json','request.json',
                  'outcome.json','cancel.json','cancel-error.json','error.json','model-process-evidence.json',
-                 'cleanup-probe.json','source.json','ownership-audit.json','execution-audit.json','evidence-omissions.json']:
+                 'cleanup-probe.json','source.json','ownership-audit.json','execution-audit.json','evidence-omissions.json',
+                 'checker-observation-conflict.json']:
         p = source / name
         if p.exists(): write(target / name, json.loads(p.read_text(encoding='utf-8')))
     result_file = source / 'results.json'
@@ -184,6 +185,11 @@ def export(source, target, log=None):
         for r in connection.execute('select * from traces order by timestamp'):
             row=dict(r);payload=json.loads(row.pop('payload') or '{}')
             row['execution']=payload.get('execution',{})
+            if payload.get('termination_reason'):
+                row['termination_reason']=payload['termination_reason']
+            if row['name']=='compress_history':
+                row['compression_state']={k:v for k,v in (payload.get('args') or {}).items()
+                    if k in {'phase','chunk_id','start_step_id','end_step_id','start_step_number','end_step_number'}}
             if row['type']=='action': row['action']=payload.get('action');row['success']=payload.get('success')
             if row['type']=='log' and 'CODEX_CALL' in str(payload.get('message','')):
                 row['model_process_event']=payload['message']

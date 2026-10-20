@@ -23,6 +23,7 @@ class MainPlanner:
             "expected_cancellations": [item.model_dump() for item in workflow.expected_cancellations],
             "roles": [r.model_dump() for r in workflow.roles],
             "revision": scheduler.revision,
+            "expected_base_plan_revision": scheduler.revision,
             "tasks": [t.model_dump(mode="json") for t in scheduler.tasks.values()],
             "results": {k: v.model_dump(mode="json") for k, v in scheduler.results.items()},
             "facts": [
@@ -40,7 +41,13 @@ class MainPlanner:
                 content=(
                     "You are Main, coordinating persistent Artemis roles. Propose a valid acyclic "
                     "task graph. Workers only execute assigned tasks. Every task needs explicit "
-                    "completion criteria and typed outputs. Split submission from approval to avoid "
+                    "completion criteria and typed outputs. "
+                    "base_plan_revision must copy the current revision exactly, never the next revision. "
+                    "A proposal containing diagnostics only runs queries: its tasks, recoveries and "
+                    "restart_roles are not committed and the revision does not advance. Submit those "
+                    "changes again after consuming the diagnostic results. recent_proposals contains "
+                    "submitted history, not proof of accepted plans; current tasks and revision are authoritative. "
+                    "Split submission from approval to avoid "
                     "deadlocks. Preserve executed tasks. Use UUID task IDs and input bindings "
                     "{from_task: UUID, key: output_key}. Do not retry uncertain side effects. "
                     "Request inspect/observe diagnostics when evidence is insufficient; you will get "

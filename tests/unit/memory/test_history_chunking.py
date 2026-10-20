@@ -1052,6 +1052,10 @@ async def test_flush_harvests_late_capsule_and_persists_ready_version():
     assert chunk.version == 2
     ready_rows = [w for w in engine.chunk_writes[v1_writes:] if w["status"] == "ready"]
     assert ready_rows and ready_rows[-1]["version"] == 2
+    ready_trace = [trace for trace in engine.traces if trace["trace_id"] == chunk.trace_id][-1]
+    assert ready_trace["status"] == "running"
+    assert ready_trace["payload"]["args"]["phase"] == "ready"
+    assert ready_trace["payload"]["args"]["note"] == "ready_at_flush"
     # Flush drains and persists but never freezes the transcript.
     assert ledger.frozen_blocks == ()
 

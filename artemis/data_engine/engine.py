@@ -1028,26 +1028,41 @@ class DataEngine:
         if not self.current_session_id:
             raise ValueError("No active session. Call start_session first.")
 
-        trace_id = trace_id or uuid4()
+        trace_id = UUID(str(trace_id or uuid4()))
 
         with self.lock:
             if not hasattr(self, "_trace_owners"):
                 self._trace_owners = {}
                 self._live_traces = {}
+                self._trace_provenance = {}
+                self._deferred_compression_traces = set()
+                self._settled_trace_owners = {}
+            current_owner = execution_metadata(self.ctx)
+            current_owner["session_id"] = str(self.current_session_id)
             owner = self._trace_owners.get(trace_id)
             if owner is None:
-                owner = execution_metadata(self.ctx)
-                owner["session_id"] = str(self.current_session_id)
-            if status == "running":
+                owner = current_owner
                 self._trace_owners[trace_id] = owner
-                self._live_traces[trace_id] = {
-                    "type": type, "name": name, "payload": dict(payload),
+                self._trace_provenance[trace_id] = {
                     "step_id": step_id, "parent_trace_id": parent_trace_id,
                     "started_monotonic": time.monotonic(),
                 }
+            provenance = self._trace_provenance[trace_id]
+            step_id, parent_trace_id = provenance["step_id"], provenance["parent_trace_id"]
+            if status == "running":
+                if trace_id in self._deferred_compression_traces:
+                    return trace_id
+                self._live_traces[trace_id] = {
+                    "type": type, "name": name, "payload": dict(payload),
+                    "step_id": step_id, "parent_trace_id": parent_trace_id,
+                    "started_monotonic": provenance["started_monotonic"],
+                }
             else:
-                self._trace_owners.pop(trace_id, None)
                 self._live_traces.pop(trace_id, None)
+                if name == "compress_history" and status == "terminated":
+                    self._deferred_compression_traces.add(trace_id)
+                else:
+                    self._deferred_compression_traces.discard(trace_id)
             self._trace_counter = getattr(self, "_trace_counter", 0) + 1
             trace_ts = time.time() + (self._trace_counter * 1e-7)
             if not hasattr(self, "_trace_name_cache"):
@@ -1097,16 +1112,26 @@ class DataEngine:
             raise ValueError("Unfinished traces cannot be marked successful")
         scope = execution_metadata(self.ctx)
         scope["session_id"] = str(self.current_session_id)
+        if not scope.get("task_id") or not scope.get("attempt_id"):
+            raise ValueError("Trace finalization requires an exact task attempt")
         with self.lock:
+            if not hasattr(self, "_settled_trace_owners"):
+                self._settled_trace_owners = {}
+            self._settled_trace_owners[tuple(sorted(scope.items()))] = status
             unfinished = [
-                (key, dict(value))
+                (key, dict(value), self._settled_trace_owners[tuple(sorted(self._trace_owners[key].items()))])
                 for key, value in getattr(self, "_live_traces", {}).items()
-                if self._trace_owners[key] == scope
+                if self._trace_owners[key].get("session_id") == str(self.current_session_id)
+                and tuple(sorted(self._trace_owners[key].items())) in self._settled_trace_owners
             ]
-        for trace_id, value in unfinished:
+        for trace_id, value, terminal in unfinished:
             value["duration"] = max(0, time.monotonic() - value.pop("started_monotonic"))
-            value["payload"]["termination_reason"] = "task_producers_settled_without_trace_completion"
-            self.record_trace(trace_id=trace_id, status=status, **value)
+            if value["name"] == "compress_history" and (value["payload"].get("args") or {}).get("phase") == "ready":
+                terminal = "terminated"
+                value["payload"]["termination_reason"] = "task_boundary_context_swap_deferred; summary state retained in history_chunks"
+            else:
+                value["payload"]["termination_reason"] = "task_producers_settled_without_trace_completion"
+            self.record_trace(trace_id=trace_id, status=terminal, **value)
 
     def record_failed_output(
         self,

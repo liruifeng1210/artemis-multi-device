@@ -820,3 +820,76 @@ async def test_check_loop_tool_message_status_is_structural(result, expected_sta
     assert tool_msgs[0].tool_call_id == "c1"
     assert tool_msgs[0].status == expected_status
     assert tool_msgs[0].content == str(result)
+
+
+def test_contract_label_omission_matches_only_the_complete_exact_description():
+    description = "屏幕显示125+75的结果200，且本任务仅清空了一次。"
+    item = _ci(when="at_end", text=f"[contract:screen_shows_200] {description}")
+    original = CheckReport(verdicts=[CheckVerdict(
+        item_text=description, kind="verify", status="passed", evidence="screen shows 125+75=200",
+    )])
+    normalized = _normalize_report(original, [item])
+    assert len(normalized.verdicts) == 1
+    assert normalized.verdicts[0].item_text == item.text
+    assert normalized.verdicts[0].status == "passed"
+    assert original.verdicts[0].item_text == description
+
+
+
+@pytest.mark.parametrize("text,kind", [
+    ("[contract:wrong] screen shows 8.", "verify"),
+    ("[CONTRACT:wrong] screen shows 8.", "verify"),
+    ("[contract:result]", "verify"),
+    ("screen shows 9.", "verify"),
+    ("screen shows 8. ", "verify"),
+    ("screen shows 8", "verify"),
+    ("screen shows 8.", "assert"),
+])
+def test_contract_label_omission_does_not_repair_wrong_ids_or_changed_text(text, kind):
+    item = _ci(when="at_end", text="[contract:result] screen shows 8.")
+    normalized = _normalize_report(CheckReport(verdicts=[CheckVerdict(
+        item_text=text, kind=kind, status="passed", evidence="screen",
+    )]), [item])
+    canonical = [v for v in normalized.verdicts if v.kind == item.kind and v.item_text == item.text]
+    assert len(canonical) == 1 and canonical[0].status == "inconclusive"
+
+
+
+@pytest.mark.parametrize("second", ["[contract:other] screen shows 8.", "screen shows 8."])
+def test_contract_description_shared_with_another_declared_item_is_ambiguous(second):
+    contract = _ci(when="at_end", text="[contract:result] screen shows 8.")
+    other = _ci(when="at_end", text=second)
+    normalized = _normalize_report(CheckReport(verdicts=[CheckVerdict(
+        item_text="screen shows 8.", kind="verify", status="passed", evidence="screen",
+    )]), [contract, other])
+    canonical = [v for v in normalized.verdicts if v.item_text == contract.text]
+    assert len(canonical) == 1 and canonical[0].status == "inconclusive"
+    if second.startswith("[contract:"):
+        assert next(v for v in normalized.verdicts if v.item_text == other.text).status == "inconclusive"
+
+
+
+@pytest.mark.parametrize("second_status,second_text", [
+    ("failed", "[contract:result] screen shows 8."),
+    ("passed", "screen shows 8."),
+])
+def test_contract_description_alias_keeps_duplicate_verdicts(second_status, second_text):
+    item = _ci(when="at_end", text="[contract:result] screen shows 8.")
+    normalized = _normalize_report(CheckReport(verdicts=[
+        CheckVerdict(item_text="screen shows 8.", kind="verify", status="passed", evidence="screen 8"),
+        CheckVerdict(item_text=second_text, kind="verify", status=second_status, evidence="other screen"),
+    ]), [item])
+    assert len(normalized.verdicts) == 2
+    assert [v.status for v in normalized.verdicts] == ["passed", second_status]
+    assert all(v.item_text == item.text for v in normalized.verdicts)
+
+
+
+def test_contract_description_alias_never_crosses_check_kinds():
+    verify = _ci(when="at_end", text="[contract:result] screen shows 8.")
+    assertion = _ci(kind="assert", when="at_end", text="[contract:assertion] screen shows 8.")
+    normalized = _normalize_report(CheckReport(verdicts=[CheckVerdict(
+        item_text="screen shows 8.", kind="verify", status="passed", evidence="screen 8",
+    )]), [verify, assertion])
+    assert next(v for v in normalized.verdicts if v.item_text == verify.text).status == "passed"
+    assert next(v for v in normalized.verdicts if v.item_text == assertion.text).status == "inconclusive"
