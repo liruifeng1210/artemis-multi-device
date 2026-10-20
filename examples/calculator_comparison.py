@@ -118,12 +118,17 @@ async def main(args):
             event("open", role=name, device=serial, session=roles[name].session_id)
         save(folder / "sessions.json", {n: {"session_id": r.session_id, "device": args.devices[n]}
                                        for n, r in roles.items()})
-        await pair("01-initial", {
-            "A": "打开系统计算器 com.miui.calculator，清空本次输入，真实点击计算125+75并按等号。读取结果并记住首次结果，写入session_context，不再清空。",
-            "B": "打开系统计算器 com.coloros.calculator，清空本次输入，真实点击计算48÷6并按等号。读取结果并记住首次结果，写入session_context，不再清空。"})
-        await pair("02-continue", {
-            "A": "接着屏幕上轮结果乘3并按等号，期望600。不得清空或重新输入旧结果或旧算式。读真实屏幕，报告首次及当前结果。",
-            "B": "接着屏幕上轮结果加17并按等号，期望25。不得清空或重新输入旧结果或旧算式。读真实屏幕，报告首次及当前结果。"})
+        if args.scenario != "cancellation":
+            await pair("01-initial", {
+                "A": "打开系统计算器 com.miui.calculator，清空本次输入，真实点击计算125+75并按等号。读取结果并记住首次结果，写入session_context，不再清空。",
+                "B": "打开系统计算器 com.coloros.calculator，清空本次输入，真实点击计算48÷6并按等号。读取结果并记住首次结果，写入session_context，不再清空。"})
+            await pair("02-continue", {
+                "A": "接着屏幕上轮结果乘3并按等号，期望600。不得清空或重新输入旧结果或旧算式。读真实屏幕，报告首次及当前结果。",
+                "B": "接着屏幕上轮结果加17并按等号，期望25。不得清空或重新输入旧结果或旧算式。读真实屏幕，报告首次及当前结果。"})
+        else:
+            event("independent_scenario_new_sessions", detail="fresh Sessions, existing real screens; old Session continuity not claimed")
+        if args.scenario == "continuity":
+            return
         if all(r.status == "idle" for r in roles.values()):
             a = submit("A", "03-cancel", "在真实当前值上逐次加1并按等号30次，每次观察。不得合并成加30；收到取消立即停止。")
             b = submit("B", "03-independent", "在真实当前结果上乘4并按等号，期望100。不清空或重输旧值；读取并报告真实结果。")
@@ -138,6 +143,8 @@ async def main(args):
                                  return_exceptions=True)
         else:
             event("not_executed", label="03-cancel", reason="one role not reusable")
+        for name, serial in args.devices.items():
+            await asyncio.to_thread(capture, serial, folder / f"04-before-reuse-{name}")
         await pair("04-reuse", {
             "A": "上个任务已结束或取消。先重新读取真实屏幕当前值，不假设回滚，再在此值加10并按等号，不清空。报告前后值。",
             "B": "不操作设备，仅根据本Session历史报告首次计算结果和当前结果；不要通过重新计算替代记忆。"})
@@ -163,6 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--output", required=True)
     parser.add_argument("--timeout", type=float, default=900)
     parser.add_argument("--max-steps", type=int, default=100)
+    parser.add_argument("--scenario", choices=["all","continuity","cancellation"], default="all")
     parser.add_argument("--device-a", default="21850fc5")
     parser.add_argument("--device-b", default="a8acf864")
     args = parser.parse_args()
