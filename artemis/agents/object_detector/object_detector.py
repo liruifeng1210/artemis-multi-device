@@ -108,7 +108,7 @@ async def _run_object_detection(
     queries: list[str] | None = None,
     templates: list[str] | None = None,
     mime_type: str = "image/jpeg",
-    global_timeout: float = 30.0,
+    global_timeout: float | None = None,
     image_path: str | Path | None = None,
 ) -> dict:
     target_img = image_bytes if image_bytes is not None else image_path
@@ -133,6 +133,15 @@ async def _run_object_detection(
         timeout_val = float(raw_timeout)
     else:
         timeout_val = float(os.environ.get("OBJECT_DETECTOR_TIMEOUT", "10.0"))
+
+    # The signed-in CLI has a different latency budget from the native detector.
+    # Keep caller-provided global deadlines authoritative, including short tests.
+    endpoint = getattr(llm, "endpoint", None)
+    codex = getattr(endpoint, "provider", None) == "codex"
+    if codex:
+        timeout_val = max(timeout_val, float(endpoint.timeout_seconds))
+    if global_timeout is None:
+        global_timeout = max(30.0, timeout_val) if codex else 30.0
 
     tasks = [
         asyncio.create_task(
