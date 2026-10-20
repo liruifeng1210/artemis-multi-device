@@ -174,7 +174,7 @@
       },
       // 🎬 Video Analyzer & Screen Recording: Continuous screen recording via scrcpy and temporal analysis
       "video_analyzer": {
-        "enabled": true, // Whether continuous video recording and video tools are active (default: auto-detected)
+        "enabled": false, // Whether continuous video recording and video tools are active (default: auto-detected)
         "enable_ledger": true
       }
     },
@@ -254,7 +254,7 @@
     },
     // 🎬 Screen Recording & Video Analyzer Configuration
     "video_analyzer": {
-      "enabled": true, // Whether continuous screen recording via scrcpy is active (default: auto-detected)
+      "enabled": false, // Whether continuous screen recording via scrcpy is active (default: auto-detected)
       "enable_ledger": true
       // "processing": "auto", // How Gemini sub-agents watch a clip: auto (agentic on Gemini 3.6+ Flash, static elsewhere) | agentic | static
       // "agentic_chunk_size_seconds": 600, // Longest clip one agentic sub-agent takes; static mode keeps chunk_size_seconds (60)
