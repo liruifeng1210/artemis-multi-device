@@ -74,10 +74,23 @@ async def main(args):
               reusable=result.reusable, cleanup=result.cleanup_errors)
         await asyncio.to_thread(capture, args.devices[name], folder / f"{label}-{name}")
         resource = role.resources
+        ledger = resource.ledger
+        tail = []
+        for message in (ledger.active_messages[-2:] if ledger else []):
+            content = message.content
+            if not isinstance(content, str):
+                content = "\n".join(b.get("text", "") for b in content if isinstance(b, dict))
+            tail.append({"type":message.type,"text":content[-4000:],
+                         "tool_calls":[c["name"] for c in getattr(message,"tool_calls",[])]})
         save(folder / f"{label}-{name}" / "boundary.json", {
             "session": role.session_id, "context_id": id(resource.context),
             "driver_id": id(resource.driver), "ledger_id": id(resource.ledger),
             "role_status": role.status, "continuity": role._continuity.records,
+            "ledger_turn_count": ledger.turn_count if ledger else None,
+            "ledger_has_staged_turn": ledger.has_staged_turn if ledger else None,
+            "ledger_task_key": getattr(ledger,"_task_key",None),
+            "conversation_tail": tail,
+            "retained_runs": len(role._retained_runs),
             "background_tasks": len(resource.context.background_tasks),
             "background_jobs": len(resource.context.background_jobs)})
         return result
