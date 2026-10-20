@@ -45,6 +45,7 @@ async def main(args):
     folder = Path(args.output).resolve()
     folder.mkdir(parents=True, exist_ok=True)
     records, roles, events = [], {}, []
+    observers = []
     stop = asyncio.Event()
     sampler = asyncio.create_task(sample(folder, stop))
     config = AgentConfigBuilder().with_video_recording_tools(False).build()
@@ -60,6 +61,26 @@ async def main(args):
         events.append(row)
         save(folder / "timeline.json", events)
         print(json.dumps(row, ensure_ascii=False), flush=True)
+
+    async def observe_activation(name, label, handle):
+        for _ in range(400):
+            active = roles[name]._active
+            if active and active['handle'].task_id == handle.task_id:
+                state = active['state'].model_dump()
+                keys = ['initial_goal','injected_instruction','user_stop_requested','checker_success',
+                        'run_outcome','operator_raw_data',
+                        'current_step_id','open_incident','subagent_calls']
+                # Observe only. This does not reset state or dispatch any action.
+                save(folder / f'{label}-{name}' / 'activation.json', {
+                    'time':stamp(),'session':roles[name].session_id,'task':handle.task_id,
+                    'attempt':handle.attempt_id,'task_context_id':id(active['ctx']),
+                    'control_id':id(active['control']),'scope':active['scope'].metadata(),
+                    'state':{k:state.get(k) for k in keys},
+                    'screenshot_present':state.get('latest_screenshot') is not None,
+                    'hierarchy_present':state.get('latest_ui_hierarchy') is not None})
+                return
+            await asyncio.sleep(.025)
+        event('activation_not_observed',role=name,task=handle.task_id)
 
     async def collect(name, label, handle):
         role = roles[name]
@@ -100,6 +121,7 @@ async def main(args):
         handle = role.submit(TaskRequest(goal=goal, profile="pro", max_steps=args.max_steps))
         event("submit", role=name, label=label, session=role.session_id,
               device=args.devices[name], task=handle.task_id, attempt=handle.attempt_id, goal=goal)
+        observers.append(asyncio.create_task(observe_activation(name, label, handle)))
         return handle
 
     async def pair(label, goals):
@@ -151,6 +173,7 @@ async def main(args):
     except Exception as exc:
         event("harness_error", error=repr(exc))
     finally:
+        await asyncio.gather(*observers, return_exceptions=True)
         for name, role in roles.items():
             try:
                 await role.close()
