@@ -169,11 +169,19 @@ class WorkflowTask(Model):
     spec: TaskSpec
     depends_on: list[Dependency] = Field(default_factory=list)
     dependency_mode: Literal["all", "any"] = "all"
+    expected_terminal_statuses: list[Literal["succeeded", "cancelled"]] = Field(
+        default_factory=lambda: ["succeeded"], min_length=1
+    )
 
     @model_validator(mode="after")
     def valid_id(self):
         UUID(self.task_id)
         return self
+
+
+class ExpectedCancellation(Model):
+    role_id: str
+    display_name: str = Field(min_length=1)
 
 
 class WorkflowSpec(Model):
@@ -182,6 +190,7 @@ class WorkflowSpec(Model):
     roles: list[RoleSpec] = Field(min_length=1)
     constraints: list[str] = Field(default_factory=list)
     tasks: list[WorkflowTask] = Field(default_factory=list)
+    expected_cancellations: list[ExpectedCancellation] = Field(default_factory=list)
     root: Path
     max_workflow_seconds: float = Field(gt=0)
     max_artifact_bytes: int = Field(gt=0)

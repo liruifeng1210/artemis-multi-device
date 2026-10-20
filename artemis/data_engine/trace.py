@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import base64
+import asyncio
 from collections.abc import Callable
 import contextlib
 import functools
@@ -483,7 +484,7 @@ def trace(
                     payload["result"] = serializer(result)
                 else:
                     payload["result"] = smart_serialize(result)
-            elif status == "failed":
+            elif status in ("failed", "cancelled"):
                 payload["error"] = serialize_error(error)
 
             step_id = None
@@ -544,6 +545,12 @@ def trace(
                     parent_id,
                 )
                 return result
+            except asyncio.CancelledError as exc:
+                _record(
+                    ctx_obj, args, kwargs, None, "cancelled", time.time() - start_time,
+                    trace_id, parent_id, error=exc,
+                )
+                raise
             except Exception as e:
                 duration = time.time() - start_time
                 _record(

@@ -46,6 +46,8 @@ class Worker:
         self.close_reason = "main_disconnected"
         self._execution_started = False
         self._cancel_before_start = False
+        self._execution_timed_out = False
+        self._external_cancel_requested = False
 
     def message(self, kind, payload=None, reply=None, task=None, attempt=None):
         self.sequence += 1
@@ -248,6 +250,8 @@ class Worker:
         self.active_hash = digest(msg.payload)
         self._execution_started = False
         self._cancel_before_start = False
+        self._execution_timed_out = False
+        self._external_cancel_requested = False
         self.active = asyncio.create_task(self.execute(msg, spec, store))
 
     def cancel(self, task_id, attempt_id):
@@ -260,12 +264,18 @@ class Worker:
         if not self._execution_started:
             self._cancel_before_start = True
             return {"accepted": True}
-        return self.session.request_cancel(task_id, attempt_id)
+        if self._execution_timed_out:
+            return {"accepted": False, "code": "execution_timeout"}
+        result = self.session.request_cancel(task_id, attempt_id)
+        if result.get("accepted") is True:
+            self._external_cancel_requested = True
+        return result
 
     async def execute(self, msg, spec, store):
         async def watchdog():
             await asyncio.sleep(spec.execution_timeout_seconds)
-            if self.session.state == "EXECUTING":
+            if self.session.state == "EXECUTING" and not self._external_cancel_requested:
+                self._execution_timed_out = True
                 self.session.request_cancel(msg.task_id, msg.attempt_id)
 
         guard = None
@@ -335,6 +345,10 @@ class Worker:
                         "state": self.session.state if self.session else "STARTING",
                         "active_attempt": self.active_identity,
                         "pending_results": len(self.pending_results),
+                        "active_traces": (
+                            self.session.context.data_engine.active_trace_snapshot()
+                            if getattr(self.session, "context", None) is not None else []
+                        ),
                     },
                 )
             except (OSError, ConnectionError, TimeoutError):
@@ -363,6 +377,7 @@ class Worker:
                         session_id=self.binding["child_session_id"],
                         profile=self.config["profile"],
                         goal=self.config["role_goal"],
+                        execution_owner=dict(self.binding),
                         traces_path=Path(self.config["traces_root"]),
                         app_path=Path(self.config["app_path"])
                         if self.config.get("app_path")
@@ -371,6 +386,7 @@ class Worker:
                     )
                 )
                 await self.session.__aenter__()
+                self.session.context.execution_owner = dict(self.binding)
             self.state = "READY"
             await self.send("ready", {"state": "READY"})
             await self.stop.wait()

@@ -31,6 +31,7 @@ class SessionOptions:
     locked_app_package: str | None = None
     settlement_timeout_seconds: float = 30
     max_resident_tasks: int = 20
+    execution_owner: dict = field(default_factory=dict)
 
     def __post_init__(self):
         UUID(self.session_id)
@@ -69,6 +70,7 @@ class PersistentSession:
         self._closed_report = None
         self._snapshot = {}
         self._query_lock = asyncio.Lock()
+        self._terminal_history = []
 
     async def __aenter__(self):
         if self.context is not None or self._closed_report is not None:
@@ -123,6 +125,7 @@ class PersistentSession:
                 ui_adb_client=self.agent._ui_adb_client,
                 llm_config=profile.llm_config,
                 agent_config=self.agent._config,
+                execution_owner=dict(self.options.execution_owner),
             )
             request = TaskRequest(
                 goal=self.options.goal,
@@ -211,6 +214,20 @@ class PersistentSession:
             ctx.operation_tracker = TaskOperationTracker()
             scope.start_step_exclusive = ctx.data_engine.current_step_number
             ctx.data_engine.begin_task(scope)
+            # System handoff facts are distinct from device logs. Keep the
+            # caller's request unchanged and expose only this session's settled
+            # attempts; cancellation never promises device-state rollback.
+            request = request.model_copy(deep=True)
+            if self._terminal_history:
+                import json
+                request.goal += (
+                    "\nSession handoff (system lifecycle facts, not device logs):\n"
+                    + json.dumps(self._terminal_history[-10:], ensure_ascii=False)
+                    + "\nThese attempts have settled. Cancellation does not roll back device state. "
+                    "Read the actual screen before continuing. Persistent notes and session "
+                    "history remain available through read_note/list_notes and history tools. "
+                    "Historical outcomes do not complete or verify the current task."
+                )
             self.latest_state = None
             self._snapshot = {}
             task = Task(
@@ -281,12 +298,24 @@ class PersistentSession:
                 result.execution_error = "cancelled"
             # This is a native lifecycle guarantee, including SDK callers which
             # do not install an orchestration completion callback.
+            ctx.data_engine.finalize_task_traces("cancelled" if result.cancelled else "failed")
+            await ctx.data_engine.flush(self.options.settlement_timeout_seconds)
             store.archive(getattr(ctx, "task_artifact_paths", ()))
             self.state = "COMMITTING"
             result.session_reusable = True
             if completion is not None:
                 result.persistence_ref = await completion.persist(ctx, result)
             ctx.data_engine.end_task()
+            self._terminal_history.append({
+                **scope.metadata(), "goal": scope.goal[:1000],
+                "cancelled": result.cancelled, "execution_error": result.execution_error,
+                "status": getattr(getattr(completion, "result", None), "status", None),
+                "outputs": getattr(getattr(completion, "result", None), "outputs", {}),
+                "native_outcome": result.native_outcome,
+                "step_range": {"first": scope.start_step_exclusive + 1, "last": scope.end_step_inclusive},
+                "settled": True,
+            })
+            self._terminal_history[:] = self._terminal_history[-10:]
             ctx.active_task = None
             self.state = "READY"
             return result

@@ -401,10 +401,12 @@ def _format_user_guidance(ctx: ArtemisContext, steps: list[dict] | None = None) 
 
 
 def _format_check_items(check_items: list) -> str:
-    lines = []
-    for ci in check_items:
-        lines.append(f"- [{ci.kind}] ({ci.when}) {ci.text}")
+    lines = [_display_check_item(ci) for ci in check_items]
     return "\n".join(lines) if lines else "(none)"
+
+
+def _display_check_item(item) -> str:
+    return f"- [{item.kind}] ({item.when}) {item.text}"
 
 
 # --- Shared tool loop ----------------------------------------------------------------
@@ -437,6 +439,17 @@ def _normalize_report(report: CheckReport, check_items: list) -> CheckReport:
     expected item gets a verdict (missing ones are inconclusive)."""
     verdicts: list[CheckVerdict] = []
     for v in report.verdicts:
+        # Models sometimes quote our complete display line. Only undo that exact
+        # presentation wrapper for one declared item of the same kind. Never
+        # infer identity from a contract id or from a paraphrased description.
+        matches = [
+            ci for ci in check_items
+            if ci.kind == v.kind and v.item_text in (
+                ci.text, _display_check_item(ci), _display_check_item(ci).removeprefix("- ")
+            )
+        ]
+        if len(matches) == 1:
+            v = v.model_copy(update={"item_text": matches[0].text})
         if v.status == "failed" and not v.evidence.strip():
             verdicts.append(
                 CheckVerdict(

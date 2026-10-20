@@ -41,7 +41,7 @@ from artemis.data_engine.models import (
 )
 from artemis.data_engine.storage import StorageManager
 from artemis.data_engine.trace import CURRENT_TRACE_ID
-from artemis.runtime.session_scope import pause_path
+from artemis.runtime.session_scope import execution_metadata, pause_path
 from artemis.utils.coordinates import (
     normalize_any_structure,
     normalize_step_actions,
@@ -1031,6 +1031,23 @@ class DataEngine:
         trace_id = trace_id or uuid4()
 
         with self.lock:
+            if not hasattr(self, "_trace_owners"):
+                self._trace_owners = {}
+                self._live_traces = {}
+            owner = self._trace_owners.get(trace_id)
+            if owner is None:
+                owner = execution_metadata(self.ctx)
+                owner["session_id"] = str(self.current_session_id)
+            if status == "running":
+                self._trace_owners[trace_id] = owner
+                self._live_traces[trace_id] = {
+                    "type": type, "name": name, "payload": dict(payload),
+                    "step_id": step_id, "parent_trace_id": parent_trace_id,
+                    "started_monotonic": time.monotonic(),
+                }
+            else:
+                self._trace_owners.pop(trace_id, None)
+                self._live_traces.pop(trace_id, None)
             self._trace_counter = getattr(self, "_trace_counter", 0) + 1
             trace_ts = time.time() + (self._trace_counter * 1e-7)
             if not hasattr(self, "_trace_name_cache"):
@@ -1048,7 +1065,7 @@ class DataEngine:
             timestamp=trace_ts,
             duration=duration,
             status=status,
-            payload=payload,
+            payload={**payload, "execution": owner},
         )
 
         self._run_in_background(self.storage.create_trace, trace)
@@ -1064,6 +1081,32 @@ class DataEngine:
         self._publish("trace_recorded", trace_dict)
 
         return trace_id
+
+    def active_trace_snapshot(self):
+        with self.lock:
+            return [
+                {"trace_id": str(key), "type": value["type"], "name": value["name"],
+                 "elapsed_seconds": max(0, time.monotonic() - value["started_monotonic"]),
+                 "execution": dict(self._trace_owners[key])}
+                for key, value in getattr(self, "_live_traces", {}).items()
+            ][-20:]
+
+    def finalize_task_traces(self, status="failed"):
+        """Close missing callback spans only after the task's producers drained."""
+        if status not in ("failed", "cancelled"):
+            raise ValueError("Unfinished traces cannot be marked successful")
+        scope = execution_metadata(self.ctx)
+        scope["session_id"] = str(self.current_session_id)
+        with self.lock:
+            unfinished = [
+                (key, dict(value))
+                for key, value in getattr(self, "_live_traces", {}).items()
+                if self._trace_owners[key] == scope
+            ]
+        for trace_id, value in unfinished:
+            value["duration"] = max(0, time.monotonic() - value.pop("started_monotonic"))
+            value["payload"]["termination_reason"] = "task_producers_settled_without_trace_completion"
+            self.record_trace(trace_id=trace_id, status=status, **value)
 
     def record_failed_output(
         self,

@@ -140,6 +140,47 @@ def test_normalize_report_downgrades_vague_failures_and_fills_missing():
     assert by_text[("assert", "a1")].status == "inconclusive"
 
 
+@pytest.mark.parametrize("decorated", [False, True])
+def test_normalize_report_preserves_exact_check_identity(decorated):
+    item = _ci(when="at_end", text="[contract:result] 显示 8")
+    text = f"- [verify] (at_end) {item.text}" if decorated else item.text
+    report = CheckReport(verdicts=[
+        CheckVerdict(item_text=text, kind="verify", status="passed", evidence="screen shows 8")
+    ])
+    normalized = _normalize_report(report, [item])
+    assert len(normalized.verdicts) == 1
+    assert normalized.verdicts[0].item_text == item.text
+    assert normalized.verdicts[0].status == "passed"
+    assert report.verdicts[0].item_text == text
+
+
+@pytest.mark.parametrize("text,kind", [
+    ("- [verify] (at_end) [contract:result] shows 9", "verify"),
+    ("- [verify] (at_end) [contract:result] shows 8", "assert"),
+    ("[contract:result]", "verify"),
+])
+def test_normalize_report_does_not_guess_identity(text, kind):
+    item = _ci(when="at_end", text="[contract:result] shows 8")
+    report = CheckReport(verdicts=[
+        CheckVerdict(item_text=text, kind=kind, status="passed", evidence="screen")
+    ])
+    normalized = _normalize_report(report, [item])
+    expected = [v for v in normalized.verdicts if v.kind == item.kind and v.item_text == item.text]
+    assert len(expected) == 1
+    assert expected[0].status == "inconclusive"
+
+
+def test_normalize_report_keeps_conflicting_duplicates_visible():
+    item = _ci(when="at_end", text="[contract:result] shows 8")
+    report = CheckReport(verdicts=[
+        CheckVerdict(item_text=item.text, kind="verify", status="failed", evidence="screen 9"),
+        CheckVerdict(item_text=f"- [verify] (at_end) {item.text}", kind="verify", status="passed", evidence="screen 8"),
+    ])
+    normalized = _normalize_report(report, [item])
+    assert [v.status for v in normalized.verdicts] == ["failed", "passed"]
+    assert all(v.item_text == item.text for v in normalized.verdicts)
+
+
 # --- Assembly: prompt segments x entry x content x config (§8 item 18) ---------------
 
 

@@ -938,13 +938,13 @@ class StorageManager:
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(trace_id) DO UPDATE SET
                     status = CASE 
-                        WHEN excluded.status = 'running' AND traces.status IN ('success', 'failed') THEN traces.status
+                        WHEN excluded.status = 'running' AND traces.status IN ('success', 'failed', 'cancelled') THEN traces.status
                         ELSE excluded.status
                     END,
                     duration = COALESCE(excluded.duration, traces.duration),
                     timestamp = MIN(traces.timestamp, excluded.timestamp),
                     payload = CASE
-                        WHEN excluded.status = 'running' AND traces.status IN ('success', 'failed') THEN traces.payload
+                        WHEN excluded.status = 'running' AND traces.status IN ('success', 'failed', 'cancelled') THEN traces.payload
                         ELSE excluded.payload
                     END
                 """,

@@ -20,6 +20,7 @@ class MainPlanner:
         context = {
             "goal": workflow.goal,
             "constraints": workflow.constraints,
+            "expected_cancellations": [item.model_dump() for item in workflow.expected_cancellations],
             "roles": [r.model_dump() for r in workflow.roles],
             "revision": scheduler.revision,
             "tasks": [t.model_dump(mode="json") for t in scheduler.tasks.values()],
@@ -52,6 +53,16 @@ class MainPlanner:
                     "without output fields. Invalidated results are history only; add read-only "
                     "reconciliation with the original contract and rebind unexecuted dependents "
                     "to the new tasks before proceeding. "
+                    "Recovery replacements must keep the original role_id, every required completion "
+                    "id and description verbatim, and the identical outputs_schema. Map each original "
+                    "failed_task_id to replacement_task_ids using recoveries. Scheduler validation errors "
+                    "appear as plan_rejected diagnostics: correct those errors in your next proposal; "
+                    "a rejected proposal made no changes to the current plan. "
+                    "Only tasks explicitly listed by role_id and display_name in expected_cancellations "
+                    "may declare expected_terminal_statuses=['succeeded','cancelled']; declare that on "
+                    "those tasks before execution. All other tasks require succeeded. A cancellation "
+                    "only satisfies workflow completion after Main's exact-attempt cancellation was accepted; "
+                    "it does not prove the task's business completion checks passed. "
                     "Set missing_input when no safe progress is possible. Return PlanProposal JSON.\n"
                     "Diagnostic RPC query contracts: observe accepts only mode ('cached' or 'fresh') "
                     "and timeout_seconds (>0, <=30); inspect accepts only level, offset (>=0), "

@@ -13,6 +13,11 @@ class Scheduler:
         self.recoveries = {}
         self.invalidated = set()
         self.revision = 0
+        self.expected_cancellations = {
+            (item.role_id, item.display_name) for item in workflow.expected_cancellations
+        }
+        self.authorized_cancellations = set()
+        self.result_attempts = {}
         self.apply(workflow.tasks, 0)
 
     def apply(self, tasks, base_revision, recoveries=()):
@@ -22,6 +27,10 @@ class Scheduler:
         for task in tasks:
             if task.role_id not in self.roles:
                 raise ValueError("Unknown role")
+            if "cancelled" in task.expected_terminal_statuses and (
+                task.role_id, task.display_name
+            ) not in self.expected_cancellations:
+                raise ValueError("Expected cancellation requires workflow authorization")
             if (
                 task.task_id in self.running
                 or task.task_id in self.results
@@ -32,6 +41,12 @@ class Scheduler:
                 raise ValueError("Cannot revise executed task")
             updated[task.task_id] = task
         edges = {}
+        cancelled_bindings = [
+            (task.role_id, task.display_name) for task in updated.values()
+            if "cancelled" in task.expected_terminal_statuses
+        ]
+        if len(cancelled_bindings) != len(set(cancelled_bindings)):
+            raise ValueError("Expected cancellation task binding must be unique")
         for task in updated.values():
             parents = {d.task_id for d in task.depends_on}
             parents |= {
@@ -167,6 +182,20 @@ class Scheduler:
         return affected
 
     @property
+    def expected_cancelled_tasks(self):
+        return {
+            key for key, result in self.results.items()
+            if key not in self.invalidated
+            and result.status == "cancelled"
+            and "cancelled" in self.tasks[key].expected_terminal_statuses
+            and (key, self.result_attempts.get(key)) in self.authorized_cancellations
+        }
+
+    def record_result(self, task_id, attempt_id, result):
+        self.results[task_id] = result
+        self.result_attempts[task_id] = attempt_id
+
+    @property
     def completed(self):
         def succeeded(key):
             if key in self.recoveries:
@@ -174,7 +203,11 @@ class Scheduler:
             return (
                 key not in self.invalidated
                 and key in self.results
-                and self.results[key].status == "succeeded"
+                and (
+                    (self.results[key].status == "succeeded"
+                     and "succeeded" in self.tasks[key].expected_terminal_statuses)
+                    or key in self.expected_cancelled_tasks
+                )
             )
 
         return bool(self.tasks) and all(succeeded(key) for key in self.tasks)

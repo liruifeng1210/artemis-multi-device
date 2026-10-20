@@ -63,6 +63,7 @@ async def test_cancel_during_settlement_is_latched_and_cleanup_not_abandoned(
     )
     session = PersistentSession(agent, SessionOptions())
     engine = MagicMock(base_dir=tmp_path, current_step_number=0)
+    engine.flush = AsyncMock(return_value={"pending": [], "failures": {}})
     ctx = SimpleNamespace(
         data_engine=engine,
         device=DeviceContext(),

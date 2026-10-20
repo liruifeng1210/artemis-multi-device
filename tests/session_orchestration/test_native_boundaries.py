@@ -235,7 +235,10 @@ async def test_native_session_two_tasks_keep_context_memory_and_data(tmp_path, m
                 / "notes"
                 / "task_plan.md"
             )
-            assert archived.read_text() == goal
+            assert archived.read_text().startswith(goal)
+            if goal == "create meeting":
+                assert "Session handoff (system lifecycle facts" in archived.read_text()
+                assert "Historical outcomes do not complete or verify the current task" in archived.read_text()
             assert session.context.data_engine.current_session_id == sid
         assert contexts[0] is contexts[1]
         assert session.context.transcript_ledger.turn_count == 2

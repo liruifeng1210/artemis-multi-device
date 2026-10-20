@@ -43,6 +43,7 @@ class MainSession:
         self._event_error = None
         self._close_task = None
         self._dependency_cancellations = set()
+        self._pending_cancellations = set()
 
     async def _record_events(self):
         while True:
@@ -272,7 +273,7 @@ class MainSession:
                         worker.quarantined = True
                     if result.status == "unknown" or not result.session_reusable:
                         self.invalidate_worker(worker)
-                    self.scheduler.results[key] = result
+                    self.scheduler.record_result(key, attempt, result)
                     self.scheduler.running.discard(key)
                     self.running.pop(key)
                     self.journal.append(
@@ -292,6 +293,9 @@ class MainSession:
                     ):
                         self.scheduler.results.pop(key)
                 if not self.running and not self.scheduler.completed:
+                    if self._pending_cancellations:
+                        await asyncio.sleep(0.02)
+                        continue
                     if self.recovering:
                         await asyncio.sleep(0.02)
                         continue
@@ -356,6 +360,7 @@ class MainSession:
                 "error": repr(interrupted),
             }
         outcome["invalidated_tasks"] = sorted(self.scheduler.invalidated)
+        outcome["expected_cancelled_tasks"] = sorted(self.scheduler.expected_cancelled_tasks)
         outcome["cleanup_status"] = cleanup
         atomic_json(root / "result.json", outcome)
         if interrupted is not None:
@@ -394,7 +399,7 @@ class MainSession:
             except (RuntimeError, TimeoutError, ConnectionError) as exc:
                 self.diagnostic_history.append({"role_id": role, "error": repr(exc)})
         self.diagnostic_history[:] = self.diagnostic_history[-8:]
-        for _ in range(3):
+        for planning_attempt in range(1, 4):
             try:
                 proposal = await asyncio.wait_for(
                     self.planner.propose(
@@ -453,7 +458,16 @@ class MainSession:
                         },
                     )
                 return
-            except (ValueError, TimeoutError):
+            except (ValueError, TimeoutError) as exc:
+                rejection = {
+                    "kind": "plan_rejected" if isinstance(exc, ValueError) else "plan_timeout",
+                    "planning_attempt": planning_attempt,
+                    "base_plan_revision": self.scheduler.revision,
+                    "error": str(exc)[:4000] or type(exc).__name__,
+                }
+                self.journal.append(rejection)
+                self.diagnostic_history.append(rejection)
+                self.diagnostic_history[:] = self.diagnostic_history[-8:]
                 continue
 
     async def inspect(self, role_id, query=None):
@@ -488,9 +502,17 @@ class MainSession:
     async def cancel(self, task_id, reason="cancelled"):
         attempt, _ = self.running[task_id]
         worker = self.dispatched_workers[(task_id, attempt)]
-        reply = await worker.request(
-            "cancel_task", {"reason": reason}, task_id, attempt, timeout=10
-        )
+        identity = (task_id, attempt)
+        self._pending_cancellations.add(identity)
+        try:
+            reply = await worker.request(
+                "cancel_task", {"reason": reason}, task_id, attempt, timeout=10
+            )
+        finally:
+            self._pending_cancellations.discard(identity)
+        if reply.payload.get("accepted") is True:
+            self.scheduler.authorized_cancellations.add((task_id, attempt))
+            self.journal.append({"kind": "cancel_authorized", "task_id": task_id, "attempt_id": attempt})
         return reply.payload
 
     async def takeover(self, role_id, reason="recovery"):

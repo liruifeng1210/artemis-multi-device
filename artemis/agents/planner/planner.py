@@ -22,6 +22,7 @@ from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field
 
 from artemis.context import ArtemisContext
+from artemis.core.tool_failure import is_tool_failure
 from artemis.controllers.unified_controller import UnifiedMobileController
 from artemis.data_engine.trace import CURRENT_TRACE_ID, TraceSpan, trace
 from artemis.graph.state import State
@@ -233,6 +234,18 @@ class PlannerNode:
             final_check=final,
         )
 
+        system_message += (
+            "\n\n## Planning handoff\n"
+            "Your note tools are the planning phase's tools. After you submit task_plan, "
+            "the Operator executes it using device UI actions and session history tools. "
+            "Do not infer that execution or history is unavailable because those tools are "
+            "absent from your planning tool list. Submit a fresh plan with pending work, "
+            "including observation or history retrieval for a read-only task. Do not mark "
+            "work complete before the Operator has executed and verified this assignment. "
+            "Persistent session notes can be listed and read with your note tools. "
+            "Once task_plan is saved, hand off; do not execute or rewrite it as a status report."
+        )
+
         # Get screenshot
         screenshot_b64 = None
         screenshot_path = state.latest_screenshot if hasattr(state, "latest_screenshot") else None
@@ -336,11 +349,6 @@ class PlannerNode:
                     else:
                         tool_to_run = next((t for t in all_tools if t.name == tool_name), None)
 
-                    if tool_to_run and tool_to_run.name in [
-                        "save_note",
-                        "update_note",
-                    ]:
-                        tool_called = True
                     if tool_to_run:
                         args = dict(tc["args"])
                         with TraceSpan(name=tool_name, ctx=self.ctx) as span:
@@ -360,6 +368,13 @@ class PlannerNode:
                                 )
                                 result_content = get_tool_result_content(result_obj)
                                 span.result = result_content
+                                if (
+                                    tool_to_run.name in ("save_note", "update_note")
+                                    and args.get("key") == "task_plan"
+                                    and not is_tool_failure(result_obj)
+                                    and getattr(result_obj, "status", "success") != "error"
+                                ):
+                                    tool_called = True
 
                                 current_messages.append(
                                     ToolMessage(
@@ -386,6 +401,12 @@ class PlannerNode:
                             )
                         )
 
+                # A submitted plan belongs to the Operator next. A further model
+                # turn here can overwrite a good pending plan with an invented
+                # completion report because Planner intentionally lacks UI tools.
+                if tool_called:
+                    break
+
             # Post-execution validation
             plan_exists = False
             plan_valid = False
@@ -402,6 +423,12 @@ class PlannerNode:
                     try:
                         content = task_plan_path.read_text(encoding="utf-8")
                         plan_valid, error_message = validate_plan_format(content)
+                        if plan_valid and parse_plan(content).all_top_level_done:
+                            plan_valid = False
+                            error_message = (
+                                "A fresh plan must contain pending work for the Operator; "
+                                "planning cannot mark this assignment complete."
+                            )
                     except Exception as e:
                         error_message = f"Failed to read task plan for validation: {e}"
                 else:
@@ -429,7 +456,7 @@ class PlannerNode:
             )
 
         else:
-            logger.error(
+            raise RuntimeError(
                 f"Failed to generate a valid plan after {max_validation_attempts} attempts."
             )
 

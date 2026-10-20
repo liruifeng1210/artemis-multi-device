@@ -71,7 +71,8 @@ async def test_planner_initial_plan(mock_context):
     mock_llm.bind_tools = Mock(return_value=mock_llm)
 
     with patch("artemis.agents.planner.planner.get_llm", return_value=mock_llm):
-        await node(state)
+        with pytest.raises(RuntimeError, match="valid plan"):
+            await node(state)
 
         assert mock_llm.astream.called
         args, kwargs = mock_llm.astream.call_args

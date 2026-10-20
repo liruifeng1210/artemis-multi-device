@@ -26,6 +26,19 @@ class TaskScope:
         }
 
 
+def execution_metadata(ctx: Any) -> dict[str, Any]:
+    """Capture attribution synchronously, before a background write can outlive a task."""
+    owner = getattr(ctx, "execution_owner", None)
+    result = dict(owner) if isinstance(owner, dict) else {}
+    device = getattr(getattr(ctx, "device", None), "device_id", None)
+    if isinstance(device, str):
+        result["device_id"] = device
+    scope = getattr(ctx, "active_task", None)
+    if isinstance(scope, TaskScope):
+        result.update(scope.metadata())
+    return result
+
+
 def pause_path(default: Path, ctx: Any = None) -> Path:
     setup = getattr(ctx, "execution_setup", None)
     return getattr(setup, "pause_path", None) or SESSION_PAUSE_PATH.get() or default

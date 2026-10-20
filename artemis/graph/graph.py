@@ -39,6 +39,7 @@ from artemis.agents.validator.validator import ValidatorNode
 from artemis.context import ArtemisContext
 from artemis.graph.checkpoints import (
     append_ledger_record,
+    ledger_execution_metadata,
     attempt_trace_id,
     compute_run_outcome,
     final_check_enabled,
@@ -330,6 +331,7 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                     base_dir,
                     {
                         "attempt_id": final_attempt_id,
+                        **ledger_execution_metadata(ctx),
                         "checkpoint_id": FINAL_CHECKPOINT_ID,
                         "subgoal_text": FINAL_SUBGOAL_TEXT,
                         "trace_id": attempt_trace_id(ctx, final_attempt_id),
@@ -367,6 +369,7 @@ async def exit_settlement_node(state: State, ctx: ArtemisContext):
                     base_dir,
                     {
                         "attempt_id": final_attempt_id,
+                        **ledger_execution_metadata(ctx),
                         "checkpoint_id": FINAL_CHECKPOINT_ID,
                         "subgoal_text": FINAL_SUBGOAL_TEXT,
                         "trace_id": attempt_trace_id(ctx, final_attempt_id),

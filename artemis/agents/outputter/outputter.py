@@ -20,7 +20,7 @@ from typing import Any
 
 from jinja2 import Template
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, ToolMessage
-from langchain_core.tools import BaseTool
+from langchain_core.tools import BaseTool, StructuredTool
 from artemis.core.tool_failure import ToolFailure, is_tool_failure
 from artemis.config import OutputConfig
 from artemis.context import ArtemisContext
@@ -42,10 +42,10 @@ from artemis.tools.tool_wrapper import (
     tool_result_messages,
 )
 from artemis.memory.context_policy import build_history_for
-from artemis.utils.notes import read_note_content
+from artemis.utils.notes import read_note_content, save_note_content
 from artemis.utils.task_tree import get_active_subgoal_hashes
 from third_party.mobile_use.utils.logger import get_logger
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, create_model
 
 logger = get_logger(__name__)
 
@@ -57,7 +57,8 @@ OUTPUT_NOTE_KEY = "output"
 
 # Note writes run one by one in the order issued; all other tools only read
 # and can run in parallel.
-_WRITE_TOOLS = frozenset({"save_note", "update_note", "append_note"})
+_WRITE_TOOLS = frozenset({"save_note", "update_note", "append_note", "finish_output"})
+_NO_FINISH = object()
 
 _MAX_TURNS_ERROR = "Error: Outputter failed to resolve the query within maximum turns."
 
@@ -311,6 +312,7 @@ class _Investigation:
         self.graph_output = graph_output
         self.llm = llm
         self.report_written = False
+        self.finished_output = _NO_FINISH
 
     async def _run_tool(self, tc: dict) -> list[BaseMessage]:
         tool_name = _tool_name(tc)
@@ -363,6 +365,12 @@ class _Investigation:
                 batch.clear()
 
         for tc in tool_calls:
+            if self.finished_output is not _NO_FINISH:
+                per_call.append([ToolMessage(
+                    content="Not executed: output was already finalized.",
+                    tool_call_id=tc["id"], name=_tool_name(tc), status="error",
+                )])
+                continue
             if _tool_name(tc) in _WRITE_TOOLS:
                 await flush()
                 per_call.append(await self._run_tool(tc))
@@ -413,6 +421,8 @@ async def _run_react_loop(
         if response.tool_calls and not final_turn:
             messages.append(response)
             messages.extend(await investigation.execute_tool_calls(response.tool_calls))
+            if investigation.finished_output is not _NO_FINISH:
+                return ""
             continue
 
         if text:
@@ -432,6 +442,43 @@ async def _run_react_loop(
         messages.append(HumanMessage(content=_EMPTY_REPLY_NUDGE))
         nudged = True
     return None
+
+
+def _finish_output_tool(ctx, output_config, investigation):
+    """Typed, durable report submission ends synthesis in the same model turn."""
+    schema = output_config.structured_output_schema()
+    if not (isinstance(schema, type) and issubclass(schema, BaseModel)):
+        return None
+    arguments = create_model(
+        "FinishOutputArguments",
+        output=(schema, ...),
+        report=(str, Field(min_length=1, description="Evidence-grounded final Markdown report")),
+    )
+
+    async def finish_output(output, report):
+        if investigation.finished_output is not _NO_FINISH:
+            return ToolFailure("Output was already finalized")
+        try:
+            validated = schema.model_validate(output, strict=True)
+            base_dir = _notes_base_dir(ctx)
+            if base_dir is None:
+                return ToolFailure("Cannot finalize without persistent report storage")
+            save_note_content(base_dir, OUTPUT_NOTE_KEY, report)
+        except Exception as exc:
+            return ToolFailure(f"Output submission failed: {exc}")
+        investigation.finished_output = validated.model_dump()
+        investigation.report_written = True
+        return "Report persisted and structured output finalized."
+
+    return StructuredTool.from_function(
+        coroutine=finish_output, name="finish_output", args_schema=arguments,
+        description=(
+            "Finish the task report: submit evidence-grounded typed output and its Markdown report "
+            "together. This saves output.md and returns the output immediately. Use this instead "
+            "of save_note(output) followed by another final answer. Preserve uncertainty; never "
+            "invent missing values or claim checks passed without evidence."
+        ),
+    )
 
 
 async def _format_structured(
@@ -526,6 +573,14 @@ async def outputter(
     llm = get_llm(ctx=ctx, name="outputter", is_utils=True)
     llm_fallback = get_llm(ctx=ctx, name="outputter", is_utils=True, use_fallback=True)
     investigation = _Investigation({t.name: t for t in tools}, graph_output, llm)
+    finish_tool = _finish_output_tool(ctx, output_config, investigation)
+    if finish_tool is not None:
+        tools.append(finish_tool)
+        investigation.tool_map[finish_tool.name] = finish_tool
+        messages.append(HumanMessage(content=(
+            "Submit the final structured output and Markdown report using finish_output. "
+            "The tool validates and persists them and ends this reporting phase in one turn."
+        )))
 
     raw_answer = await _run_react_loop(
         investigation,
@@ -533,6 +588,8 @@ async def outputter(
         llm.bind_tools(tools=tools),
         llm_fallback.bind_tools(tools=tools),
     )
+    if investigation.finished_output is not _NO_FINISH:
+        return investigation.finished_output
 
     saved_report = _read_saved_report(ctx) if investigation.report_written else None
     if raw_answer is None:

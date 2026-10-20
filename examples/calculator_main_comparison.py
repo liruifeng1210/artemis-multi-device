@@ -81,7 +81,9 @@ async def monitor(main, folder, done):
                             cancelled.add(key)
                             attempt = main.running[key][0]
                             main.journal.append({"kind":"harness_cancel_request","task_id":key,
-                                "attempt_id":attempt,"time":stamp(),"worker_state":main.workers['A'].state})
+                                "attempt_id":attempt,"time":stamp(),"worker_state":main.workers['A'].state,
+                                "last_worker_status":main.workers['A'].last_status,
+                                "last_worker_status_age_seconds":max(0,time.monotonic()-main.workers['A'].last_status.get('observed_monotonic',time.monotonic()))})
                             try:
                                 reply = await main.cancel(key, "authorized_independent_cancel_test")
                                 save(folder / "cancel.json", {"time":stamp(),"task":key,
@@ -135,6 +137,9 @@ async def main(args):
     combined = continuity + (
         "上述连续计算后保持相同子Session，继续执行独立取消及复用场景。"
         "即使连续计算失败也应安排独立取消场景：依赖可接受任意终态，不得伪造期望值。"
+        "独立取消阶段必须等待A和B各自连续计算任务均达到任意终态后，"
+        "同时派发A的cancel-A与B的当前值×4任务；两任务都依赖上述两个前序终态，"
+        "前序failed/blocked/cancelled也放行。取消A不能取消或阻塞B的独立执行。"
         "A逐次+1并等号30次、每次观察，该长任务display_name必须为cancel-A；"
         "测试员会在派发20秒后用正式Main.cancel取消它。B同时在当前值×4等号期望100。"
         "A长任务取消后，在同一子Session重新读取实际屏幕值，再+10等号，不假设回滚。"
@@ -145,6 +150,7 @@ async def main(args):
         roles=[RoleSpec(role_id="A",device_id=args.device_a,description="MI6计算器com.miui.calculator；持续Role记忆首次和当前值"),
                RoleSpec(role_id="B",device_id=args.device_b,description="PJZ110计算器com.coloros.calculator；持续Role记忆首次和当前值")],
         root=folder, max_workflow_seconds=4500, max_artifact_bytes=1024**3,
+        expected_cancellations=([{"role_id":"A", "display_name":"cancel-A"}] if args.scenario != "continuity" else []),
         startup_timeout_seconds=180, close_timeout_seconds=90, max_attempts_per_task=1,
         constraints=["仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
             "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",

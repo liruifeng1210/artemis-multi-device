@@ -32,6 +32,7 @@ class WorkerHandle:
         self.state = "STARTING"
         self.quarantined = False
         self.last_heartbeat = time.monotonic()
+        self.last_status = {}
         self.pending = {}
         self.inflight = {}
         self.abandoned = {}
@@ -187,6 +188,7 @@ class WorkerHandle:
                     and not self.quarantined
                 ):
                     self.state = message.payload.get("state", self.state)
+                    self.last_status = {"observed_monotonic": self.last_heartbeat, **message.payload}
                 if message.kind == "ready":
                     self.ready.set()
                 if message.kind == "closed":

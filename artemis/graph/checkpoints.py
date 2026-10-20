@@ -39,6 +39,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
+from artemis.runtime.session_scope import execution_metadata
 
 from artemis.utils.notes import append_note_content, get_note_file_path
 from artemis.utils.plan_grammar import (
@@ -743,6 +744,14 @@ def queue_checkpoints(
 # --- Harvest ------------------------------------------------------------------
 
 
+def ledger_execution_metadata(ctx):
+    execution = execution_metadata(ctx)
+    session_id = getattr(getattr(ctx, "data_engine", None), "current_session_id", None)
+    if session_id is not None:
+        execution["session_id"] = str(session_id)
+    return {"execution": execution, **({"task_id": execution["task_id"]} if "task_id" in execution else {})}
+
+
 def _record_verdicts(
     ctx,
     run: CheckpointRun,
@@ -756,6 +765,7 @@ def _record_verdicts(
             base_dir,
             {
                 "attempt_id": run.attempt_id,
+                **ledger_execution_metadata(ctx),
                 "checkpoint_id": run.checkpoint.checkpoint_id,
                 "subgoal_text": run.checkpoint.subgoal_text,
                 "trace_id": attempt_trace_id(ctx, run.attempt_id),
@@ -799,6 +809,7 @@ def _record_attempt_failure(ctx, run: CheckpointRun, status: str, evidence: str)
             base_dir,
             {
                 "attempt_id": run.attempt_id,
+                **ledger_execution_metadata(ctx),
                 "checkpoint_id": run.checkpoint.checkpoint_id,
                 "subgoal_text": run.checkpoint.subgoal_text,
                 "trace_id": attempt_trace_id(ctx, run.attempt_id),
