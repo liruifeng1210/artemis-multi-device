@@ -45,6 +45,23 @@ class LogLevel(Enum):
     CRITICAL = ("CRITICAL", Fore.RED + Style.BRIGHT, "💥")
 
 
+def record_log_entry(item):
+    """Persist using ownership captured by emit, never the consumer's globals."""
+    engine, scope, step_id, record_name, message, level_name, formatted, parent_id = item
+    if engine and engine.current_session_id:
+        from contextlib import nullcontext
+
+        with execution_scope(scope) if scope is not None else nullcontext():
+            engine.record_trace(
+                type="log",
+                name=record_name,
+                payload={"message": message, "level": level_name, "formatted": formatted},
+                status="success",
+                parent_trace_id=parent_id,
+                step_id=step_id,
+            )
+
+
 class DataEngineHandler(logging.Handler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -63,24 +80,9 @@ class DataEngineHandler(logging.Handler):
                 item.set()
                 self._log_queue.task_done()
                 continue
-            engine, scope, step_id, record_name, message, level_name, formatted, parent_id = item
+            engine = item[0]
             try:
-                if engine and engine.current_session_id:
-                    from contextlib import nullcontext
-
-                    with execution_scope(scope) if scope is not None else nullcontext():
-                        engine.record_trace(
-                            type="log",
-                            name=record_name,
-                            payload={
-                                "message": message,
-                                "level": level_name,
-                                "formatted": formatted,
-                            },
-                            status="success",
-                            parent_trace_id=parent_id,
-                            step_id=step_id,
-                        )
+                record_log_entry(item)
             except Exception as exc:
                 # Keep draining: a dead consumer would make every flush hang.
                 with self._error_lock:
@@ -104,20 +106,22 @@ class DataEngineHandler(logging.Handler):
                 level_name = record.levelname
 
             parent_id = CURRENT_TRACE_ID.get()
-
+            entry = (
+                _CURRENT_DATA_ENGINE,
+                CURRENT_EXECUTION.get(),
+                getattr(_CURRENT_DATA_ENGINE, "current_step_id", None),
+                record.name,
+                record.getMessage(),
+                level_name,
+                log_entry,
+                parent_id,
+            )
+            enqueue = getattr(_CURRENT_DATA_ENGINE, "enqueue_log", None)
+            if callable(enqueue):
+                enqueue(entry)
+                return
             try:
-                self._log_queue.put_nowait(
-                    (
-                        _CURRENT_DATA_ENGINE,
-                        CURRENT_EXECUTION.get(),
-                        getattr(_CURRENT_DATA_ENGINE, "current_step_id", None),
-                        record.name,
-                        record.getMessage(),
-                        level_name,
-                        log_entry,
-                        parent_id,
-                    )
-                )
+                self._log_queue.put_nowait(entry)
             except queue.Full as e:
                 raise RuntimeError(
                     "DataEngine log queue is full - cannot accept more log"
@@ -128,6 +132,11 @@ class DataEngineHandler(logging.Handler):
 async def flush_data_engine_logs(engine):
     """Place FIFO barriers after producers stop, then surface persistence errors."""
     import asyncio
+
+    flush = getattr(engine, "flush_logs", None)
+    if callable(flush):
+        await flush()
+        return
 
     handlers = {
         handler

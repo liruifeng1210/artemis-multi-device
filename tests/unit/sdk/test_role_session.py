@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import threading
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -25,6 +26,259 @@ from artemis.sdk.agent import Agent
 from artemis.sdk.builders import Builders
 from artemis.sdk.role_session import RoleSession
 from artemis.utils.notes import read_note_content, save_note_content
+
+
+@pytest.mark.asyncio
+async def test_cancel_during_storage_flush_retains_write_and_quarantines(role_factory):
+    open_role, handlers = role_factory
+    started, release, finished = threading.Event(), threading.Event(), threading.Event()
+
+    def write():
+        started.set()
+        release.wait(10)
+        finished.set()
+
+    async def run(ctx, state):
+        ctx.data_engine._run_in_background(write)
+        await ctx.data_engine.flush()
+        return state
+
+    handlers["write"] = run
+    role = await open_role("A", cleanup_timeout=0.1)
+    handle = role.submit("write")
+    try:
+        await eventually(started.is_set)
+        result = await role.cancel(handle.task_id, handle.attempt_id)
+        assert result.status == "cancelled" and not result.reusable
+        assert not finished.is_set()
+        assert role.resources.context.data_engine.has_pending_operations()
+        assert role._lease._acquired
+        with pytest.raises(RuntimeError, match="quarantined"):
+            role.submit("write")
+    finally:
+        release.set()
+        # Let the still-owned cleanup finish before retrying close.
+        await eventually(finished.is_set)
+        role.cleanup_timeout = 2
+        await role.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("block", ["log", "ipc"])
+async def test_slow_role_telemetry_does_not_block_other_role_cleanup(
+    role_factory, monkeypatch, block
+):
+    from third_party.mobile_use.utils.logger import get_logger
+
+    open_role, handlers = role_factory
+    started, release = threading.Event(), threading.Event()
+    a = await open_role("A", cleanup_timeout=0.1)
+    b = await open_role("B", cleanup_timeout=2)
+    engine = a.resources.context.data_engine
+    await engine.flush()
+    method = "record_trace" if block == "log" else "_send_ipc_event"
+    original = getattr(engine, method)
+
+    def slow(*args, **kwargs):
+        started.set()
+        release.wait(10)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(engine, method, slow)
+    logger = get_logger("role-telemetry-isolation")
+
+    async def run(ctx, state):
+        logger.info(f"Owned by {ctx.device.device_id}")
+        return state
+
+    handlers["work"] = run
+    handle_a = a.submit("work")
+    try:
+        await eventually(started.is_set)
+        result_b = await asyncio.wait_for(b.submit("work").result(), 3)
+        assert result_b.status == "completed" and result_b.reusable, result_b
+        assert not release.is_set()
+        result_a = await a.cancel(handle_a.task_id, handle_a.attempt_id)
+        assert not result_a.reusable and a._lease._acquired
+    finally:
+        release.set()
+        a.cleanup_timeout = 3
+        await a.close()
+
+
+@pytest.mark.asyncio
+async def test_cancel_checkpoint_settlement_books_completed_and_cancelled_checks(role_factory):
+    from artemis.agents.checker.checker import CheckReport, CheckVerdict
+    from artemis.graph.checkpoints import CheckpointRun, PendingCheckpoint, settle_all_checkpoints
+    from artemis.utils.plan_grammar import CheckItem
+
+    open_role, handlers = role_factory
+    entered = asyncio.Event()
+    tasks = []
+    context = None
+
+    async def run(ctx, state):
+        nonlocal context
+        context = ctx
+        for name in ("finished", "waiting"):
+            checkpoint = PendingCheckpoint(
+                name, name, (CheckItem("verify", "on_complete", name, name),), "", 0
+            )
+            if name == "finished":
+                task = asyncio.get_running_loop().create_future()
+                task.set_result(
+                    CheckReport(
+                        verdicts=[
+                            CheckVerdict(
+                                item_text=name,
+                                kind="verify",
+                                status="passed",
+                                evidence="observed this task",
+                            )
+                        ]
+                    )
+                )
+            else:
+                task = asyncio.create_task(asyncio.Event().wait())
+            tasks.append(task)
+            ctx.checkpoint_tasks[name] = CheckpointRun(name + "#1", task, checkpoint)
+        entered.set()
+        await settle_all_checkpoints(ctx, state)
+        return state
+
+    async def next_assignment(ctx, state):
+        assert not ctx.checkpoint_tasks
+        assert read_ledger(ctx.data_engine.base_dir) == []
+        return state
+
+    handlers.update(check=run, next=next_assignment)
+    role = await open_role("A", cleanup_timeout=3)
+    handle = role.submit("check")
+    await entered.wait()
+    result = await role.cancel(handle.task_id, handle.attempt_id)
+    assert result.status == "cancelled" and result.reusable, result
+    assert all(task.done() for task in tasks) and not context.checkpoint_tasks
+    rows = read_ledger(result.workspace)
+    assert {(row["attempt_id"], row["status"]) for row in rows} == {
+        ("finished#1", "passed"),
+        ("waiting#1", "cancelled"),
+    }
+    assert len(rows) == 2
+    assert (await role.submit("next").result()).reusable
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("point", ["operator", "execution_check", "validator"])
+async def test_cancel_commits_only_current_turn_evidence(role_factory, point):
+    from artemis.runtime.task_lifecycle import scope_graph_nodes
+
+    open_role, handlers = role_factory
+    entered = asyncio.Event()
+    expected_step = None
+
+    async def run(ctx, state):
+        nonlocal expected_step
+        nodes = {}
+        builder = SimpleNamespace(add_node=lambda name, fn, **kw: nodes.update({name: fn}))
+        scope_graph_nodes(builder, ctx)
+
+        async def operator(state):
+            ctx.transcript_ledger.stage_turn(
+                [HumanMessage(content="CURRENT observation"), AIMessage(content="CURRENT action")]
+            )
+            return {"structured_decisions": '[{"action":"tap"}]'}
+
+        async def check(state):
+            nonlocal expected_step
+            expected_step = str(ctx.data_engine.record_step(summary="CURRENT turn"))
+            return {"current_step_id": expected_step}
+
+        async def validator(state):
+            return {"last_execution_result": {"status": "CURRENT_RESULT"}}
+
+        for name, fn in (
+            ("operator", operator),
+            ("execution_check", check),
+            ("validator", validator),
+        ):
+            builder.add_node(name, fn)
+        state = state.model_copy(
+            update={
+                "current_step_id": str(uuid4()),
+                "last_execution_result": {"status": "PREVIOUS_RESULT"},
+            }
+        )
+        for name in ("operator", "execution_check", "validator"):
+            state = state.model_copy(update=await nodes[name](state))
+            role._active["state"] = state
+            if name == point:
+                break
+        entered.set()
+        await asyncio.Event().wait()
+
+    handlers["work"] = run
+    role = await open_role("A", cleanup_timeout=3)
+    handle = role.submit("work")
+    await entered.wait()
+    result = await role.cancel(handle.task_id, handle.attempt_id)
+    assert result.status == "cancelled" and result.reusable, result
+    ledger = role.resources.ledger
+    messages = str(ledger.active_messages)
+    assert "CURRENT action" in messages and "PREVIOUS_RESULT" not in messages
+    assert ("CURRENT_RESULT" in messages) == (point == "validator")
+    assert ledger._turns[-1]["step_key"] == expected_step
+
+
+@pytest.mark.asyncio
+async def test_continuing_assignments_keep_goal_facts_and_progress_without_old_state(role_factory):
+    from artemis.agents.operator.operator import OperatorNode
+
+    open_role, handlers = role_factory
+    contexts = []
+
+    async def run(ctx, state):
+        contexts.append(ctx)
+        assert state.current_step_id is None and state.last_execution_result is None
+        assert not state.structured_decisions and state.indexed_points is None
+        if state.initial_goal == "create meeting":
+            save_note_content(
+                ctx.data_engine.base_dir,
+                "session_context",
+                "Account A is signed in. MeetingID=123. B has not joined yet.",
+            )
+            save_note_content(ctx.data_engine.base_dir, "task_plan", "- [x] meeting 123 created")
+            ctx.transcript_ledger.stage_turn([HumanMessage(content="Meeting 123 created")])
+            ctx.transcript_ledger.commit_staged()
+        else:
+            with pytest.raises(FileNotFoundError):
+                read_note_content(ctx.data_engine.base_dir, "task_plan")
+            # Frozen history does not evict the explicit continuity context.
+            ctx.transcript_ledger.freeze_turns(0, [HumanMessage(content="compressed history")])
+        messages = await OperatorNode(ctx, tools=[])._build_prompt_transcript(
+            state,
+            latest_screenshot_b64="",
+            minimal_list="",
+            current_step_num=1,
+            steps=[],
+            task_plan="No plan yet",
+        )
+        text = str(messages)
+        assert "Coordinate A and B in the same meeting" in text
+        assert "MeetingID=123" in text and "B has not joined yet" in text
+        if state.initial_goal == "approve B":
+            assert "create meeting" in text and "completed" in text
+            assert "meeting 123 created" in text  # previous plan is history, not the new plan
+            assert "approve B" in messages[0].content
+        return state
+
+    handlers.update({"create meeting": run, "approve B": run})
+    role = await open_role("A", session_goal="Coordinate A and B in the same meeting")
+    results = [await role.submit(goal).result() for goal in handlers]
+    assert all(result.reusable and result.status == "completed" for result in results), results
+    assert contexts[0] is not contexts[1]
+    assert contexts[0].transcript_ledger is contexts[1].transcript_ledger
+    progress = read_note_content(role.resources.context.data_engine.base_dir, "session_progress")
+    assert "create meeting" in progress and "approve B" in progress
 
 
 @pytest_asyncio.fixture
@@ -92,9 +346,13 @@ async def role_factory(tmp_path, monkeypatch):
         sessions, "create_driver", lambda ctx: MockDeviceDriver(device_id=ctx.device.device_id)
     )
 
-    async def open_role(role_id, *, cleanup_timeout=1):
+    async def open_role(role_id, *, cleanup_timeout=1, **kwargs):
         role = await RoleSession.open(
-            role_id, f"device-{role_id}", traces_path=tmp_path, cleanup_timeout=cleanup_timeout
+            role_id,
+            f"device-{role_id}",
+            traces_path=tmp_path,
+            cleanup_timeout=cleanup_timeout,
+            **kwargs,
         )
         opened.append(role)
         return role

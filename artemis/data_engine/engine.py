@@ -1102,7 +1102,9 @@ class DataEngine:
             tasks = list(self._pending_tasks)
             threads = list(self._pending_threads)
             if tasks:
-                await asyncio.gather(*tasks, return_exceptions=True)
+                # Cancelling a waiter must not cancel to_thread Tasks: their
+                # threads still run and must remain registered until finished.
+                await asyncio.wait(tasks)
             for thread in threads:
                 if thread.is_alive():
                     await asyncio.to_thread(thread.join)

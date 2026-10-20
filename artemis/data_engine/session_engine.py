@@ -4,11 +4,11 @@ Adapted from 788bc0f's RoleDataEngine; native storage schemas stay unchanged.
 """
 
 from contextvars import copy_context
-import asyncio
 from dataclasses import replace
 
 from artemis.data_engine.engine import DataEngine
 from artemis.runtime.execution_scope import CURRENT_EXECUTION, execution_scope, set_scoped_step
+from artemis.runtime.background_work import BackgroundWork
 
 
 class SessionDataEngine(DataEngine):
@@ -18,6 +18,10 @@ class SessionDataEngine(DataEngine):
         self._write_errors = []
         self._reported_write_errors = 0
         self.task_scopes = {}
+        # Each Role owns its log consumer and IPC sender. Slow telemetry must
+        # never occupy another Role's consumer or the shared asyncio executor.
+        self._logs = BackgroundWork("role-logs", self._write_errors.append)
+        self._events = BackgroundWork("role-events", self._write_errors.append)
         super().__init__(ctx)
 
     def _scope(self):
@@ -70,13 +74,18 @@ class SessionDataEngine(DataEngine):
         scope = self._scope()
         if scope is not None and isinstance(data, dict):
             data = {**data, **scope.metadata()}
-        try:
-            asyncio.get_running_loop()
-        except RuntimeError:
-            return super()._publish(event_type, data)
-        # Native IPC uses blocking socket IO. A slow desktop bridge must not
-        # stall every Role on the shared event loop.
-        return self._run_in_background(super()._publish, event_type, data)
+        self._events.submit(super()._publish, event_type, data)
+
+    def enqueue_log(self, entry):
+        from third_party.mobile_use.utils.logger import record_log_entry
+
+        self._logs.submit(record_log_entry, entry)
+
+    async def flush_logs(self):
+        await self._logs.flush()
+
+    def has_pending_operations(self):
+        return self._logs.pending or self._events.pending or super().has_pending_operations()
 
     def record_step(self, *args, extra_metadata=None, **kwargs):
         if len(args) > 10:
@@ -106,11 +115,23 @@ class SessionDataEngine(DataEngine):
         return super()._run_in_background(write)
 
     async def flush(self):
-        await super().flush()
+        while True:
+            await self._logs.flush()
+            await super().flush()
+            await self._events.flush()
+            if not (self._logs.pending or self._events.pending or self.has_pending_operations()):
+                break
         if len(self._write_errors) > self._reported_write_errors:
             error = self._write_errors[self._reported_write_errors]
             self._reported_write_errors = len(self._write_errors)
             raise RuntimeError("Session storage write failed") from error
+
+    async def shutdown(self):
+        await super().shutdown()
+        # Native shutdown emits a final log; drain it before retiring consumers.
+        await self.flush()
+        self._logs.close()
+        self._events.close()
 
     def get_session_steps(self):
         return super().get_agent_friendly_steps()

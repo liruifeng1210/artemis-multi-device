@@ -295,60 +295,9 @@ class OperatorNode:
         resources = getattr(self.ctx, "session_resources", None)
         if resources is not None:
             return resources.ensure_ledger(state)
-        from artemis.memory import TranscriptLedger, ensure_step_memory
+        from artemis.memory.session import ensure_transcript_ledger
 
-        ledger = getattr(self.ctx, "transcript_ledger", None)
-        if isinstance(ledger, TranscriptLedger):
-            return ledger
-        cfg = self._transcript_cfg
-        # Anchor the ``T+mm:ss`` clock to the DataEngine session start so the
-        # tail offsets agree with the chunk ledger lines, the restored-history
-        # block and the video analyzer's action timeline.
-        session_start = getattr(self.ctx.data_engine, "session_start_time", None)
-        ledger = TranscriptLedger(
-            step_memory=ensure_step_memory(self.ctx),
-            image_scrub_depth=getattr(cfg, "image_scrub_depth", 3),
-            pending_grace_steps=getattr(cfg, "pending_grace_steps", 3),
-            xml_scrub_depth=getattr(cfg, "xml_scrub_depth", 1),
-            image_scrub_depth_relaxed=getattr(cfg, "image_scrub_depth_relaxed", None),
-            context_budget_tokens=getattr(cfg, "context_budget_tokens", None),
-            start_ratio=getattr(cfg, "start_ratio", None),
-            session_start=session_start if isinstance(session_start, (int, float)) else None,
-        )
-        # L2/L3 chunk compression (M3) rides the same flag; without a
-        # DataEngine there are no step records to chunk, so the ledger simply
-        # runs scrub-edge-only.
-        if self.ctx.data_engine is not None:
-            try:
-                from artemis.memory import HistoryChunkManager
-
-                chunking_cfg = None
-                try:
-                    from artemis.config import load_agent_config
-
-                    chunking_cfg = load_agent_config().memory.chunking
-                except Exception as exc:
-                    logger.debug(
-                        "Chunking config unavailable; using chunker defaults: %s",
-                        exc,
-                        exc_info=True,
-                    )
-                ledger.attach_chunker(
-                    HistoryChunkManager(
-                        engine=self.ctx.data_engine,
-                        ctx=self.ctx,
-                        chunking_config=chunking_cfg,
-                        transcript_config=cfg,
-                        goal=getattr(state, "initial_goal", None) if state else None,
-                    )
-                )
-            except Exception as e:
-                logger.error(f"History chunk manager unavailable: {e}")
-        try:
-            self.ctx.transcript_ledger = ledger
-        except (AttributeError, TypeError, ValueError):
-            pass
-        return ledger
+        return ensure_transcript_ledger(self.ctx, state, config=self._transcript_cfg)
 
     async def _build_prompt_transcript(
         self,

@@ -39,8 +39,16 @@ async def run_goal(role, goal, *, output_format=None):
 
 async def main(device_a, device_b, b_name):
     async with AsyncExitStack() as stack:
-        a = await stack.enter_async_context(await RoleSession.open("A", device_a))
-        b = await stack.enter_async_context(await RoleSession.open("B", device_b))
+        a = await stack.enter_async_context(
+            await RoleSession.open(
+                "A", device_a, session_goal="持续以主持人 A 的身份管理同一会议，批准 B 并发送消息。"
+            )
+        )
+        b = await stack.enter_async_context(
+            await RoleSession.open(
+                "B", device_b, session_goal="持续以参与者 B 的身份申请并确认加入 A 创建的同一会议。"
+            )
+        )
         await run_goal(a, "登录会议应用，确认账号 A 已登录。")
         meeting = Meeting.model_validate(
             await run_goal(

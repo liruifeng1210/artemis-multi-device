@@ -1,6 +1,6 @@
 """Persistent, device-bound Pro Sessions sharing one asyncio event loop.
 
-Main owns orchestration. A Role accepts independent tasks serially, retaining
+Main owns orchestration. A Role accepts continuing assignments serially, retaining
 its native conversation, memory and device connection between tasks.
 """
 
@@ -22,6 +22,7 @@ from artemis.graph.state import State
 from artemis.runtime.device_lock import DeviceExecutionLock
 from artemis.runtime.execution_scope import ExecutionScope, execution_scope
 from artemis.runtime.session_runtime import SessionResources, TaskControl
+from artemis.runtime.session_continuity import SessionContinuity
 from artemis.runtime.task_workspace import safe_identifier, write_manifest
 from artemis.sdk.agent import Agent
 from artemis.sdk.run_outcome import attach_test_summary
@@ -78,6 +79,7 @@ class RoleSession:
         cleanup_timeout: float = 30.0,
         lease_timeout: float = 60.0,
         event_queue_size: int = 256,
+        session_goal: str = "",
     ) -> "RoleSession":
         safe_identifier(role_id)
         device_serial = device_serial.strip()
@@ -115,6 +117,8 @@ class RoleSession:
         self.events = asyncio.Queue(maxsize=event_queue_size)
         self.dropped_events = 0
         self.resources = None
+        self._session_goal = session_goal
+        self._continuity = None
         self._agent = Agent(
             config=config.model_copy(deep=True) if config is not None else None,
             device_serial=device_serial,
@@ -215,6 +219,7 @@ class RoleSession:
                 self.session_id,
                 publish_global=False,
             )
+        self._continuity = SessionContinuity(engine.base_dir, self._session_goal)
         return engine, replace(scope, workspace=engine.base_dir)
 
     def _offer_event(self, event):
@@ -380,6 +385,8 @@ class RoleSession:
             try:
                 ledger = resources.ensure_ledger(run["state"])
                 ledger.begin_task(handle.task_id, handle.attempt_id)
+                self._continuity.begin(handle.task_id, handle.attempt_id, request.goal)
+                ledger.set_context_provider(self._continuity.render)
                 ctx.transcript_ledger = ledger
                 ctx.step_memory = resources.context.step_memory
                 engine._publish("task_started", {"goal": request.goal})
@@ -475,8 +482,7 @@ class RoleSession:
         await flush_data_engine_logs(scope.engine)
         await scope.engine.flush()
 
-    @staticmethod
-    def _write_task_result(result, scope, request):
+    def _write_task_result(self, result, scope, request):
         write_manifest(scope.workspace / "task_result.json", result.__dict__)
         write_manifest(
             scope.workspace / "task_manifest.json",
@@ -488,6 +494,7 @@ class RoleSession:
                 "cleanup_errors": result.cleanup_errors,
             },
         )
+        self._continuity.finish(result, request.goal)
 
     async def _execute_native(self, run):
         ctx, task = run["ctx"], run["task"]
@@ -550,6 +557,9 @@ class RoleSession:
             if pending:
                 raise TimeoutError("Task producers did not stop")
             await asyncio.gather(*producers, return_exceptions=True)
+        from artemis.runtime.task_lifecycle import harvest_task_checkpoints
+
+        harvest_task_checkpoints(ctx, state)
         from artemis.tools.command_tool import shutdown_adb_background_tasks
 
         await shutdown_adb_background_tasks(ctx)
@@ -576,11 +586,10 @@ class RoleSession:
         await control.stop_processes(self.cleanup_timeout)
         ledger = self.resources.ledger
         if ledger:
+            turn = control.turn_outcome
             ledger.commit_staged(
-                step_key=state.current_step_id,
-                validator_result=state.last_execution_result
-                if state.structured_decisions
-                else None,
+                step_key=turn.step_id if turn else None,
+                validator_result=turn.validator_result if turn else None,
             )
         if ctx.step_memory:
             await ctx.step_memory.flush()

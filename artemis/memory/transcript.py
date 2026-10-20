@@ -286,6 +286,7 @@ class TranscriptLedger:
 
         self._static: list[BaseMessage] = []
         self._task_key: tuple[str, str] | None = None
+        self._context_provider = None
         self._restored: list[BaseMessage] = []
         self._active: list[BaseMessage] = []
         self._staged: list[BaseMessage] | None = None
@@ -583,6 +584,14 @@ class TranscriptLedger:
         self._task_key = (task_id, attempt_id)
         self._static = []
 
+    def set_context_provider(self, provider) -> None:
+        """Supply live working context outside the compressed conversation.
+
+        The provider returns messages; lifecycle policy stays with the caller.
+        Committed turns and native compression are unaffected.
+        """
+        self._context_provider = provider
+
     # ------------------------------------------------------------------
     # F region: restored history
     # ------------------------------------------------------------------
@@ -807,5 +816,6 @@ class TranscriptLedger:
             *self._restored,
             *self._frozen_blocks,
             *self._active[self._active_start :],
+            *(self._context_provider() if self._context_provider is not None else []),
             *tail,
         ]

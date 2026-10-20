@@ -860,7 +860,11 @@ def harvest_run(
         evidence = (
             "attempt superseded by a newer completion of the same subgoal"
             if cancelled_status == "superseded"
-            else "cancelled at exit settlement (settlement timeout)"
+            else (
+                "cancelled when the owning task ended"
+                if cancelled_status == "cancelled"
+                else "cancelled at exit settlement (settlement timeout)"
+            )
         )
         _record_attempt_failure(ctx, run, cancelled_status, evidence)
         _event(cancelled_status, _failure_verdicts(cancelled_status, evidence))
@@ -992,8 +996,8 @@ def harvest_finished_checkpoints(ctx, state) -> list[str]:
     for cid, run in list(ctx.checkpoint_tasks.items()):
         if not run.task.done():
             continue
-        del ctx.checkpoint_tasks[cid]
         findings.extend(harvest_run(ctx, state, run, allow_side_effects=True))
+        del ctx.checkpoint_tasks[cid]
     return findings
 
 
@@ -1024,7 +1028,7 @@ async def spawn_pending_checkpoints(ctx, state, anchor_step_id: str | None) -> l
         pending: PendingCheckpoint = ctx.pending_checkpoints.pop(0)
         cid = pending.checkpoint_id
 
-        old_run: CheckpointRun | None = ctx.checkpoint_tasks.pop(cid, None)
+        old_run: CheckpointRun | None = ctx.checkpoint_tasks.get(cid)
         if old_run is not None:
             if old_run.task.done():
                 # A finished-but-unharvested attempt: book it first (verdicts,
@@ -1035,12 +1039,15 @@ async def spawn_pending_checkpoints(ctx, state, anchor_step_id: str | None) -> l
                 try:
                     await old_run.task
                 except (asyncio.CancelledError, Exception) as exc:
+                    if asyncio.current_task().cancelling():
+                        raise
                     logger.debug(
                         f"Superseded checkpoint attempt {old_run.attempt_id} ended with "
                         f"{exc!r}; harvesting anyway",
                         exc_info=True,
                     )
                 harvest_run(ctx, state, old_run, allow_side_effects=False)
+            ctx.checkpoint_tasks.pop(cid, None)
 
         seq = ctx.checkpoint_attempt_seq.get(cid, 0) + 1
         ctx.checkpoint_attempt_seq[cid] = seq
@@ -1083,7 +1090,6 @@ async def settle_all_checkpoints(ctx, state) -> None:
     if not getattr(ctx, "data_engine", None):
         return
     runs = list(ctx.checkpoint_tasks.values())
-    ctx.checkpoint_tasks.clear()
     if not runs:
         return
 
@@ -1101,6 +1107,8 @@ async def settle_all_checkpoints(ctx, state) -> None:
         try:
             await t
         except (asyncio.CancelledError, Exception) as exc:
+            if asyncio.current_task().cancelling():
+                raise
             logger.debug(
                 f"Cancelled checkpoint attempt ended with {exc!r} at settlement; harvesting anyway",
                 exc_info=True,
@@ -1115,6 +1123,9 @@ async def settle_all_checkpoints(ctx, state) -> None:
             allow_side_effects=False,
             cancelled_status="unchecked",
         )
+        cid = run.checkpoint.checkpoint_id
+        if ctx.checkpoint_tasks.get(cid) is run:
+            del ctx.checkpoint_tasks[cid]
 
 
 # --- Run outcome ---------------------------------------------------------------------

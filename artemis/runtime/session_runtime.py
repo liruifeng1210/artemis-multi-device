@@ -21,6 +21,7 @@ class TaskControl:
     step_id: Any = None
     last_recorded_step_id: Any = None
     current_step_dir: Any = None
+    turn_outcome: Any = None
     operations: set = field(default_factory=set)
     processes: set = field(default_factory=set)
 
@@ -127,9 +128,7 @@ class SessionResources:
 
     def ensure_ledger(self, state=None):
         if self.ledger is None:
-            # Reuse the native composition root on a stable memory-only context.
-            from artemis.agents.operator.operator import OperatorNode
+            from artemis.memory.session import ensure_transcript_ledger
 
-            node = OperatorNode(self.context, tools=[])
-            self.ledger = node._ensure_transcript_ledger(state)
+            self.ledger = ensure_transcript_ledger(self.context, state)
         return self.ledger
