@@ -688,6 +688,7 @@ class RoleSession:
                     engine=engine,
                     role_id=self.role_id,
                     session_id=self.session_id,
+                    device_id=self.resources.context.device.device_id,
                     workspace=engine.base_dir,
                 )
             ):

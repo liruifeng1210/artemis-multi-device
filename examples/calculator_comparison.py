@@ -51,7 +51,8 @@ async def main(args):
     from artemis.config import get_default_llm_config, load_agent_config
     save(folder / "config.json", {"llm": get_default_llm_config().model_dump(mode="json"),
          "agent": load_agent_config().model_dump(mode="json"), "task_timeout": args.timeout,
-         "max_steps": 30, "pid": os.getpid(), "started": stamp(),
+         "max_steps": args.max_steps, "video_recording_tools_enabled": False,
+         "pid": os.getpid(), "started": stamp(),
          "orchestrator": "deterministic test harness; intelligent Main absent"})
 
     def event(kind, **data):
@@ -83,7 +84,7 @@ async def main(args):
 
     def submit(name, label, goal):
         role = roles[name]
-        handle = role.submit(TaskRequest(goal=goal, profile="pro", max_steps=30))
+        handle = role.submit(TaskRequest(goal=goal, profile="pro", max_steps=args.max_steps))
         event("submit", role=name, label=label, session=role.session_id,
               device=args.devices[name], task=handle.task_id, attempt=handle.attempt_id, goal=goal)
         return handle
@@ -148,6 +149,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True)
     parser.add_argument("--timeout", type=float, default=900)
+    parser.add_argument("--max-steps", type=int, default=100)
     parser.add_argument("--device-a", default="21850fc5")
     parser.add_argument("--device-b", default="a8acf864")
     args = parser.parse_args()
