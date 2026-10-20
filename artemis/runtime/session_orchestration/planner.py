@@ -52,7 +52,9 @@ class MainPlanner:
                     "without output fields. Invalidated results are history only; add read-only "
                     "reconciliation with the original contract and rebind unexecuted dependents "
                     "to the new tasks before proceeding. "
-                    "Set missing_input when no safe progress is possible. Return PlanProposal JSON."
+                    "Set missing_input when no safe progress is possible. Return PlanProposal JSON.\n"
+                    "The exact required JSON Schema follows; use its field names and nesting:\n"
+                    + json.dumps(PlanProposal.model_json_schema(), ensure_ascii=False)
                 )
             ),
             HumanMessage(content=json.dumps(context, ensure_ascii=False)),

@@ -403,7 +403,7 @@ class MainSession:
                         self.facts,
                         diagnostics=self.diagnostic_history,
                     ),
-                    min(60, max(0.001, self.deadline - time.monotonic())),
+                    min(300, max(0.001, self.deadline - time.monotonic())),
                 )
                 self.journal.append(
                     {"kind": "plan_proposal", "proposal": proposal.model_dump(mode="json")}

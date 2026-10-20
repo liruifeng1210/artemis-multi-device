@@ -118,7 +118,7 @@ async def main(args):
         root=folder, max_workflow_seconds=2400, max_artifact_bytes=1024**3,
         startup_timeout_seconds=180, close_timeout_seconds=90, max_attempts_per_task=1,
         constraints=["仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
-            "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=30。",
+            "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
             "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
             "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。"])
     save(folder / "request.json", workflow.model_dump(mode="json"))
