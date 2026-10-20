@@ -112,7 +112,16 @@ async def main(args):
         "B后续只根据本场景Session历史报告本场景首次观察值和当前值。前一场景首次计算值的记忆"
         "在新Session中未验证，必须如实说明。各Role互不依赖，A取消不能阻止B。"
     )
-    workflow = WorkflowSpec(goal=continuity if args.scenario == "continuity" else cancellation,
+    combined = continuity + (
+        "上述连续计算后保持相同子Session，继续执行独立取消及复用场景。"
+        "即使连续计算失败也应安排独立取消场景：依赖可接受任意终态，不得伪造期望值。"
+        "A逐次+1并等号30次、每次观察，该长任务display_name必须为cancel-A；"
+        "测试员会在派发20秒后用正式Main.cancel取消它。B同时在当前值×4等号期望100。"
+        "A长任务取消后，在同一子Session重新读取实际屏幕值，再+10等号，不假设回滚。"
+        "A后续任务依赖cancel-A的任意终态（尤其cancelled）。B最后仅根据自己的历史报告"
+        "首次计算结果和当前结果。不得清空或重输旧值。把这些任务全都纳入计划。"
+    )
+    workflow = WorkflowSpec(goal={"continuity":continuity,"cancellation":cancellation,"all":combined}[args.scenario],
         roles=[RoleSpec(role_id="A",device_id=args.device_a,description="MI6计算器com.miui.calculator；持续Role记忆首次和当前值"),
                RoleSpec(role_id="B",device_id=args.device_b,description="PJZ110计算器com.coloros.calculator；持续Role记忆首次和当前值")],
         root=folder, max_workflow_seconds=2400, max_artifact_bytes=1024**3,
@@ -147,7 +156,7 @@ async def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--scenario", choices=["continuity","cancellation"], required=True)
+    parser.add_argument("--scenario", choices=["continuity","cancellation","all"], required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--device-a", default="21850fc5")
     parser.add_argument("--device-b", default="a8acf864")
