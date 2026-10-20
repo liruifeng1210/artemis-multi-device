@@ -144,7 +144,7 @@ async def main(args):
     workflow = WorkflowSpec(goal={"continuity":continuity,"cancellation":cancellation,"all":combined}[args.scenario],
         roles=[RoleSpec(role_id="A",device_id=args.device_a,description="MI6计算器com.miui.calculator；持续Role记忆首次和当前值"),
                RoleSpec(role_id="B",device_id=args.device_b,description="PJZ110计算器com.coloros.calculator；持续Role记忆首次和当前值")],
-        root=folder, max_workflow_seconds=2400, max_artifact_bytes=1024**3,
+        root=folder, max_workflow_seconds=4500, max_artifact_bytes=1024**3,
         startup_timeout_seconds=180, close_timeout_seconds=90, max_attempts_per_task=1,
         constraints=["仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
             "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
