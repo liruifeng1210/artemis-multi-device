@@ -213,7 +213,9 @@ class OperatorNode:
         newly_finished_tasks: list[dict] = None,
     ) -> list:
         self._transcript_turn_base = None
-        if getattr(self._transcript_cfg, "enabled", False):
+        if getattr(self.ctx, "session_resources", None) is not None or getattr(
+            self._transcript_cfg, "enabled", False
+        ):
             try:
                 return await self._build_prompt_transcript(
                     state,
@@ -290,6 +292,9 @@ class OperatorNode:
 
     def _ensure_transcript_ledger(self, state=None):
         """Session ledger on the composition root, created on first use."""
+        resources = getattr(self.ctx, "session_resources", None)
+        if resources is not None:
+            return resources.ensure_ledger(state)
         from artemis.memory import TranscriptLedger, ensure_step_memory
 
         ledger = getattr(self.ctx, "transcript_ledger", None)

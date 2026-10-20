@@ -149,6 +149,8 @@ async def _run_object_detection(
         for query in queries
     ]
 
+    if getattr(ctx, "session_resources", None) is not None:
+        ctx.background_tasks.extend(tasks)
     done, pending = await asyncio.wait(tasks, timeout=global_timeout)
 
     for task in pending:

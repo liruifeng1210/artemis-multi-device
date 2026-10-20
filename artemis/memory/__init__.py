@@ -41,6 +41,9 @@ def ensure_step_memory(ctx):
     transcript path — instantiates the visual-transition lens service and
     publishes it on the context so every profile shares one runtime.
     """
+    resources = getattr(ctx, "session_resources", None)
+    if resources is not None:
+        return ensure_step_memory(resources.context)
     service = getattr(ctx, "step_memory", None)
     if service is not None:
         return service

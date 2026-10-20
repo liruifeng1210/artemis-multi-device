@@ -214,7 +214,14 @@ async def _execute_probe(ctx: ArtemisContext, argv: list[str]) -> str:
     try:
         adb_client = ctx.get_adb_client()
         device = adb_client.device(serial=ctx.device.device_id)
-        output = await asyncio.to_thread(device.shell, argv)
+        control = getattr(ctx, "task_control", None)
+        if control is not None:
+            from artemis.runtime.execution_scope import validate_device_scope
+
+            validate_device_scope(ctx)
+            output = await control.own(asyncio.to_thread(device.shell, argv))
+        else:
+            output = await asyncio.to_thread(device.shell, argv)
         text = str(output)
         if len(text) > _PROBE_OUTPUT_LIMIT:
             text = text[:_PROBE_OUTPUT_LIMIT] + "\n... [output truncated]"

@@ -192,7 +192,7 @@ class AgentBase:
         )
 
         # Asynchronously pre-warm LLM connection pools in the background
-        asyncio.create_task(self._prewarm_llm_connections(api_key))
+        self._prewarm_task = asyncio.create_task(self._prewarm_llm_connections(api_key))
 
         logger.info("✅ Artemis agent initialized.")
         self._initialized = True
@@ -458,6 +458,11 @@ class AgentBase:
             last_state: State | None = None
             last_state_snapshot: dict | None = None
             output = None
+
+            def capture_state(snapshot):
+                nonlocal last_state_snapshot
+                last_state_snapshot = snapshot.model_dump()
+
             effective_mode = getattr(self._config, "concurrency_mode", "per_device")
             effective_max = getattr(self._config, "max_concurrency", None)
             sess_id = (
@@ -600,32 +605,10 @@ class AgentBase:
                         else:
                             logger.info(f"[{task_name}] Invoking graph with input: {graph_input}")
                             await task.set_status(status="running", message="Invoking graph...")
-                            async for chunk in (await get_graph(context)).astream(
-                                input=graph_input,
-                                config={
-                                    "recursion_limit": task.request.max_steps,
-                                    "callbacks": (
-                                        (
-                                            list(self._config.graph_config_callbacks)
-                                            if self._config.graph_config_callbacks is not None
-                                            else []
-                                        )
-                                        + [DataEngineCallbackHandler(context)]
-                                        if context.data_engine
-                                        else self._config.graph_config_callbacks
-                                    ),
-                                },
-                                stream_mode=[
-                                    "messages",
-                                    "custom",
-                                    "updates",
-                                    "values",
-                                ],
-                            ):
-                                stream_mode, payload = chunk
-                                if stream_mode == "values":
-                                    last_state_snapshot = payload  # type: ignore
-                                    last_state = State(**last_state_snapshot)  # type: ignore
+                            last_state = await self._invoke_prepared_graph(
+                                context=context, task=task, state=state, on_state=capture_state
+                            )
+                            last_state_snapshot = last_state.model_dump() if last_state else None
 
                             if not last_state:
                                 err = f"[{task_name}] No result received from graph"
@@ -793,6 +776,38 @@ class AgentBase:
                         await cancel_watcher
                     except asyncio.CancelledError:
                         pass
+
+    async def _invoke_prepared_graph(self, *, context, task, state, on_state=None):
+        """Native Pro execution shared by one-shot and persistent Session ingresses."""
+        last_state = None
+        async for chunk in (await get_graph(context)).astream(
+            input=state.model_dump(),
+            config={
+                "recursion_limit": task.request.max_steps,
+                "callbacks": (
+                    (
+                        list(self._config.graph_config_callbacks)
+                        if self._config.graph_config_callbacks is not None
+                        else []
+                    )
+                    + [DataEngineCallbackHandler(context)]
+                    if context.data_engine
+                    else self._config.graph_config_callbacks
+                ),
+            },
+            stream_mode=[
+                "messages",
+                "custom",
+                "updates",
+                "values",
+            ],
+        ):
+            stream_mode, payload = chunk
+            if stream_mode == "values":
+                last_state = State(**payload)
+                if on_state is not None:
+                    on_state(last_state)
+        return last_state
 
     def stop_current_task(self):
         """Requests cancellation of the currently running automation task."""
@@ -1009,7 +1024,9 @@ class AgentBase:
             width, height = (1080, 2400)
             if self._adb_client:
                 try:
-                    width, height = self._adb_client.device(device_id).window_size()
+                    width, height = await asyncio.to_thread(
+                        self._adb_client.device(device_id).window_size
+                    )
                     logger.info(
                         f"Retrieved remote device screen dimensions dynamically: {width}x{height}"
                     )
@@ -1029,7 +1046,9 @@ class AgentBase:
         # strategy. Those belong inside the global execution queue lease.
         if self._adb_client:
             try:
-                device_width, device_height = self._adb_client.device(device_id).window_size()
+                device_width, device_height = await asyncio.to_thread(
+                    self._adb_client.device(device_id).window_size
+                )
                 logger.info(f"Retrieved Android screen dimensions: {device_width}x{device_height}")
             except Exception as e:
                 logger.warning(f"Failed to get Android window size: {e}, using defaults")

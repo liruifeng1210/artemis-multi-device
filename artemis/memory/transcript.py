@@ -285,6 +285,7 @@ class TranscriptLedger:
             self._session_start = self._clock()
 
         self._static: list[BaseMessage] = []
+        self._task_key: tuple[str, str] | None = None
         self._restored: list[BaseMessage] = []
         self._active: list[BaseMessage] = []
         self._staged: list[BaseMessage] | None = None
@@ -571,6 +572,17 @@ class TranscriptLedger:
             raise RuntimeError("TranscriptLedger static prefix is already set.")
         self._static = list(messages)
 
+    def begin_task(self, task_id: str, attempt_id: str) -> None:
+        """Start a task without discarding committed conversation or compression.
+
+        The caller must first settle the previous task and commit its terminal
+        turn. The Operator renders the new byte-stable prefix on its next call.
+        """
+        if self.has_staged_turn:
+            raise RuntimeError("Commit the previous task's staged turn before begin_task")
+        self._task_key = (task_id, attempt_id)
+        self._static = []
+
     # ------------------------------------------------------------------
     # F region: restored history
     # ------------------------------------------------------------------
@@ -663,6 +675,7 @@ class TranscriptLedger:
                 step_keys.append(str(key))
         self._turns.append(
             {
+                "task_key": self._task_key,
                 "step_key": str(step_key) if step_key is not None else None,
                 "step_keys": step_keys,
                 "start": span_start,

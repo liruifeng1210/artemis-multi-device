@@ -105,6 +105,8 @@ class ArtemisTool:
             return getattr(ctx, "_active_driver", None) if ctx is not None else None
 
         def _func(state: Annotated[Any, InjectedState] = None, **kwargs):
+            if getattr(ctx, "session_resources", None) is not None:
+                raise RuntimeError("Managed Role tools must use ainvoke on their owning event loop")
             driver = _get_context_driver()
             if state is not None:
                 kwargs["state"] = state
@@ -124,6 +126,16 @@ class ArtemisTool:
             driver = _get_context_driver()
             if state is not None:
                 kwargs["state"] = state
+            control = getattr(ctx, "task_control", None)
+            if control is not None and self.name in (
+                "run_adb_command",
+                "manage_task",
+                "run_short_adb_command",
+            ):
+                from artemis.runtime.execution_scope import validate_device_scope
+
+                validate_device_scope(ctx)
+                return await control.own(self.execute(driver=driver, ctx=ctx, **kwargs))
             return await self.execute(driver=driver, ctx=ctx, **kwargs)
 
         return StructuredTool.from_function(

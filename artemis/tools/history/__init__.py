@@ -175,7 +175,9 @@ class SearchHistoryTool(ArtemisTool):
         max_results: int = 5,
         **kwargs: Any,
     ) -> str:
-        reader = getattr(ctx, "data_engine", None) if ctx else None
+        from artemis.data_engine.scoped_reader import history_reader
+
+        reader = history_reader(ctx) if ctx else None
         if reader is None:
             return ToolFailure("search_history unavailable: no active execution history.")
         if not query and not step_range:
@@ -245,7 +247,9 @@ class ReplayStepsTool(ArtemisTool):
         end_step: Any = None,
         **kwargs: Any,
     ) -> str:
-        reader = getattr(ctx, "data_engine", None) if ctx else None
+        from artemis.data_engine.scoped_reader import history_reader
+
+        reader = history_reader(ctx) if ctx else None
         if reader is None:
             return ToolFailure("Error: no execution history available.")
         cfg = _replay_config()
@@ -309,7 +313,9 @@ class GetStepScreenshotTool(ArtemisTool):
         which: str = "pre",
         **kwargs: Any,
     ) -> list[dict[str, Any]] | str:
-        reader = getattr(ctx, "data_engine", None) if ctx else None
+        from artemis.data_engine.scoped_reader import history_reader
+
+        reader = history_reader(ctx) if ctx else None
         if reader is None:
             return ToolFailure("Error: no execution history available.")
         try:

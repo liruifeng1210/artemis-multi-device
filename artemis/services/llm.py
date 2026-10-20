@@ -41,6 +41,7 @@ from artemis.config import (
     settings,
 )
 from artemis.context import ArtemisContext
+from artemis.runtime.execution_scope import current_pause_file
 from artemis.data_engine.trace import CURRENT_TRACE_ID, DataEngineCallbackHandler
 from artemis.llm.google import is_google_chat_model, is_google_provider
 from artemis.llm.reliability import (
@@ -113,6 +114,11 @@ _MAX_TOTAL_RETRY_ATTEMPTS = 8
 
 
 def _get_current_data_engine():
+    from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+    scope = CURRENT_EXECUTION.get()
+    if scope is not None:
+        return scope.engine
     if _CURRENT_DATA_ENGINE is not None:
         return _CURRENT_DATA_ENGINE
     engine_module = sys.modules.get("artemis.data_engine.engine")
@@ -302,7 +308,9 @@ def _handle_llm_pause_and_resume(last_error: Exception) -> Path:
         err_msg = err_msg[:1000] + "... [Truncated by LLM Wrapper]"
 
     llm_logger.warning(f"LLM Error: {err_msg}. Pausing execution to wait for resume signal...")
-    pause_file = PAUSE_FILE
+    from artemis.runtime.execution_scope import current_pause_file
+
+    pause_file = current_pause_file()
     try:
         pause_file.write_text(f"LLM Error: {err_msg}", encoding="utf-8")
     except (OSError, UnicodeError):
@@ -865,7 +873,7 @@ async def acomplete_structured(
 invoke_llm_with_timeout_message = LLMWaitNotice(
     notify=user_messages_logger.info,
     on_timeout=user_messages_logger.error,
-    hold=lambda: PAUSE_FILE.exists(),
+    hold=lambda: current_pause_file().exists(),
     default_hard_timeout=180,
 ).__call__
 

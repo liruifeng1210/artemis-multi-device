@@ -426,15 +426,20 @@ class VideoAnalyzer:
         )
 
         # If client is already set on ctx or explicit Gemini configuration
-        self.client = getattr(ctx, "_genai_client", None)
+        owner = getattr(ctx, "session_resources", None)
+        owner = owner.context if owner is not None else ctx
+        self.client = getattr(owner, "_genai_client", None)
         if self.client is not None:
             self.use_native_gemini = True
         elif has_google_key and is_gemini_model(self.model_name):
             try:
                 self.client = genai.Client(api_key=settings.GOOGLE_API_KEY.get_secret_value())
+                owner._genai_client = self.client
                 ctx._genai_client = self.client
                 self.use_native_gemini = True
-                asyncio.create_task(cleanup_abandoned_gemini_files(self.client))
+                cleanup = asyncio.create_task(cleanup_abandoned_gemini_files(self.client))
+                if getattr(ctx, "session_resources", None) is not None:
+                    ctx.background_tasks.append(cleanup)
             except Exception as e:
                 logger.warning(
                     f"Failed to initialize native Gemini client: {e}. Using universal engine."

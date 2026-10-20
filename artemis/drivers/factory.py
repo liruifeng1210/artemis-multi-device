@@ -74,6 +74,13 @@ def create_driver(ctx: "ArtemisContext") -> BaseDeviceDriver:
 
 def get_driver(ctx: "ArtemisContext") -> BaseDeviceDriver:
     """Cached accessor for device driver in the current context."""
+    resources = getattr(ctx, "session_resources", None)
+    if resources is not None:
+        from artemis.runtime.session_runtime import TaskDriver
+
+        if ctx._active_driver is None:
+            ctx._active_driver = TaskDriver(resources.driver, ctx)
+        return ctx._active_driver
     if not hasattr(ctx, "_active_driver") or getattr(ctx, "_active_driver") is None:
         driver = create_driver(ctx)
         setattr(ctx, "_active_driver", driver)

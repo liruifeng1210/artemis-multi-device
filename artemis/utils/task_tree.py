@@ -16,6 +16,7 @@ import ast
 import json
 import logging
 from pathlib import Path
+from artemis.runtime.task_workspace import task_base_dir
 import re
 from typing import Any
 
@@ -1123,7 +1124,7 @@ def get_all_subgoal_aliases(target_hash: str, base_dir: str | Path | None = None
     if not base_dir or not isinstance(base_dir, (str, Path)):
         return aliases
 
-    chain_path = Path(base_dir) / "notes" / "subgoal_hash_chain.json"
+    chain_path = task_base_dir(base_dir) / "notes" / "subgoal_hash_chain.json"
     if not chain_path.exists():
         return aliases
 

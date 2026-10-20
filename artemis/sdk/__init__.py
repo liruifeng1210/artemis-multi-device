@@ -21,6 +21,19 @@ tasks.
 from artemis.sdk import builders, types
 from artemis.sdk.agent import Agent
 
-__all__ = ["Agent"]
+
+def __getattr__(name):
+    # Keep the one-shot SDK and stdio server's import path unchanged. Persistent
+    # Session infrastructure is loaded only by callers using this new API.
+    if name in ("RoleSession", "RoleSessionOpenError", "RoleTaskResult", "TaskHandle"):
+        from artemis.sdk import role_session
+
+        value = getattr(role_session, name)
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+__all__ = ["Agent", "RoleSession", "RoleSessionOpenError", "RoleTaskResult", "TaskHandle"]
 __all__ += types.__all__
 __all__ += builders.__all__

@@ -128,6 +128,11 @@ class ArtemisContext(DeviceClientAccessors, BaseModel):
     execution_setup: ExecutionSetup | None = None
 
     data_engine: DataEngine | None = None
+    session_resources: Any | None = None
+    task_control: Any | None = None
+    execution_scope: Any | None = None
+    task_workspace: Path | None = None
+    owns_data_engine: bool = True
     planner_task: asyncio.Task[Any] | None = None
     background_tasks: list[asyncio.Task[Any]] = Field(default_factory=list)
     background_task_grace_period_seconds: float = 2.0
@@ -199,6 +204,10 @@ class ArtemisContext(DeviceClientAccessors, BaseModel):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.session_resources is not None:
+            # RoleSession owns the ordered task barrier and the shared resources.
+            # It must see cleanup errors rather than logging and forgetting them.
+            return
         # Close the in-process action session before draining background tasks so its
         # owner task exits cleanly rather than being cancelled below.
         if self.action_session is not None:
@@ -277,7 +286,7 @@ class ArtemisContext(DeviceClientAccessors, BaseModel):
                 self.mcp_client_ctx = None
                 self.mcp_session = None
 
-        if self.data_engine:
+        if self.data_engine and self.owns_data_engine:
             try:
                 await self.data_engine.shutdown()
             except Exception as exc:

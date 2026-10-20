@@ -113,12 +113,41 @@ def serialize_error(error: Any) -> str:
     return f"{error.__class__.__name__}: {err_str}"
 
 
+def _owned_llm_callback(method):
+    """An end/error callback belongs to the scope captured by its start callback."""
+    from functools import wraps
+
+    @wraps(method)
+    def invoke(self, *args, run_id, **kwargs):
+        from artemis.runtime.execution_scope import CURRENT_EXECUTION, execution_scope
+
+        if (
+            getattr(self.ctx, "session_resources", None) is None
+            and getattr(self.ctx.data_engine, "is_managed_session", False) is not True
+        ):
+            return method(self, *args, run_id=run_id, **kwargs)
+        scopes = self._execution_scopes
+        starting = method.__name__ in ("on_llm_start", "on_chat_model_start")
+        if starting:
+            scopes[run_id] = CURRENT_EXECUTION.get() or self.ctx.execution_scope
+        scope = scopes.get(run_id, self.ctx.execution_scope)
+        try:
+            with execution_scope(scope):
+                return method(self, *args, run_id=run_id, **kwargs)
+        finally:
+            if not starting:
+                scopes.pop(run_id, None)
+
+    return invoke
+
+
 class DataEngineCallbackHandler(BaseCallbackHandler):
     """Callback handler to record executions to DataEngine."""
 
     def __init__(self, ctx: ArtemisContext):
         self.ctx = ctx
         self.running_spans = {}
+        self._execution_scopes = {}
         self.chain_parents = {}
 
     def _resolve_parent_id(
@@ -190,6 +219,7 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
             return None
         return self.ctx.data_engine.current_step_id
 
+    @_owned_llm_callback
     def on_llm_start(
         self,
         serialized: dict[str, Any],
@@ -218,6 +248,7 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
                 step_id=self._current_step_id(),
             )
 
+    @_owned_llm_callback
     def on_chat_model_start(
         self,
         serialized: dict[str, Any],
@@ -258,6 +289,7 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
         except Exception:
             return uuid.uuid4()
 
+    @_owned_llm_callback
     def on_llm_end(
         self,
         response: Any,
@@ -370,6 +402,7 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
                     step_id=step_id,
                 )
 
+    @_owned_llm_callback
     def on_llm_error(
         self,
         error: Any,
@@ -638,14 +671,20 @@ class TraceSpan:
         self.result: Any = None
         self.error: Any = None
         self.payload: dict[str, Any] = {}
+        self.execution_scope = None
+        self.step_id = None
 
     def __enter__(self):
+        from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+        self.execution_scope = CURRENT_EXECUTION.get()
         self.start_time = time.time()
         self.parent_id = CURRENT_TRACE_ID.get()
         self.token = CURRENT_TRACE_ID.set(self.trace_id)
 
         if self.ctx and self.ctx.data_engine:
             step_id = getattr(self.ctx.data_engine, "current_step_id", None)
+            self.step_id = step_id
             self.ctx.data_engine.record_trace(
                 type=self.trace_type,
                 name=self.name,
@@ -675,17 +714,23 @@ class TraceSpan:
             else:
                 final_payload["error"] = serialize_error(self.error)
 
-            step_id = getattr(self.ctx.data_engine, "current_step_id", None)
-            self.ctx.data_engine.record_trace(
-                type=self.trace_type,
-                name=self.name,
-                payload=final_payload,
-                status=self.status,
-                duration=duration,
-                trace_id=self.trace_id,
-                parent_trace_id=self.parent_id,
-                step_id=step_id,
-            )
+            from artemis.runtime.execution_scope import execution_scope
+
+            with execution_scope(self.execution_scope):
+                self.ctx.data_engine.record_trace(
+                    type=self.trace_type,
+                    name=self.name,
+                    payload=final_payload,
+                    status=self.status,
+                    duration=duration,
+                    trace_id=self.trace_id,
+                    parent_trace_id=self.parent_id,
+                    step_id=(
+                        self.step_id
+                        if self.execution_scope is not None
+                        else getattr(self.ctx.data_engine, "current_step_id", None)
+                    ),
+                )
 
 
 @contextlib.contextmanager

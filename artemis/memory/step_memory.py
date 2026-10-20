@@ -92,6 +92,7 @@ class StepMemoryService:
         flush_timeout_s: float = 30.0,
     ):
         self.ctx = ctx
+        self._job_scopes = {}
         self._lens = lens
         self._summaries: dict[JobKey, str] = {}
         self._failed: set[JobKey] = set()
@@ -125,13 +126,19 @@ class StepMemoryService:
             payload: Lens-specific input data; stored until the job resolves.
             aliases: Additional keys (e.g. tool_call_id) that resolve to ``key``.
         """
+        from artemis.runtime.execution_scope import CURRENT_EXECUTION, execution_scope
+
+        scope = CURRENT_EXECUTION.get()
+        if scope is not None:
+            self._job_scopes.setdefault(key, scope)
         for alias in aliases:
             if alias is not None and alias != key:
                 self._aliases[alias] = key
 
         self._step_inputs[key] = payload
         self._failed.discard(key)
-        self._on_status(key, "pending")
+        with execution_scope(self._job_scopes.get(key, scope)):
+            self._on_status(key, "pending")
 
         task = asyncio.create_task(self._run_until_ready(key))
         self._pending_tasks[key] = task
@@ -155,7 +162,14 @@ class StepMemoryService:
         a lens records (model calls, their thinking/raw_thinking children,
         stream deltas, usage) can be attributed to the submitter's step.
         """
-        with detached_trace(self.trace_node_name):
+        from artemis.runtime.execution_scope import CURRENT_EXECUTION, execution_scope
+
+        scope = self._job_scopes.get(key, CURRENT_EXECUTION.get())
+        if scope is not None:
+            from dataclasses import replace
+
+            scope = replace(scope, step_id=None)
+        with execution_scope(scope), detached_trace(self.trace_node_name):
             await self._run_attempts(key)
 
     async def _run_attempts(self, key: JobKey) -> None:

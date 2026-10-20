@@ -93,7 +93,10 @@ async def invoke_tool_with_injection(
         token = CURRENT_TRACE_ID.set(trace_id)
         start_time = time.time()
 
-        live_engine = getattr(engine_mod, "_CURRENT_DATA_ENGINE", None)
+        from artemis.runtime.execution_scope import get_current_data_engine
+
+        live_engine = get_current_data_engine()
+        step_id = getattr(live_engine, "current_step_id", None) if live_engine else None
 
         if record_trace and live_engine:
             step_id = getattr(live_engine, "current_step_id", None)
@@ -115,7 +118,15 @@ async def invoke_tool_with_injection(
             if inspect.iscoroutinefunction(func):
                 result = await func(**final_args)
             else:
-                result = func(**final_args)
+                from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+                scope = CURRENT_EXECUTION.get()
+                if scope is not None and scope.task_id:
+                    import asyncio
+
+                    result = await scope.control.own(asyncio.to_thread(func, **final_args))
+                else:
+                    result = func(**final_args)
             execution_result = result
             if is_tool_failure(result):
                 # A structural failure is traced as one; the text is the error.
@@ -131,7 +142,6 @@ async def invoke_tool_with_injection(
         finally:
             duration = time.time() - start_time
             if record_trace and live_engine:
-                step_id = getattr(live_engine, "current_step_id", None)
                 payload = {"args": {k: smart_serialize(v) for k, v in args.items()}}
 
                 if execution_status == "success":

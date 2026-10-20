@@ -64,7 +64,13 @@ class UnifiedMobileController(UnifiedMobileControllerBase):
         }
         if os.name == "nt":
             kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
-        return await asyncio.create_subprocess_exec(*command, **kwargs)
+        operation = asyncio.create_subprocess_exec(*command, **kwargs)
+        from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+        scope = CURRENT_EXECUTION.get()
+        if scope is not None and scope.control is not None:
+            return await scope.control.start_process(operation)
+        return await operation
 
     @staticmethod
     async def _stop_scrcpy(process: asyncio.subprocess.Process) -> None:

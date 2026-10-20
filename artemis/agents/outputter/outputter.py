@@ -138,7 +138,9 @@ def _resolve_plan_and_history(ctx: ArtemisContext) -> str | None:
         current_plan = ""
         base_dir = _notes_base_dir(ctx)
         if base_dir:
-            current_path = Path(base_dir) / "notes" / "task_plan.md"
+            from artemis.utils.notes import get_note_file_path
+
+            current_path = get_note_file_path(base_dir, "task_plan")
             if current_path.exists():
                 try:
                     current_plan = current_path.read_text(encoding="utf-8")

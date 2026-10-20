@@ -403,9 +403,16 @@ class Agent(AgentBase):
         self._announce_hierarchy_backend(context, session_id, None, backend, None)
         add_listener = getattr(client, "add_backend_listener", None)
         if callable(add_listener):
+            from artemis.runtime.execution_scope import CURRENT_EXECUTION, execution_scope
+
+            owner_scope = CURRENT_EXECUTION.get()
 
             def listener(previous, new, reason):
-                self._announce_hierarchy_backend(context, session_id, previous, new, reason)
+                if owner_scope is not None:
+                    with execution_scope(owner_scope):
+                        self._announce_hierarchy_backend(context, session_id, previous, new, reason)
+                else:
+                    self._announce_hierarchy_backend(context, session_id, previous, new, reason)
 
             add_listener(listener)
             self._hierarchy_backend_listener = (client, listener)

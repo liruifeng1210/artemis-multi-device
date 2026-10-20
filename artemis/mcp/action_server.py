@@ -31,6 +31,7 @@ Exceptions raised by the actuator are wrapped here with the historical
 """
 
 import asyncio
+from functools import wraps
 from typing import Annotated, Any
 
 from mcp.server.fastmcp import FastMCP
@@ -66,7 +67,9 @@ def _wrap_exception(action: str, exc: Exception) -> CallToolResult:
     )
 
 
-def build_action_server(actuator: Actuator, name: str = "artemis_actions") -> FastMCP:
+def build_action_server(
+    actuator: Actuator, name: str = "artemis_actions", *, request_context=None
+) -> FastMCP:
     """Builds a FastMCP server exposing exactly what ``actuator`` implements.
 
     Raises ``ActuatorContractError`` when the actuator violates the manifest, so a
@@ -76,6 +79,36 @@ def build_action_server(actuator: Actuator, name: str = "artemis_actions") -> Fa
     caps = actuator.capabilities()
     mcp = FastMCP(name)
 
+    def add_tool(handler, **options):
+        if request_context is not None:
+            native = handler
+
+            @wraps(native)
+            async def handler(*args, **kwargs):
+                # MCP's receive loop owns its own Tasks; it does not inherit
+                # the client's per-request ContextVars. The serial transport
+                # queue supplies an explicit snapshot at this boundary.
+                context = request_context()
+                if context is None:
+                    raise RuntimeError("Managed action has no request context")
+
+                async def invoke():
+                    from artemis.runtime.execution_scope import validate_device_scope
+
+                    validate_device_scope(getattr(actuator, "ctx", None))
+                    return await native(*args, **kwargs)
+
+                return await context.copy().run(asyncio.create_task, invoke())
+
+        mcp.add_tool(handler, **options)
+
+    def tool():
+        def register(handler):
+            add_tool(handler)
+            return handler
+
+        return register
+
     # --- Device actions (registered only when implemented) ---------------------------
     # Declarations and argument conversion both come from the canonical manifest
     # (artemis/mcp/action_specs.py); this server contributes only the transport
@@ -83,7 +116,7 @@ def build_action_server(actuator: Actuator, name: str = "artemis_actions") -> Fa
 
     for spec in wire_dialects():
         if spec.name in caps:
-            mcp.add_tool(
+            add_tool(
                 make_wire_handler(spec, actuator, _wrap, _wrap_exception),
                 name=spec.name,
                 description=spec.wire.description,
@@ -93,7 +126,7 @@ def build_action_server(actuator: Actuator, name: str = "artemis_actions") -> Fa
 
     if "observe_screen" in caps:
 
-        @mcp.tool()
+        @tool()
         async def observe_screen(
             settle_ms: int = 400, include_image: bool = False
         ) -> Annotated[CallToolResult, ObserveResult]:
@@ -143,7 +176,7 @@ def build_action_server(actuator: Actuator, name: str = "artemis_actions") -> Fa
 
     if "take_screenshot" in caps:
 
-        @mcp.tool()
+        @tool()
         async def take_screenshot(timeout_ms: int | None = None) -> CallToolResult:
             """Return the current screen as base64 (adapter-internal, no persistence)."""
             try:
@@ -166,7 +199,7 @@ def build_action_server(actuator: Actuator, name: str = "artemis_actions") -> Fa
 
     if "get_ui_hierarchy" in caps:
 
-        @mcp.tool()
+        @tool()
         async def get_ui_hierarchy(timeout_ms: int | None = None) -> CallToolResult:
             """Return the raw UI element hierarchy (adapter-internal)."""
             try:
@@ -193,7 +226,7 @@ def build_action_server(actuator: Actuator, name: str = "artemis_actions") -> Fa
     # --- Backend extension tools -----------------------------------------------------
 
     for ext in actuator.extensions():
-        mcp.add_tool(ext.handler, name=ext.name, description=ext.description)
+        add_tool(ext.handler, name=ext.name, description=ext.description)
 
     logger.info(
         f"Action server '{name}' built with {len(caps)} device actions and"

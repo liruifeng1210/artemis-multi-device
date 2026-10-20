@@ -116,6 +116,7 @@ class DeviceExecutionLock:
         session_id: str | None = None,
         ingress: str | None = None,
         lock_scope: str | None = None,
+        consume_queue_ticket: bool = True,
     ):
         self.device_id = device_id or "default"
         self.lock_scope = lock_scope or os.getenv(self.LOCK_SCOPE_ENV) or None
@@ -132,7 +133,9 @@ class DeviceExecutionLock:
         self.path = lock_dir / f"artemis-device-{self.clean_device_id}.lock"
         # Shared FIFO wait queue directory across all processes
         self.queue_dir = lock_dir / "artemis-global-device.queue"
-        self._initial_queue_ticket = queue_ticket or os.environ.pop(self.QUEUE_TICKET_ENV, None)
+        self._initial_queue_ticket = queue_ticket or (
+            os.environ.pop(self.QUEUE_TICKET_ENV, None) if consume_queue_ticket else None
+        )
         self.queue_ticket = self._initial_queue_ticket
         self.session_id = (
             session_id or os.getenv("ARTEMIS_SESSION_ID") or os.getenv("ARTEMIS_CLOUD_SESSION_ID")
@@ -938,10 +941,7 @@ class DeviceExecutionLock:
         """Attach session metadata after tracing starts inside the lease owner."""
         lock_dir = get_temp_dir("device-locks")
         if device_id is not None:
-            clean_id = cls._normalize_device_id(device_id)
-            path = lock_dir / f"artemis-device-{clean_id}.lock"
-            if not path.exists():
-                path = lock_dir / "artemis-global-device.lock"
+            path = cls._device_lock_path(device_id)
         else:
             path = cls._find_lock_by_pid(os.getpid())
             if path is None:
@@ -949,6 +949,8 @@ class DeviceExecutionLock:
 
         owner = cls._read_owner(path)
         if owner is None or owner.pid != os.getpid() or not cls._owner_is_alive(owner):
+            return False
+        if device_id is not None and owner.device_id != device_id:
             return False
         payload = {
             "pid": owner.pid,
@@ -959,6 +961,7 @@ class DeviceExecutionLock:
             "acquired_at": owner.acquired_at,
             "session_id": str(session_id),
             "ingress": ingress or owner.ingress or "sdk",
+            "lock_scope": owner.lock_scope,
         }
         return cls._atomic_write_json(path, payload)
 

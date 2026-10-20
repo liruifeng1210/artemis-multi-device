@@ -15,6 +15,7 @@
 import asyncio
 import base64
 import functools
+import inspect
 import json
 from collections import Counter
 from typing import Annotated, Literal
@@ -947,6 +948,36 @@ def convergence_gate(
 
 async def get_graph(ctx: ArtemisContext) -> CompiledStateGraph:
     graph_builder = StateGraph(State)
+    if getattr(ctx, "session_resources", None) is not None:
+        from artemis.runtime.execution_scope import execution_scope
+        from dataclasses import replace
+
+        add_native_node = graph_builder.add_node
+
+        def add_scoped_node(node, action=None, **options):
+            name = node if isinstance(node, str) else getattr(node, "__name__", "node")
+            action = action if action is not None else node
+
+            async def invoke(state: State):
+                scope = replace(
+                    ctx.execution_scope,
+                    phase=name,
+                    step_id=ctx.task_control.step_id,
+                )
+                with execution_scope(scope):
+                    result = action(state)
+                    result = await result if inspect.isawaitable(result) else result
+                    from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+                    # ContextVar changes inside this node do not flow to the
+                    # next LangGraph Task. Only the main graph cursor advances;
+                    # checkpoint children keep their original captured cursor.
+                    ctx.task_control.step_id = CURRENT_EXECUTION.get().step_id
+                    return result
+
+            return add_native_node(name, invoke, **options)
+
+        graph_builder.add_node = add_scoped_node
 
     # Get native tools
     native_wrappers = [

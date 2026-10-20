@@ -568,10 +568,13 @@ class DataEngine:
         goal: str,
         device_info: dict[str, Any] | None = None,
         session_id: UUID | str | None = None,
+        *,
+        publish_global: bool = True,
     ) -> UUID:
         """Start a new session."""
         global _CURRENT_DATA_ENGINE
-        _CURRENT_DATA_ENGINE = self
+        if publish_global:
+            _CURRENT_DATA_ENGINE = self
 
         if session_id is not None:
             if isinstance(session_id, str):
@@ -594,7 +597,9 @@ class DataEngine:
         self.session_start_time = time.time()
 
         # Clear old pause file if it exists
-        pause_file = PAUSE_FILE
+        from artemis.runtime.execution_scope import current_pause_file
+
+        pause_file = current_pause_file()
         if pause_file.exists():
             try:
                 pause_file.unlink()
@@ -616,6 +621,7 @@ class DataEngine:
             DeviceExecutionLock.annotate_active_owner(
                 session_id=str(session_id),
                 ingress=os.getenv("ARTEMIS_TASK_INGRESS") or "sdk",
+                device_id=self.ctx.device.device_id,
             )
         except Exception as exc:
             logger.debug(f"Could not annotate active device owner: {exc}")
@@ -653,7 +659,9 @@ class DataEngine:
             status = "completed"
 
         # Clear pause file if it exists
-        pause_file = PAUSE_FILE
+        from artemis.runtime.execution_scope import current_pause_file
+
+        pause_file = current_pause_file()
         if pause_file.exists():
             try:
                 pause_file.unlink()
@@ -1088,21 +1096,22 @@ class DataEngine:
             or len([t for t in self._pending_threads if t.is_alive()]) > 0
         )
 
-    async def shutdown(self):
-        """Wait for all pending background tasks and threads to complete."""
-        if self._pending_tasks:
-            logger.info(
-                f"Waiting for {len(self._pending_tasks)} pending async tasks to complete..."
-            )
-            await asyncio.gather(*self._pending_tasks, return_exceptions=True)
-
-        if self._pending_threads:
-            logger.info(f"Waiting for {len(self._pending_threads)} pending threads to complete...")
-            threads_to_join = list(self._pending_threads)
-            for thread in threads_to_join:
+    async def flush(self):
+        """Drain writes without closing this Session's IPC transport."""
+        while self._pending_tasks or self._pending_threads:
+            tasks = list(self._pending_tasks)
+            threads = list(self._pending_threads)
+            if tasks:
+                await asyncio.gather(*tasks, return_exceptions=True)
+            for thread in threads:
                 if thread.is_alive():
                     await asyncio.to_thread(thread.join)
+            # Done callbacks and the worker-thread cleanup remove the entries.
+            await asyncio.sleep(0)
 
+    async def shutdown(self):
+        """Drain writes and close the Session's IPC transport."""
+        await self.flush()
         with self._ipc_socket_lock:
             self._ipc_shutdown = True
             if self.ipc_socket is not None:

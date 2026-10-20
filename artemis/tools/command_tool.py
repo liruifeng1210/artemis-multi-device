@@ -115,6 +115,25 @@ HANG_GUIDANCE = (
 )
 
 
+async def _owned_shell(ctx, device, command):
+    operation = asyncio.to_thread(device.shell, command)
+    control = getattr(ctx, "task_control", None)
+    if control is not None:
+        from artemis.runtime.execution_scope import validate_device_scope
+
+        validate_device_scope(ctx)
+        return await control.own(operation)
+    return await operation
+
+
+async def _owned_process(ctx, *args, **kwargs):
+    operation = asyncio.create_subprocess_exec(*args, **kwargs)
+    control = getattr(ctx, "task_control", None)
+    if control is not None:
+        return await control.start_process(operation)
+    return await operation
+
+
 def _adb_binary() -> str:
     """Resolves the adb executable through the shared toolchain resolver."""
     try:
@@ -707,7 +726,7 @@ class RunAdbCommandTool(ArtemisTool):
             try:
                 device = get_adb_device(ctx)
                 output = await asyncio.wait_for(
-                    asyncio.to_thread(device.shell, phone_script),
+                    _owned_shell(ctx, device, phone_script),
                     timeout=wait_seconds,
                 )
             except TimeoutError:
@@ -735,7 +754,8 @@ class RunAdbCommandTool(ArtemisTool):
         # The script travels as an argument so the remote shell exits with it;
         # stdin is closed unless the caller wants to feed input later.
         try:
-            process = await asyncio.create_subprocess_exec(
+            process = await _owned_process(
+                ctx,
                 _adb_binary(),
                 "-s",
                 device_id,
@@ -1091,7 +1111,7 @@ class RunShortAdbCommandTool(ArtemisTool):
             try:
                 device = get_adb_device(ctx)
                 output = await asyncio.wait_for(
-                    asyncio.to_thread(device.shell, phone_script),
+                    _owned_shell(ctx, device, phone_script),
                     timeout=timeout,
                 )
                 return f"ADB command completed.\nOutput:\n{output}"
@@ -1101,7 +1121,8 @@ class RunShortAdbCommandTool(ArtemisTool):
                 return ToolFailure(f"Error running command: {e}")
 
         try:
-            process = await asyncio.create_subprocess_exec(
+            process = await _owned_process(
+                ctx,
                 _adb_binary(),
                 "-s",
                 device_id,

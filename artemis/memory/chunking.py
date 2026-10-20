@@ -883,6 +883,7 @@ class HistoryChunkManager:
     ):
         self._engine = engine
         self._ctx = ctx
+        self._chunk_scopes = {}
         # Accepted for the callers' wiring; the frozen region no longer
         # recites the goal (the prompt carries it elsewhere).
         self._goal = goal
@@ -1030,6 +1031,19 @@ class HistoryChunkManager:
         aliases = self._subgoal_aliases(checkpoint_id)
         annotated = False
         for chunk in self._all_chunks():
+            from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+            active = CURRENT_EXECUTION.get()
+            owner = self._chunk_scopes.get(chunk.capsule_key)
+            if (
+                active is not None
+                and active.task_id
+                and (
+                    owner is None
+                    or (owner.task_id, owner.attempt_id) != (active.task_id, active.attempt_id)
+                )
+            ):
+                continue
             if chunk.subgoal_hash and chunk.subgoal_hash in aliases:
                 chunk.annotations.extend(verdicts)
                 chunk.version += 1
@@ -1433,9 +1447,15 @@ class HistoryChunkManager:
         """
         segments: list[tuple[str | None, list[dict]]] = []
         current_hash: str | None = None
+        current_task = None
         current: list[dict] = []
         started = False
         for turn in eligible:
+            task_key = turn.get("task_key")
+            if current and task_key != current_task:
+                segments.append((current_hash, current))
+                current, current_hash, started = [], None, False
+            current_task = task_key
             key = turn.get("step_key")
             stamped = self._step_hashes.get(str(key)) if key is not None else None
             if stamped is None and not started:
@@ -1492,7 +1512,10 @@ class HistoryChunkManager:
         steps: list[dict] = []
         try:
             if self._engine is not None:
-                steps = self._engine.get_agent_friendly_steps() or []
+                getter = getattr(
+                    self._engine, "get_session_steps", self._engine.get_agent_friendly_steps
+                )
+                steps = getter() or []
         except Exception as e:
             logger.error(f"Failed to load steps for chunking: {e}")
         return {str(s.get("step_id")): s for s in steps}
@@ -1550,7 +1573,7 @@ class HistoryChunkManager:
             end_step_id=str(end_step.get("step_id")),
             source_step_ids=[str(s.get("step_id")) for s in steps],
             subgoal_hash=seg_hash,
-            milestone_label=self._resolve_label(seg_hash),
+            milestone_label=self._resolve_task_label(seg_hash, steps),
             start_offset=step_offset_label(start_step, session_start),
             end_offset=step_offset_label(end_step, session_start),
             band3=build_action_ledger(steps, session_start),
@@ -1561,11 +1584,19 @@ class HistoryChunkManager:
         # Ready gating: the caller queues the chunk as awaiting — it only
         # enters self._chunks (and the frozen region) once its capsule is
         # ready, or through the hard-threshold emergency swap.
+        resolver = getattr(self._engine, "scope_for_steps", None)
+        owner = resolver(steps) if callable(resolver) else None
+        if owner is not None:
+            self._chunk_scopes[chunk.capsule_key] = owner
         self._persist(chunk)
         self._dispatch_capsule(chunk, steps, session_start, turn_records)
         # Attach the trace to the step allocated before this prompt render.
         chunk.trace_id = uuid4()
-        chunk.trace_step_id = getattr(self._engine, "current_step_id", None)
+        chunk.trace_step_id = (
+            chunk.end_step_id
+            if owner is not None
+            else getattr(self._engine, "current_step_id", None)
+        )
         chunk.announced_at = time.time()
         if ledger is not None:
             try:
@@ -1628,17 +1659,22 @@ class HistoryChunkManager:
         if status != "running" and chunk.announced_at is not None:
             duration = max(0.0, time.time() - chunk.announced_at)
         try:
-            engine.record_trace(
-                type="tool",
-                name=COMPRESSION_TRACE_NAME,
-                payload=payload,
-                step_id=chunk.trace_step_id,
-                status=status,
-                duration=duration,
-                trace_id=chunk.trace_id,
-            )
+            with self._chunk_scope(chunk):
+                self._record_compression_trace(engine, chunk, payload, status, duration)
         except Exception as e:
             logger.debug(f"Compression announcement skipped for {chunk.capsule_key}: {e}")
+
+    @staticmethod
+    def _record_compression_trace(engine, chunk, payload, status, duration):
+        engine.record_trace(
+            type="tool",
+            name=COMPRESSION_TRACE_NAME,
+            payload=payload,
+            step_id=chunk.trace_step_id,
+            status=status,
+            duration=duration,
+            trace_id=chunk.trace_id,
+        )
 
     def _on_capsule_failed(self, key: JobKey) -> None:
         """Mark the trace failed; keep the chunk pending for a later retry.
@@ -1702,9 +1738,25 @@ class HistoryChunkManager:
         if any(t.get("transcript") for t in payload_turns):
             payload["turns"] = payload_turns
         try:
-            self._capsule_service.submit(chunk.capsule_key, payload)
+            from contextlib import nullcontext
+            from artemis.runtime.execution_scope import execution_scope
+
+            resolver = getattr(self._engine, "scope_for_steps", None)
+            scope = resolver(steps) if callable(resolver) else None
+            with execution_scope(scope) if scope is not None else nullcontext():
+                self._capsule_service.submit(chunk.capsule_key, payload)
         except Exception as e:
             logger.error(f"Failed to dispatch chunk capsule {chunk.capsule_key}: {e}")
+
+    def _resolve_task_label(self, seg_hash, steps):
+        from artemis.runtime.execution_scope import execution_scope
+
+        resolver = getattr(self._engine, "scope_for_steps", None)
+        scope = resolver(steps) if callable(resolver) else None
+        if scope is not None:
+            with execution_scope(scope):
+                return self._resolve_label(seg_hash)
+        return self._resolve_label(seg_hash)
 
     def _resolve_label(self, seg_hash: str | None) -> str | None:
         if not seg_hash or seg_hash == "default":
@@ -1752,7 +1804,18 @@ class HistoryChunkManager:
             chunk.version += 1
             self._persist(chunk)
 
+    def _chunk_scope(self, chunk):
+        from contextlib import nullcontext
+        from artemis.runtime.execution_scope import execution_scope
+
+        scope = self._chunk_scopes.get(chunk.capsule_key)
+        return execution_scope(scope) if scope is not None else nullcontext()
+
     def _persist(self, chunk: ChunkState) -> None:
+        with self._chunk_scope(chunk):
+            self._persist_native(chunk)
+
+    def _persist_native(self, chunk: ChunkState) -> None:
         try:
             if self._engine is None or not hasattr(self._engine, "record_history_chunk"):
                 return

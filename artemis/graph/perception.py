@@ -78,7 +78,9 @@ def _check_injected_instruction_file(base_dir: str) -> dict | None:
     Returns the payload dict: `instruction` (str | None) plus the explicit
     `release_loop` stop signal (bool) declared by the injecting caller.
     """
-    instruction_path = Path(base_dir) / "injected_instruction.json"
+    from artemis.runtime.task_workspace import task_base_dir
+
+    instruction_path = task_base_dir(base_dir) / "injected_instruction.json"
     if instruction_path.exists():
         with open(instruction_path, encoding="utf-8") as f:
             data = json.load(f)
@@ -206,12 +208,9 @@ async def perception_node(state: State, ctx: ArtemisContext) -> dict:
     if ctx.data_engine:
         image_name = hashlib.sha256(latest_screenshot_bytes).hexdigest()
         screenshot_path = str(ctx.data_engine.get_image_path(image_name))
-        asyncio.create_task(
-            asyncio.to_thread(
-                ctx.data_engine.get_or_create_image,
-                latest_screenshot_bytes,
-                ui_tree=xml_hierarchy,
-                ocr_result=ocr_results,
+        ctx.data_engine._run_in_background(
+            lambda: ctx.data_engine.get_or_create_image(
+                latest_screenshot_bytes, ui_tree=xml_hierarchy, ocr_result=ocr_results
             )
         )
         logger.info(f"Offloaded perception data saving to background with image_name: {image_name}")

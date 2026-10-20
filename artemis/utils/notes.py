@@ -19,7 +19,8 @@ from pathlib import Path
 import re
 
 from artemis.core.tool_failure import ToolFailure
-from artemis.data_engine.engine import _CURRENT_DATA_ENGINE
+from artemis.runtime.execution_scope import get_current_data_engine
+from artemis.runtime.task_workspace import task_base_dir
 from artemis.utils.plan_grammar import parse_plan
 from third_party.mobile_use.utils.logger import get_logger
 
@@ -84,7 +85,7 @@ UPDATE_NOTE_ARG_REPLACEMENT_DESC = (
 
 def get_notes_dir(base_dir: str | Path) -> Path:
     """Gets the absolute path to the notes directory inside the session's base directory."""
-    return Path(base_dir) / "notes"
+    return task_base_dir(base_dir) / "notes"
 
 
 def get_note_file_path(base_dir: str | Path, key: str) -> Path:
@@ -96,7 +97,14 @@ def get_note_file_path(base_dir: str | Path, key: str) -> Path:
     notes_dir = get_notes_dir(base_dir)
     # Strip any trailing .md (e.g. 'findings.md' -> 'findings')
     clean_key = key[:-3] if key.lower().endswith(".md") else key
-    if clean_key == "task_plan":
+    if task_base_dir(base_dir) != Path(base_dir):
+        if "/" in clean_key or "\\" in clean_key or clean_key in (".", ".."):
+            raise ValueError("Managed Session note keys cannot contain paths")
+        if clean_key.lower() not in ("task_plan", "output") and not clean_key.lower().startswith(
+            ("checker-", "checker:")
+        ):
+            notes_dir = Path(base_dir) / "notes"
+    if clean_key.lower() == "task_plan":
         return notes_dir / "task_plan.md"
     return notes_dir / f"{clean_key}.md"
 
@@ -104,18 +112,16 @@ def get_note_file_path(base_dir: str | Path, key: str) -> Path:
 def list_notes_keys(base_dir: str | Path) -> list[str]:
     """Lists all note keys currently stored in persistent memory."""
     notes_dir = get_notes_dir(base_dir)
-    if not notes_dir.exists():
-        return []
-    return [f.stem for f in notes_dir.glob("*.md")]
+    roots = {notes_dir, Path(base_dir) / "notes"}
+    return sorted({f.stem for root in roots for f in root.glob("*.md")})
 
 
 def list_notes_info(base_dir: str | Path) -> dict[str, int]:
     """Lists all note keys currently stored in persistent memory, along with their line counts."""
     notes_dir = get_notes_dir(base_dir)
-    if not notes_dir.exists():
-        return {}
     info = {}
-    for f in notes_dir.glob("*.md"):
+    for key in list_notes_keys(base_dir):
+        f = get_note_file_path(base_dir, key)
         try:
             content = f.read_text(encoding="utf-8")
             info[f.stem] = len(content.splitlines())
@@ -132,6 +138,7 @@ def read_note_content(
 ) -> str:
     """Reads the raw content of a note, optionally restricted to a line range (1-indexed, inclusive)."""
     file_path = get_note_file_path(base_dir, key)
+
     if not file_path.exists():
         raise FileNotFoundError(f"Note '{key}' not found.")
     content = file_path.read_text(encoding="utf-8")
@@ -150,6 +157,7 @@ def save_note_content(base_dir: str | Path, key: str, content: str) -> None:
     notes_dir = get_notes_dir(base_dir)
     notes_dir.mkdir(parents=True, exist_ok=True)
     file_path = get_note_file_path(base_dir, key)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
 
     content_before = ""
     if key == "task_plan" and file_path.exists():
@@ -174,8 +182,9 @@ def save_note_content(base_dir: str | Path, key: str, content: str) -> None:
             logger.warning("Failed to record subgoal hash chain for task_plan: %s", exc)
 
     try:
-        if _CURRENT_DATA_ENGINE:
-            _CURRENT_DATA_ENGINE._publish("note_saved", {"key": key, "content": content})
+        engine = get_current_data_engine()
+        if engine:
+            engine._publish("note_saved", {"key": key, "content": content})
     except Exception as exc:
         # Telemetry side channel: publishing must never break a note save.
         logger.debug("Failed to publish note_saved event for key '%s': %s", key, exc)
@@ -186,6 +195,7 @@ def append_note_content(base_dir: str | Path, key: str, content: str) -> None:
     notes_dir = get_notes_dir(base_dir)
     notes_dir.mkdir(parents=True, exist_ok=True)
     file_path = get_note_file_path(base_dir, key)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
 
     prefix = ""
     if file_path.exists() and file_path.stat().st_size > 0:
@@ -436,7 +446,7 @@ def record_subgoal_hash_chain(
     new_active = get_active_hash(content_after)
 
     if old_active and new_active and old_active != new_active:
-        notes_dir = Path(base_dir) / "notes"
+        notes_dir = task_base_dir(base_dir) / "notes"
         notes_dir.mkdir(parents=True, exist_ok=True)
         chain_path = notes_dir / "subgoal_hash_chain.json"
 

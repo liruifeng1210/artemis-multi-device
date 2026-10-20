@@ -36,6 +36,7 @@ import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from artemis.runtime.task_workspace import task_base_dir
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -266,7 +267,7 @@ def check_item_payloads(check_items) -> list[dict]:
 
 
 def ledger_path(base_dir: str | Path) -> Path:
-    return Path(base_dir) / LEDGER_FILENAME
+    return task_base_dir(base_dir) / LEDGER_FILENAME
 
 
 def append_ledger_record(base_dir: str | Path, record: dict) -> None:
@@ -314,7 +315,7 @@ def has_ledger_records(base_dir: str | Path) -> bool:
 
 
 def streams_path(base_dir: str | Path) -> Path:
-    return Path(base_dir) / STREAMS_FILENAME
+    return task_base_dir(base_dir) / STREAMS_FILENAME
 
 
 def clamp_stream_segments(
@@ -1223,7 +1224,7 @@ def write_run_outcome(base_dir: str | Path, outcome: RunOutcome, extra: dict | N
         payload = outcome.model_dump()
         if extra:
             payload.update(extra)
-        path = Path(base_dir) / RUN_OUTCOME_FILENAME
+        path = task_base_dir(base_dir) / RUN_OUTCOME_FILENAME
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
             json.dumps(payload, ensure_ascii=False, indent=2),
@@ -1234,7 +1235,7 @@ def write_run_outcome(base_dir: str | Path, outcome: RunOutcome, extra: dict | N
 
 
 def read_run_outcome(base_dir: str | Path) -> dict | None:
-    path = Path(base_dir) / RUN_OUTCOME_FILENAME
+    path = task_base_dir(base_dir) / RUN_OUTCOME_FILENAME
     if not path.exists():
         return None
     try:

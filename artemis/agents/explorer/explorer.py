@@ -142,11 +142,14 @@ class Explorer(PerceptionToolsMixin, UniversalRunnerMixin, RunSetupMixin, Native
         touch ``genai`` (and never fail on a missing Google key).  The client
         is stored on the context for connection pooling across agents.
         """
-        client = getattr(self.ctx, "_genai_client", None)
+        owner = getattr(self.ctx, "session_resources", None)
+        owner = owner.context if owner is not None else self.ctx
+        client = getattr(owner, "_genai_client", None)
         if client is None:
             logger.info("Initializing GenAI client on context for connection pooling (Explorer)")
             api_key = getattr(settings, "GOOGLE_API_KEY", None)
             client = genai.Client(api_key=api_key.get_secret_value() if api_key else None)
+            owner._genai_client = client
             self.ctx._genai_client = client
         self.client = client
         return client

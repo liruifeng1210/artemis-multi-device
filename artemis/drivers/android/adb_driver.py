@@ -106,7 +106,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
     async def connect(self) -> None:
         """Verify device availability."""
         try:
-            state = self.device.get_state()
+            state = await asyncio.to_thread(self.device.get_state)
             logger.info(f"Android device '{self._device_id}' connected (state: {state})")
         except Exception as e:
             logger.warning(f"Connecting to Android device '{self._device_id}': {e}")
@@ -132,7 +132,7 @@ class AndroidAdbDriver(BaseDeviceDriver):
         # Check if ui_adb_client has direct screen data support
         if self._ui_adb_client and hasattr(self._ui_adb_client, "get_screen_data"):
             try:
-                raw_ui_data = self._ui_adb_client.get_screen_data()
+                raw_ui_data = await asyncio.to_thread(self._ui_adb_client.get_screen_data)
                 if (
                     hasattr(raw_ui_data, "base64")
                     and isinstance(raw_ui_data.base64, str)
@@ -428,8 +428,14 @@ class AndroidAdbDriver(BaseDeviceDriver):
 
     async def execute_shell(self, command: str, timeout_seconds: float = 15.0) -> str:
         try:
+            from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+            scope = CURRENT_EXECUTION.get()
+            operation = asyncio.to_thread(self.device.shell, command)
+            if scope is not None and scope.control is not None:
+                operation = scope.control.own(operation)
             return await asyncio.wait_for(
-                asyncio.to_thread(self.device.shell, command),
+                operation,
                 timeout=timeout_seconds,
             )
         except Exception as e:
@@ -450,10 +456,18 @@ class AndroidAdbDriver(BaseDeviceDriver):
                 self._recording_mkv_path,
                 lock_capture_orientation=False,
             )
-            self._scrcpy_process = await asyncio.create_subprocess_exec(
+            operation = asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
+            )
+            from artemis.runtime.execution_scope import CURRENT_EXECUTION
+
+            scope = CURRENT_EXECUTION.get()
+            self._scrcpy_process = (
+                await scope.control.start_process(operation)
+                if scope is not None and scope.control is not None
+                else await operation
             )
             await asyncio.sleep(0.5)
         except Exception as e:

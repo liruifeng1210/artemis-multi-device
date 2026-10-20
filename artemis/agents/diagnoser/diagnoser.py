@@ -136,8 +136,9 @@ class Diagnoser:
         subgoal_hash = "default"
 
         if self.ctx.data_engine:
-            notes_dir = Path(self.ctx.data_engine.base_dir) / "notes"
-            task_plan_path = notes_dir / "task_plan.md"
+            from artemis.utils.notes import get_note_file_path
+
+            task_plan_path = get_note_file_path(self.ctx.data_engine.base_dir, "task_plan")
 
             if task_plan_path.exists():
                 try:
