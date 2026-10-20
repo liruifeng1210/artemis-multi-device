@@ -71,7 +71,9 @@ async def main(args):
                         'run_outcome','operator_raw_data',
                         'current_step_id','open_incident','subagent_calls']
                 # Observe only. This does not reset state or dispatch any action.
-                save(folder / f'{label}-{name}' / 'activation.json', {
+                activation_folder = folder / f'{label}-{name}'
+                activation_folder.mkdir(parents=True, exist_ok=True)
+                save(activation_folder / 'activation.json', {
                     'time':stamp(),'session':roles[name].session_id,'task':handle.task_id,
                     'attempt':handle.attempt_id,'task_context_id':id(active['ctx']),
                     'control_id':id(active['control']),'scope':active['scope'].metadata(),
@@ -173,7 +175,10 @@ async def main(args):
     except Exception as exc:
         event("harness_error", error=repr(exc))
     finally:
-        await asyncio.gather(*observers, return_exceptions=True)
+        observer_results = await asyncio.gather(*observers, return_exceptions=True)
+        for observed in observer_results:
+            if isinstance(observed, BaseException):
+                event('observer_error', error=repr(observed))
         for name, role in roles.items():
             try:
                 await role.close()
