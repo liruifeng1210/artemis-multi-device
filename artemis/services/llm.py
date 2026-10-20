@@ -879,6 +879,22 @@ invoke_llm_with_timeout_message = LLMWaitNotice(
 
 
 # Backward compatible factory functions delegating to ModelFactory
+def get_auxiliary_llm(model_name: str, temperature: float = 0.0) -> BaseChatModel:
+    """Route explicit summary models through the configured provider family."""
+    if model_name.startswith("gemini-"):
+        return get_google_llm(model_name=model_name, temperature=temperature)
+    configured = get_default_llm_config().operator
+    return ModelFactory.create_model(
+        ModelEndpoint(
+            provider=ModelProvider.from_string(configured.provider),
+            model_name=model_name,
+            reasoning_effort=configured.reasoning_effort,
+            timeout_seconds=configured.timeout or 300.0,
+            temperature=temperature,
+        )
+    )
+
+
 def get_google_llm(
     model_name: str = "gemini-3.8-flash",
     temperature: float | None = None,

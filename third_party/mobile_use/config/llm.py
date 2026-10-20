@@ -60,13 +60,17 @@ class LLM(BaseModel):
     temperature: float | None = None
     thinking_budget: int | None = None
     thinking_level: Literal["minimal", "low", "medium", "high"] | None = None
-    reasoning_effort: Literal["none", "low", "medium", "high"] | None = None
+    reasoning_effort: Literal["none", "low", "medium", "high", "xhigh", "max"] | None = None
     include_thoughts: bool | None = None
     enable_grounding: bool | None = None
 
     def validate_provider(self, name: str) -> None:
         """Ensure the required API key or credentials exist in settings for this provider."""
-        if self.provider == "openai":
+        if self.provider == "codex":
+            from artemis.llm.codex import find_codex
+
+            find_codex()
+        elif self.provider == "openai":
             if not settings.OPENAI_API_KEY:
                 raise Exception(f"{name} requires OPENAI_API_KEY in .env")
         elif self.provider == "google":

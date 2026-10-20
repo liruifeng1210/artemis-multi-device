@@ -162,6 +162,10 @@ def _expand_default_into_nodes(config_dict: dict) -> dict:
         "history_analyzer_expert",
         "diagnoser_expert",
         "explorer",
+        "history_analyzer",
+        "validator_pixel_safety_net",
+        "planner_validation",
+        "output_analyzer",
     ]
 
     all_utils_nodes = [
@@ -173,6 +177,17 @@ def _expand_default_into_nodes(config_dict: dict) -> dict:
 
     result: dict[str, Any] = {}
     for node in all_agent_nodes:
+        if (
+            node
+            in {
+                "history_analyzer",
+                "validator_pixel_safety_net",
+                "planner_validation",
+                "output_analyzer",
+            }
+            and node not in nodes_override
+        ):
+            continue
         node_cfg = dict(default_model_cfg)
         if node in nodes_override:
             for k, v in nodes_override[node].items():
