@@ -53,6 +53,9 @@ class MainPlanner:
                     "reconciliation with the original contract and rebind unexecuted dependents "
                     "to the new tasks before proceeding. "
                     "Set missing_input when no safe progress is possible. Return PlanProposal JSON.\n"
+                    "Diagnostic RPC query contracts: observe accepts only mode ('cached' or 'fresh') "
+                    "and timeout_seconds (>0, <=30); inspect accepts only level, offset (>=0), "
+                    "limit (1..100), snapshot_id. Do not put purpose or other prose keys in query.\n"
                     "The exact required JSON Schema follows; use its field names and nesting:\n"
                     + json.dumps(PlanProposal.model_json_schema(), ensure_ascii=False)
                 )
