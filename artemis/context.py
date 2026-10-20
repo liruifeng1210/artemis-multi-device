@@ -51,6 +51,7 @@ logger = get_logger(__name__)
 class ExecutionSetup(ExecutionSetupBase):
     """Execution setup for a task."""
 
+    pause_path: Path | None = None
     video_recording_tools_enabled: bool = Field(default_factory=detect_video_tools_enabled)
     disable_checker: bool = False
     """Legacy master switch (compat alias): ``True`` disables BOTH the midway
@@ -127,6 +128,8 @@ class ArtemisContext(DeviceClientAccessors, BaseModel):
 
     execution_setup: ExecutionSetup | None = None
 
+    active_task: Any | None = None
+    operation_tracker: Any | None = None
     data_engine: DataEngine | None = None
     planner_task: asyncio.Task[Any] | None = None
     background_tasks: list[asyncio.Task[Any]] = Field(default_factory=list)
@@ -194,6 +197,27 @@ class ArtemisContext(DeviceClientAccessors, BaseModel):
     """Session :class:`~artemis.memory.transcript.TranscriptLedger` for the Pro
     operator's transcript prompt path (``agent.memory.transcript.enabled``).
     Lives beside ``step_memory``; the State never carries message payloads."""
+
+    def reset_task_state(self) -> None:
+        """Reset task-owned fields only after all producers have stopped."""
+        task = self.planner_task
+        if task is not None and not task.done():
+            raise RuntimeError("Cannot reset live planner")
+        self.planner_task = None
+        for name in ("pending_checkpoints", "background_tasks"):
+            setattr(self, name, [])
+        for name in ("checkpoint_tasks", "checkpoint_attempt_seq", "checkpoint_repairs",
+                     "background_jobs", "checker_attempt_traces", "checker_findings",
+                     "checker_finding_items"):
+            setattr(self, name, {})
+        self.assert_halt = False
+        self.final_check_attempts = 0
+        self.last_validated_plan = self.pending_validated_plan = None
+        self.guidance_unprotected_checks = set()
+        self.guidance_retired_checks = set()
+        self.run_outcome = None
+        self.task_artifact_paths = set()
+        self.contract_evidence = []
 
     async def __aenter__(self) -> ArtemisContext:
         return self

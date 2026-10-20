@@ -32,6 +32,7 @@ The release decision is computed by the caller from the verdicts
 from __future__ import annotations
 
 import asyncio
+from artemis.runtime.session_operations import tracked_device_operation
 import json
 import re
 import time
@@ -205,6 +206,7 @@ def build_probe_argv(kind: str, params: dict[str, Any] | None = None) -> list[st
     return argv
 
 
+@tracked_device_operation
 async def _execute_probe(ctx: ArtemisContext, argv: list[str]) -> str:
     """Executes a validated probe argv over the ADB device channel.
 
@@ -324,7 +326,8 @@ def _load_steps(ctx: ArtemisContext) -> list[dict] | str:
     if not ctx.data_engine:
         return "No execution history available."
     try:
-        return list(ctx.data_engine.get_agent_friendly_steps() or [])
+        from artemis.runtime.session_scope import task_steps
+        return list(task_steps(ctx) or [])
     except Exception as e:
         return f"Failed to load execution history: {e}"
 
@@ -796,6 +799,7 @@ async def run_final_check(
     ledger: list[dict],
     check_items,
     attempt_id: str | None = None,
+    review_id: str = "final",
 ) -> CheckReport:
     """Final review at task exit: audits the user's original goal and all
     declared check items, with the final screen state available."""
@@ -805,7 +809,7 @@ async def run_final_check(
         ctx,
         attempt_id=attempt_id,
         phase="final",
-        checkpoint_id="final",
+        checkpoint_id=review_id,
         subgoal_text="Final review against the user's original goal",
         anchor_step_id=None,
         check_items=items,
@@ -823,6 +827,17 @@ async def run_final_check(
     )
 
     screenshot_b64, minimal_list = await _capture_final_screen(ctx)
+    scope = getattr(ctx, "active_task", None)
+    if scope is not None and review_id == "contract":
+        import base64
+        evidence = []
+        if screenshot_b64:
+            root = ctx.data_engine.base_dir
+            image = root / "tasks" / scope.task_id / scope.attempt_id / "contract-screen.jpg"
+            image.parent.mkdir(parents=True, exist_ok=True)
+            image.write_bytes(base64.b64decode(screenshot_b64))
+            evidence.append(str(image.relative_to(root)))
+        ctx.contract_evidence = evidence
     steps = _load_steps(ctx)
 
     human_text = (
@@ -855,5 +870,5 @@ async def run_final_check(
             return await _run_check_loop(ctx, messages, tools, items)
         finally:
             _persist_stream(
-                ctx, capture, attempt_id=attempt_id, phase="final", checkpoint_id="final"
+                ctx, capture, attempt_id=attempt_id, phase="final", checkpoint_id=review_id
             )

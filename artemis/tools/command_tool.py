@@ -37,6 +37,7 @@ running when the automation task ends.
 """
 
 import asyncio
+from artemis.runtime.session_operations import tracked_device_operation
 from asyncio.subprocess import Process as AsyncProcess
 from collections import deque
 import os
@@ -633,6 +634,7 @@ class RunAdbCommandTool(ArtemisTool):
         )
 
     # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements,too-many-return-statements,too-many-positional-arguments,too-many-boolean-expressions
+    @tracked_device_operation
     async def execute(
         self,
         driver: BaseDeviceDriver | None = None,
@@ -751,6 +753,9 @@ class RunAdbCommandTool(ArtemisTool):
             logger.error(f"Failed to spawn adb shell process for command '{cmd_line}': {e}")
             return ToolFailure(f"Failed to spawn adb process: {e}")
 
+        tracker = getattr(ctx, "operation_tracker", None)
+        if tracker is not None:
+            tracker.register_process(process)
         stdout_data: list[str] = []
         try:
 
@@ -906,6 +911,7 @@ class ManageTaskTool(ArtemisTool):
         )
 
     # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements,too-many-return-statements,too-many-positional-arguments
+    @tracked_device_operation
     async def execute(
         self,
         driver: BaseDeviceDriver | None = None,  # pylint: disable=unused-argument
@@ -1051,6 +1057,7 @@ class RunShortAdbCommandTool(ArtemisTool):
         )
 
     # pylint: disable=too-many-locals,too-many-return-statements
+    @tracked_device_operation
     async def execute(
         self,
         driver: BaseDeviceDriver | None = None,
@@ -1117,6 +1124,9 @@ class RunShortAdbCommandTool(ArtemisTool):
             logger.error(f"Failed to spawn adb shell process for command '{cmd_line}': {e}")
             return ToolFailure(f"Failed to spawn adb process: {e}")
 
+        tracker = getattr(ctx, "operation_tracker", None)
+        if tracker is not None:
+            tracker.register_process(process)
         try:
             stdout_data, _ = await asyncio.wait_for(process.communicate(), timeout=timeout)
             exit_code = process.returncode
@@ -1199,6 +1209,7 @@ class AnalyzeTaskOutputTool(ArtemisTool):
             category="system",
         )
 
+    @tracked_device_operation
     async def execute(
         self,
         driver: BaseDeviceDriver | None = None,  # pylint: disable=unused-argument

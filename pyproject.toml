@@ -194,6 +194,7 @@ pythonpath = [
 # Specify test discovery patterns
 testpaths = [
     "tests/unit",
+    "tests/session_orchestration",
     "tests/tools",
     "packages/artemis-client/tests",
 ]

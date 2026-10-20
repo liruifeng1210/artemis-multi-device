@@ -60,6 +60,7 @@ logger = get_logger(__name__)
 
 __all__ = ["ActionSession", "get_action_session"]
 
+_BARRIER = object()
 _SHUTDOWN = object()  # queue sentinel
 
 
@@ -96,6 +97,10 @@ class ActionSession:
             if item is _SHUTDOWN:
                 return
             fut, name, args = item
+            if name is _BARRIER:
+                if not fut.done():
+                    fut.set_result(None)
+                continue
             if fut.cancelled():
                 continue  # caller gave up before we started; nothing was sent
             try:
@@ -139,6 +144,10 @@ class ActionSession:
     @property
     def started(self) -> bool:
         return self._session is not None
+
+    @property
+    def closed(self) -> bool:
+        return self._owner is None or self._owner.done()
 
     async def call_raw(self, name: str, args: dict[str, Any]) -> Any:
         """Calls a tool and returns the raw ``CallToolResult``.
@@ -199,6 +208,18 @@ class ActionSession:
             raise RuntimeError(f"get_ui_hierarchy failed: {data.get('error')}")
         return data["elements"]
 
+    async def wait_idle(self, timeout_seconds: float = 30.0) -> None:
+        """Acknowledge after all previously submitted calls really finish."""
+        if self._owner is None:
+            if self._error is not None:
+                raise RuntimeError("Action session owner failed") from self._error
+            return
+        if self._owner.done():
+            raise RuntimeError("Action session owner exited")
+        future = asyncio.get_running_loop().create_future()
+        self._requests.put_nowait((future, _BARRIER, {}))
+        await asyncio.wait_for(asyncio.shield(future), timeout=timeout_seconds)
+
     async def aclose(self) -> None:
         """Shuts the session down; safe to call from any task."""
         if self._owner is None:
@@ -209,8 +230,9 @@ class ActionSession:
         except (TimeoutError, asyncio.CancelledError, Exception) as e:
             logger.warning(f"Action session owner task did not exit cleanly: {e!r}")
         finally:
-            self._owner = None
-            self._ready = asyncio.Event()
+            if self._owner is not None and self._owner.done():
+                self._owner = None
+                self._ready = asyncio.Event()
 
 
 async def get_action_session(ctx: Any, actuator: Any = None) -> ActionSession:

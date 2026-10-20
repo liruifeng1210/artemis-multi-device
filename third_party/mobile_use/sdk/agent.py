@@ -598,95 +598,13 @@ class AgentBase:
                                     context.data_engine.end_session("failed")
                             return output
                         else:
-                            logger.info(f"[{task_name}] Invoking graph with input: {graph_input}")
-                            await task.set_status(status="running", message="Invoking graph...")
-                            async for chunk in (await get_graph(context)).astream(
-                                input=graph_input,
-                                config={
-                                    "recursion_limit": task.request.max_steps,
-                                    "callbacks": (
-                                        (
-                                            list(self._config.graph_config_callbacks)
-                                            if self._config.graph_config_callbacks is not None
-                                            else []
-                                        )
-                                        + [DataEngineCallbackHandler(context)]
-                                        if context.data_engine
-                                        else self._config.graph_config_callbacks
-                                    ),
-                                },
-                                stream_mode=[
-                                    "messages",
-                                    "custom",
-                                    "updates",
-                                    "values",
-                                ],
-                            ):
-                                stream_mode, payload = chunk
-                                if stream_mode == "values":
-                                    last_state_snapshot = payload  # type: ignore
-                                    last_state = State(**last_state_snapshot)  # type: ignore
+                            def remember_state(latest):
+                                nonlocal last_state_snapshot
+                                last_state_snapshot = latest.model_dump()
 
-                            if not last_state:
-                                err = f"[{task_name}] No result received from graph"
-                                logger.warning(err)
-                                await task.finalize(
-                                    content=output,
-                                    state=last_state_snapshot,
-                                    error=err,
-                                )
-                                if context.data_engine:
-                                    context.data_engine.end_session("failed")
-                                return None
-
-                            output = await self._extract_output(
-                                task_name=task_name,
-                                ctx=context,
-                                request=request,
-                                output_config=output_config,
-                                state=last_state,
+                            output, _ = await self._execute_pro_task(
+                                task, context, state, output_config, on_state=remember_state
                             )
-                            # Run outcome (goal axis x test axis) drives the
-                            # wrap-up instead of an unconditional success path.
-                            run_outcome = getattr(last_state, "run_outcome", None)
-                            context.run_outcome = run_outcome
-                            output = attach_test_summary(output, run_outcome)
-                            task_status_axis = (
-                                run_outcome.get("task_status") if run_outcome else None
-                            )
-                            tests_failed = (
-                                int((run_outcome.get("tests") or {}).get("failed", 0))
-                                if run_outcome
-                                else 0
-                            )
-                            if task_status_axis == "blocked":
-                                err = (
-                                    f"[{task_name}] Task ended blocked: verify"
-                                    " criteria unmet after exhausting the final"
-                                    " check budget."
-                                )
-                                logger.warning(err)
-                                await task.finalize(
-                                    content=output,
-                                    state=last_state_snapshot,
-                                    error=err,
-                                )
-                                if context.data_engine:
-                                    context.data_engine.end_session("failed")
-                                return output
-
-                            if tests_failed > 0:
-                                logger.warning(
-                                    f"[{task_name}] Task completed, but"
-                                    f" {tests_failed} assertion(s) failed —"
-                                    " see the test summary."
-                                )
-                            else:
-                                logger.info(f"✅ Automation '{task_name}' is success ✅")
-                            await task.finalize(content=output, state=last_state_snapshot)
-                            if context.data_engine:
-                                context.data_engine.end_session("completed")
-
                             return output
                     finally:
                         if recording_started:
@@ -793,6 +711,115 @@ class AgentBase:
                         await cancel_watcher
                     except asyncio.CancelledError:
                         pass
+
+    def open_session(self, options):
+        """Open one reusable Pro session without changing run_task semantics."""
+        from artemis.sdk.persistent_session import PersistentSession
+        return PersistentSession(self, options)
+
+    async def _execute_pro_task(self, task, context, state, output_config,
+                                *, finalize_session=True, on_state=None):
+        """Shared Pro graph/output implementation for one-shot and persistent use."""
+        request = task.request
+        task_name = task.get_name()
+        graph_input = state.model_dump()
+        last_state = None
+        last_state_snapshot = None
+        output = None
+        logger.info(f"[{task_name}] Invoking graph with input: {graph_input}")
+        await task.set_status(status="running", message="Invoking graph...")
+        async for chunk in (await get_graph(context)).astream(
+            input=graph_input,
+            config={
+                "recursion_limit": task.request.max_steps,
+                "callbacks": (
+                    (
+                        list(self._config.graph_config_callbacks)
+                        if self._config.graph_config_callbacks is not None
+                        else []
+                    )
+                    + [DataEngineCallbackHandler(context)]
+                    if context.data_engine
+                    else self._config.graph_config_callbacks
+                ),
+            },
+            stream_mode=[
+                "messages",
+                "custom",
+                "updates",
+                "values",
+            ],
+        ):
+            stream_mode, payload = chunk
+            if stream_mode == "values":
+                last_state_snapshot = payload  # type: ignore
+                last_state = State(**last_state_snapshot)  # type: ignore
+                if on_state is not None:
+                    on_state(last_state)
+
+        if not last_state:
+            err = f"[{task_name}] No result received from graph"
+            logger.warning(err)
+            await task.finalize(
+                content=output,
+                state=last_state_snapshot,
+                error=err,
+            )
+            if context.data_engine and finalize_session:
+                context.data_engine.end_session("failed")
+            return None, last_state
+
+        output = await self._extract_output(
+            task_name=task_name,
+            ctx=context,
+            request=request,
+            output_config=output_config,
+            state=last_state,
+        )
+        # Run outcome (goal axis x test axis) drives the
+        # wrap-up instead of an unconditional success path.
+        run_outcome = getattr(last_state, "run_outcome", None)
+        context.run_outcome = run_outcome
+        if finalize_session:
+            output = attach_test_summary(output, run_outcome)
+        task_status_axis = (
+            run_outcome.get("task_status") if run_outcome else None
+        )
+        tests_failed = (
+            int((run_outcome.get("tests") or {}).get("failed", 0))
+            if run_outcome
+            else 0
+        )
+        if task_status_axis == "blocked":
+            err = (
+                f"[{task_name}] Task ended blocked: verify"
+                " criteria unmet after exhausting the final"
+                " check budget."
+            )
+            logger.warning(err)
+            await task.finalize(
+                content=output,
+                state=last_state_snapshot,
+                error=err,
+            )
+            if context.data_engine and finalize_session:
+                context.data_engine.end_session("failed")
+            return output, last_state
+
+        if tests_failed > 0:
+            logger.warning(
+                f"[{task_name}] Task completed, but"
+                f" {tests_failed} assertion(s) failed —"
+                " see the test summary."
+            )
+        else:
+            logger.info(f"✅ Automation '{task_name}' is success ✅")
+        await task.finalize(content=output, state=last_state_snapshot)
+        if context.data_engine and finalize_session:
+            context.data_engine.end_session("completed")
+
+        return output, last_state
+
 
     def stop_current_task(self):
         """Requests cancellation of the currently running automation task."""

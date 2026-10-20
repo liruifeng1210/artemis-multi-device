@@ -41,6 +41,7 @@ from artemis.data_engine.models import (
 )
 from artemis.data_engine.storage import StorageManager
 from artemis.data_engine.trace import CURRENT_TRACE_ID
+from artemis.runtime.session_scope import pause_path
 from artemis.utils.coordinates import (
     normalize_any_structure,
     normalize_step_actions,
@@ -414,6 +415,9 @@ class DataEngine:
         self.subscribers: list[Callable[[str, Any], None]] = []
         self.lock = threading.Lock()
         self._trace_counter = 0
+        self._write_sequence = 0
+        self._write_pending = set()
+        self._write_failures = {}
         self._pending_tasks = set()
         self._pending_threads = []
         self._accumulated_logs = {}
@@ -594,7 +598,7 @@ class DataEngine:
         self.session_start_time = time.time()
 
         # Clear old pause file if it exists
-        pause_file = PAUSE_FILE
+        pause_file = pause_path(PAUSE_FILE, self.ctx)
         if pause_file.exists():
             try:
                 pause_file.unlink()
@@ -653,7 +657,7 @@ class DataEngine:
             status = "completed"
 
         # Clear pause file if it exists
-        pause_file = PAUSE_FILE
+        pause_file = pause_path(PAUSE_FILE, self.ctx)
         if pause_file.exists():
             try:
                 pause_file.unlink()
@@ -903,6 +907,9 @@ class DataEngine:
         # parameter wins; otherwise it is derived best-effort from the UI
         # tree's package attributes — a pure string scan, no device call.
         extra_metadata = dict(extra_metadata or {})
+        scope = getattr(self.ctx, "active_task", None)
+        if scope is not None:
+            extra_metadata.update(scope.metadata())
         try:
             app = foreground_app or _derive_foreground_app(ui_tree)
             if app:
@@ -1088,8 +1095,36 @@ class DataEngine:
             or len([t for t in self._pending_threads if t.is_alive()]) > 0
         )
 
+    def begin_task(self, scope) -> None:
+        self.current_step_id = None
+        self.last_recorded_step_id = None
+        self.current_step_dir = None
+        self.ctx.active_task = scope
+
+    def end_task(self) -> None:
+        self.current_step_id = None
+        self.current_step_dir = None
+
+    async def flush(self, timeout_seconds: float = 30.0, strict: bool = True) -> dict:
+        """Wait for writes submitted before this call; retain completed failures."""
+        with self.lock:
+            watermark = self._write_sequence
+        deadline = asyncio.get_running_loop().time() + max(0, timeout_seconds)
+        while True:
+            with self.lock:
+                pending = [n for n in self._write_pending if n <= watermark]
+                failures = {n: e for n, e in self._write_failures.items() if n <= watermark}
+            if not pending or asyncio.get_running_loop().time() >= deadline:
+                break
+            await asyncio.sleep(0.01)
+        report = {"submitted_watermark": watermark, "pending": pending, "failures": failures}
+        if strict and (pending or failures):
+            raise RuntimeError(f"Data writes did not settle: {report}")
+        return report
+
     async def shutdown(self):
         """Wait for all pending background tasks and threads to complete."""
+        await self.flush(strict=False)
         if self._pending_tasks:
             logger.info(
                 f"Waiting for {len(self._pending_tasks)} pending async tasks to complete..."
@@ -1211,6 +1246,22 @@ class DataEngine:
 
     def _run_in_background(self, fn, *args):
         """Safely offload blocking storage/disk operation to background without stalling event loop."""
+        with self.lock:
+            self._write_sequence += 1
+            write_id = self._write_sequence
+            self._write_pending.add(write_id)
+        original_fn = fn
+        def tracked_write(*write_args):
+            try:
+                return original_fn(*write_args)
+            except BaseException as exc:
+                with self.lock:
+                    self._write_failures[write_id] = repr(exc)
+                raise
+            finally:
+                with self.lock:
+                    self._write_pending.discard(write_id)
+        fn = tracked_write
         try:
             loop = asyncio.get_running_loop()
         except RuntimeError:

@@ -132,7 +132,8 @@ def _notes_base_dir(ctx: ArtemisContext) -> str | Path | None:
 def _resolve_plan_and_history(ctx: ArtemisContext) -> str | None:
     """Build the plan and history text passed to the outputter prompt."""
     try:
-        history = ctx.data_engine.get_agent_friendly_steps()
+        from artemis.runtime.session_scope import task_steps
+        history = task_steps(ctx)
 
         # Read current plan if it exists and base_dir is valid
         current_plan = ""

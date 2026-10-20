@@ -1,0 +1,231 @@
+{
+  "goal": "主持人 A 创建会议，B 申请加入，A 同意后给 B 发送指定消息。",
+  "roles": [
+    {
+      "role_id": "host",
+      "device_id": "REPLACE_HOST_DEVICE_SERIAL",
+      "description": "主持人 A，操作目标会议应用"
+    },
+    {
+      "role_id": "guest",
+      "device_id": "REPLACE_GUEST_DEVICE_SERIAL",
+      "description": "参会人 B，操作目标会议应用"
+    }
+  ],
+  "constraints": [
+    "只操作指定会议应用。",
+    "账户凭据使用已有安全配置；缺少信息时停止并报告。",
+    "提交加入申请后即返回，不等待主持人批准。",
+    "发送消息前先检查是否已经发送；不得重复发送。"
+  ],
+  "tasks": [
+    {
+      "task_id": "11111111-1111-4111-8111-111111111111",
+      "display_name": "A 登录",
+      "role_id": "host",
+      "spec": {
+        "goal": "在目标会议应用登录主持人账号。",
+        "inputs": {
+          "account": "REPLACE_HOST_ACCOUNT"
+        },
+        "completion": [
+          {
+            "id": "done",
+            "description": "设备上已登录指定主持人账号",
+            "required": true
+          }
+        ],
+        "outputs_schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "execution_timeout_seconds": 180,
+        "verification_timeout_seconds": 60,
+        "settlement_timeout_seconds": 30,
+        "max_steps": 40
+      }
+    },
+    {
+      "task_id": "22222222-2222-4222-8222-222222222222",
+      "display_name": "B 登录",
+      "role_id": "guest",
+      "spec": {
+        "goal": "在目标会议应用登录参会人账号。",
+        "inputs": {
+          "account": "REPLACE_GUEST_ACCOUNT"
+        },
+        "completion": [
+          {
+            "id": "done",
+            "description": "设备上已登录指定参会人账号",
+            "required": true
+          }
+        ],
+        "outputs_schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "execution_timeout_seconds": 180,
+        "verification_timeout_seconds": 60,
+        "settlement_timeout_seconds": 30,
+        "max_steps": 40
+      }
+    },
+    {
+      "task_id": "33333333-3333-4333-8333-333333333333",
+      "display_name": "A 创建会议",
+      "role_id": "host",
+      "depends_on": [
+        {
+          "task_id": "11111111-1111-4111-8111-111111111111"
+        }
+      ],
+      "spec": {
+        "goal": "启动一场会议，读取完整 MeetingID。",
+        "inputs": {},
+        "completion": [
+          {
+            "id": "done",
+            "description": "当前账号为会议主持人且会议已启动；返回的 MeetingID 与界面完全一致",
+            "required": true
+          }
+        ],
+        "outputs_schema": {
+          "type": "object",
+          "properties": {
+            "meeting_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "meeting_id"
+          ],
+          "additionalProperties": false
+        },
+        "execution_timeout_seconds": 180,
+        "verification_timeout_seconds": 60,
+        "settlement_timeout_seconds": 30,
+        "max_steps": 40
+      }
+    },
+    {
+      "task_id": "44444444-4444-4444-8444-444444444444",
+      "display_name": "B 提交申请",
+      "role_id": "guest",
+      "depends_on": [
+        {
+          "task_id": "22222222-2222-4222-8222-222222222222"
+        },
+        {
+          "task_id": "33333333-3333-4333-8333-333333333333"
+        }
+      ],
+      "spec": {
+        "goal": "使用给定 MeetingID 提交加入申请，看到等待主持人批准即返回。",
+        "inputs": {
+          "meeting_id": {
+            "from_task": "33333333-3333-4333-8333-333333333333",
+            "key": "meeting_id",
+            "max_age_seconds": 600
+          }
+        },
+        "completion": [
+          {
+            "id": "done",
+            "description": "已向指定会议提交加入申请，当前为等待批准或已入会状态",
+            "required": true
+          }
+        ],
+        "outputs_schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "execution_timeout_seconds": 180,
+        "verification_timeout_seconds": 60,
+        "settlement_timeout_seconds": 30,
+        "max_steps": 40
+      }
+    },
+    {
+      "task_id": "55555555-5555-4555-8555-555555555555",
+      "display_name": "A 审批",
+      "role_id": "host",
+      "depends_on": [
+        {
+          "task_id": "44444444-4444-4444-8444-444444444444"
+        }
+      ],
+      "spec": {
+        "goal": "批准指定参会人加入当前会议。",
+        "inputs": {
+          "meeting_id": {
+            "from_task": "33333333-3333-4333-8333-333333333333",
+            "key": "meeting_id",
+            "max_age_seconds": 600
+          },
+          "applicant": "REPLACE_GUEST_DISPLAY_NAME"
+        },
+        "completion": [
+          {
+            "id": "done",
+            "description": "指定参会人已经在当前会议成员列表中",
+            "required": true
+          }
+        ],
+        "outputs_schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "execution_timeout_seconds": 180,
+        "verification_timeout_seconds": 60,
+        "settlement_timeout_seconds": 30,
+        "max_steps": 40
+      }
+    },
+    {
+      "task_id": "66666666-6666-4666-8666-666666666666",
+      "display_name": "A 发送消息",
+      "role_id": "host",
+      "depends_on": [
+        {
+          "task_id": "55555555-5555-4555-8555-555555555555"
+        }
+      ],
+      "spec": {
+        "goal": "在当前会议给指定参会人发送指定消息一次；若已有同一条已发送记录则核验后返回。",
+        "inputs": {
+          "meeting_id": {
+            "from_task": "33333333-3333-4333-8333-333333333333",
+            "key": "meeting_id",
+            "max_age_seconds": 600
+          },
+          "recipient": "REPLACE_GUEST_DISPLAY_NAME",
+          "message": "REPLACE_MESSAGE"
+        },
+        "completion": [
+          {
+            "id": "done",
+            "description": "当前会议中面向指定参会人的指定消息存在已发送记录",
+            "required": true
+          }
+        ],
+        "outputs_schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "execution_timeout_seconds": 180,
+        "verification_timeout_seconds": 60,
+        "settlement_timeout_seconds": 30,
+        "max_steps": 40
+      }
+    }
+  ],
+  "root": "traces/role-workflows",
+  "max_workflow_seconds": 1200,
+  "max_artifact_bytes": 1073741824
+}

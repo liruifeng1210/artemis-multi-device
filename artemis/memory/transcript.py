@@ -565,6 +565,34 @@ class TranscriptLedger:
     def has_static_prefix(self) -> bool:
         return bool(self._static)
 
+    @property
+    def task_identity(self) -> tuple | None:
+        return getattr(self, "_task_identity", None)
+
+    def begin_task(self, scope, system_prefix: list[BaseMessage]) -> None:
+        identity = (scope.task_id, scope.attempt_id)
+        if self.task_identity == identity:
+            return
+        if self.has_staged_turn:
+            raise RuntimeError("Previous task has an uncommitted turn")
+        self._static = list(system_prefix)
+        self._task_identity = identity
+        self._task_metadata = scope.metadata()
+        from langchain_core.messages import HumanMessage
+        self._active.append(HumanMessage(content=(
+            f"[Task boundary task={scope.task_id} attempt={scope.attempt_id}]\n"
+            f"Current goal: {scope.goal}\nEarlier messages are historical context."
+        )))
+
+    def export_snapshot(self, *, offset: int = 0, limit: int = 20) -> dict:
+        if offset < 0 or not 1 <= limit <= 100:
+            raise ValueError("Invalid transcript page")
+        messages = (list(self._static) + list(self._restored) + list(self._frozen_blocks)
+                    + list(self._active[self._active_start:]))
+        return {"messages": [m.model_dump(mode="json") for m in messages[offset:offset+limit]],
+                "total": len(messages), "has_staged_turn": self.has_staged_turn,
+                "next_offset": offset + limit if offset + limit < len(messages) else None}
+
     def set_static_prefix(self, messages: list[BaseMessage]) -> None:
         """Install the byte-stable system prefix; only settable once."""
         if self._static:
@@ -663,6 +691,7 @@ class TranscriptLedger:
                 step_keys.append(str(key))
         self._turns.append(
             {
+                "task_scope": getattr(self, "_task_metadata", None),
                 "step_key": str(step_key) if step_key is not None else None,
                 "step_keys": step_keys,
                 "start": span_start,

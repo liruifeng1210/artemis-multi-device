@@ -34,6 +34,8 @@ from uuid import uuid4
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
+from artemis.runtime.session_scope import pause_path
+
 from artemis.config import (
     PAUSE_FILE,
     LLMWithFallback,
@@ -302,7 +304,7 @@ def _handle_llm_pause_and_resume(last_error: Exception) -> Path:
         err_msg = err_msg[:1000] + "... [Truncated by LLM Wrapper]"
 
     llm_logger.warning(f"LLM Error: {err_msg}. Pausing execution to wait for resume signal...")
-    pause_file = PAUSE_FILE
+    pause_file = pause_path(PAUSE_FILE)
     try:
         pause_file.write_text(f"LLM Error: {err_msg}", encoding="utf-8")
     except (OSError, UnicodeError):
@@ -865,7 +867,7 @@ async def acomplete_structured(
 invoke_llm_with_timeout_message = LLMWaitNotice(
     notify=user_messages_logger.info,
     on_timeout=user_messages_logger.error,
-    hold=lambda: PAUSE_FILE.exists(),
+    hold=lambda: pause_path(PAUSE_FILE).exists(),
     default_hard_timeout=180,
 ).__call__
 

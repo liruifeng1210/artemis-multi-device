@@ -370,7 +370,12 @@ class OperatorNode:
         ledger = self._ensure_transcript_ledger(state)
 
         # 1. S region: rendered exactly once per session.
-        if not ledger.has_static_prefix:
+        scope = getattr(self.ctx, "active_task", None)
+        identity = (scope.task_id, scope.attempt_id) if scope else None
+        if scope is not None and ledger.task_identity != identity:
+            static_text = render_transcript_static_system(self.prompts, self.ctx, state)
+            ledger.begin_task(scope, [SystemMessage(content=static_text)])
+        elif not ledger.has_static_prefix:
             static_text = render_transcript_static_system(self.prompts, self.ctx, state)
             ledger.set_static_prefix([SystemMessage(content=static_text)])
 
@@ -1392,3 +1397,14 @@ class OperatorNode:
             return [{"action": "wait_for_delay", "time_in_ms": time_in_ms}], None
 
         return [], f"Error: Unsupported tool name '{tool_name}'."
+
+
+def commit_terminal_turn(ctx, state) -> None:
+    """Commit the final staged operator turn using the prompt-building gate."""
+    ledger = getattr(ctx, "transcript_ledger", None)
+    if ledger is None or not ledger.has_staged_turn:
+        return
+    result = (getattr(state, "last_execution_result", None)
+              if getattr(state, "structured_decisions", None) else None)
+    ledger.commit_staged(step_key=getattr(state, "current_step_id", None),
+                         validator_result=result)

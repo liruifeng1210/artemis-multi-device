@@ -171,7 +171,9 @@ def publish_checker_event(ctx, payload: dict) -> None:
     try:
         # ``timestamp`` mirrors the other bus events so the UI orders checker
         # blocks on the same timeline as steps and traces.
-        publish(CHECKER_EVENT, {"ts": now, "timestamp": now, **payload})
+        scope = getattr(ctx, "active_task", None)
+        attribution = scope.metadata() if scope is not None else {}
+        publish(CHECKER_EVENT, {"ts": now, "timestamp": now, **payload, **attribution})
     except Exception as e:
         logger.debug(f"Failed to publish checker event: {e}")
 
@@ -667,6 +669,10 @@ def _log_checker_note(ctx, run: CheckpointRun, verdicts: list) -> None:
         cid = run.checkpoint.checkpoint_id
         key = checker_note_key(cid)
         note_path = get_note_file_path(base_dir, key)
+        if getattr(ctx, "active_task", None) is not None:
+            paths = getattr(ctx, "task_artifact_paths", set())
+            paths.add(str(note_path.relative_to(base_dir)))
+            ctx.task_artifact_paths = paths
         verify_failures = [v for v in verdicts if v.kind == "verify" and v.status == "failed"]
         if not note_path.exists() and not verify_failures:
             return  # the log only starts once a verify criterion has failed
