@@ -39,6 +39,7 @@ class ModelProvider(StrEnum):
     GEMINI = "google"
     VERTEX_AI = "vertexai"
     OPENAI = "openai"
+    CODEX = "codex"
     ANTHROPIC = "anthropic"
     OPENROUTER = "openrouter"
     XAI = "xai"
@@ -67,6 +68,7 @@ class ModelProvider(StrEnum):
             "vertexai": cls.VERTEX_AI,
             "vertex": cls.VERTEX_AI,
             "openai": cls.OPENAI,
+            "codex": cls.CODEX,
             "anthropic": cls.ANTHROPIC,
             "claude": cls.ANTHROPIC,
             "openrouter": cls.OPENROUTER,
@@ -220,6 +222,15 @@ class ModelFactory:
             return FakeChatModel(delay_s=delay)
 
         provider = ModelProvider.from_string(endpoint.provider)
+
+        if provider == ModelProvider.CODEX:
+            from artemis.llm.codex import CodexChatModel
+
+            return CodexChatModel(
+                model_name=endpoint.model_name,
+                reasoning_effort=endpoint.reasoning_effort or "xhigh",
+                timeout_seconds=max(endpoint.timeout_seconds, 300.0),
+            )
 
         if provider == ModelProvider.GOOGLE:
             _patch_langchain_google_genai()

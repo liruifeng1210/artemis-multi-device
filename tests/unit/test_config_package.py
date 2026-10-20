@@ -148,7 +148,18 @@ def test_placeholder_api_key_filtering(monkeypatch):
     assert placeholder_settings.get_api_key("ocr") is None
 
 
-def test_llm_config_parsing_and_merging():
+@pytest.fixture
+def bundled_defaults(monkeypatch):
+    """Default assertions must not depend on a developer's local model setup."""
+    import artemis.config.agent as agent_config
+    import artemis.config.llm as llm_config
+
+    bundled = ROOT_DIR / "artemis" / "resources" / "config" / "artemis.jsonc"
+    monkeypatch.setattr(agent_config, "get_config_path", lambda *args: bundled)
+    monkeypatch.setattr(llm_config, "get_config_path", lambda *args: bundled)
+
+
+def test_llm_config_parsing_and_merging(bundled_defaults):
     """Test LLMConfig parsing, agent querying, and deep merging."""
     llm_cfg = get_default_llm_config()
     assert isinstance(llm_cfg, LLMConfig)
@@ -168,7 +179,7 @@ def test_llm_config_parsing_and_merging():
     assert merged.planner.temperature == 0.7
 
 
-def test_agent_config_loading():
+def test_agent_config_loading(bundled_defaults):
     """Test AgentGlobalConfig parsing from agent_config.json / artemis.jsonc."""
     agent_cfg = load_agent_config()
     assert isinstance(agent_cfg, AgentGlobalConfig)
@@ -442,7 +453,7 @@ def test_factory_default_verification_layering():
     assert AgentGlobalConfig().checker.enabled is True
 
 
-def test_explorer_builder_and_resolution(monkeypatch):
+def test_explorer_builder_and_resolution(monkeypatch, bundled_defaults):
     """Test AgentConfigBuilder explorer methods and multi-tier resolution logic."""
     from artemis.context import ArtemisContext, DeviceContext, DevicePlatform
     from artemis.sdk.agent import Agent

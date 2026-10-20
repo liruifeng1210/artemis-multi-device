@@ -36,7 +36,7 @@ from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
 from artemis.context import ArtemisContext
 from artemis.memory.step_memory import JobKey, StepMemoryService
-from artemis.services.llm import RobustChatModelWrapper, get_google_llm, get_llm
+from artemis.services.llm import RobustChatModelWrapper, get_auxiliary_llm, get_llm
 from artemis.services.token_meter import record_llm_usage
 from artemis.utils.task_tree import format_actions_clean
 from artemis.utils.visualization import draw_action_overlay_on_image
@@ -166,11 +166,11 @@ class VisualStepSummarizer(StepMemoryService):
         self._model_name = target_model
         try:
             if model_name:
-                self._llm = get_google_llm(model_name=target_model, temperature=0.0)
+                self._llm = get_auxiliary_llm(model_name=target_model, temperature=0.0)
             else:
                 self._llm = get_llm(ctx, name="summarizer", is_utils=True)
         except Exception:
-            self._llm = get_google_llm(model_name=target_model, temperature=0.0)
+            self._llm = get_auxiliary_llm(model_name=target_model, temperature=0.0)
         try:
             configured = getattr(self._llm, "model", None) or getattr(self._llm, "model_name", None)
             if isinstance(configured, str) and configured:
@@ -341,7 +341,7 @@ class VisualStepSummarizer(StepMemoryService):
         """Meter one raw-model lens call as an ``llm_usage`` trace, best-effort.
 
         Gateway-wrapped models already meter at the wrapper exit; only the raw
-        ``get_google_llm`` bypass needs explicit metering here. Lens prompts
+        ``get_auxiliary_llm`` bypass needs explicit metering here. Lens prompts
         are tiny and must not overwrite the session's ``last_prompt_tokens``
         (the compaction thresholds' live context base), hence
         ``update_last_prompt=False``.
@@ -458,7 +458,10 @@ class VisualStepSummarizer(StepMemoryService):
                 HumanMessage(content=content_blocks),
             ]
 
-            response = await asyncio.wait_for(self._llm.ainvoke(messages), timeout=25.0)
+            timeout = getattr(self._llm, "timeout_seconds", None)
+            if not isinstance(timeout, (int, float)) or timeout <= 0:
+                timeout = 25.0
+            response = await asyncio.wait_for(self._llm.ainvoke(messages), timeout=timeout)
             self._meter_lens_call(response)
             summary_raw = response.content if isinstance(response.content, str) else ""
             if isinstance(response.content, list):
