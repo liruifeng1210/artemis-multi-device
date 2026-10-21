@@ -183,8 +183,13 @@ class Dependency(Model):
     )
     check_id: str | None = None
     verdict: Literal["passed", "failed", "inconclusive", "unchecked"] = "passed"
-    output_key: str | None = None
-    equals: Any = None
+    output_key: str | None = Field(default=None, description=(
+        "Optional exact output-value filter, not an output binding or a request to preserve history. "
+        "For an ordinary status dependency leave output_key and equals null. When set, the key must "
+        "be declared by the source task and equals must match its output type; null is valid only "
+        "for an explicitly nullable output."
+    ))
+    equals: Any = Field(default=None, description="Exact expected output value when output_key is set; otherwise null.")
     max_age_seconds: float | None = Field(default=None, gt=0)
 
 

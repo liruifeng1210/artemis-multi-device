@@ -56,6 +56,27 @@ class Scheduler:
             }
             if not parents <= updated.keys():
                 raise ValueError("Unknown task dependency")
+            for dep in task.depends_on:
+                if dep.output_key is None:
+                    if dep.equals is not None:
+                        raise ValueError("Dependency equals requires output_key; use both null for a status-only dependency")
+                    continue
+                source_fields = updated[dep.task_id].spec.outputs_schema.get("properties", {})
+                if dep.output_key not in source_fields:
+                    raise ValueError("Dependency output_key must reference a declared source output")
+                from artemis.runtime.session_orchestration.contract import validated_outputs
+
+                try:
+                    validated_outputs(
+                        {"type": "object", "properties": {dep.output_key: source_fields[dep.output_key]},
+                         "required": [dep.output_key], "additionalProperties": False},
+                        {dep.output_key: dep.equals},
+                    )
+                except ValueError:
+                    raise ValueError(
+                        "Dependency equals must match the declared source output type; null requires an "
+                        "explicitly nullable output. For status-only dependencies set output_key and equals to null."
+                    ) from None
             for binding in task.spec.inputs.values():
                 if isinstance(binding, dict) and "from_task" in binding:
                     if set(binding) - {"from_task", "key", "max_age_seconds"}:
@@ -142,7 +163,7 @@ class Scheduler:
             if valid and dep.check_id:
                 valid = any(c.id == dep.check_id and c.verdict == dep.verdict for c in value.checks)
             if valid and dep.output_key:
-                valid = value.outputs.get(dep.output_key) == dep.equals
+                valid = dep.output_key in value.outputs and value.outputs[dep.output_key] == dep.equals
             if valid and dep.max_age_seconds is not None:
                 valid = (
                     datetime.now(UTC) - datetime.fromisoformat(value.observed_at)
