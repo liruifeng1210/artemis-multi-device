@@ -16,7 +16,7 @@ def clean(value):
         return {k: clean(v) for k, v in value.items() if not re.search(
             r'(^|_)(api_key|password|secret|credential|reconnect_secret|token)$', k, re.I)
             and k not in {'screenshot_b64','latest_screenshot','latest_ui_hierarchy','xml_hierarchy','indexed_elements','operator_raw_data','messages','operator_raw_thinking',
-                          'operator_native_thinking','transcript','last_state','inspection','ui'}}
+                          'operator_native_thinking','transcript','conversation_tail','last_state','inspection','ui'}}
     if isinstance(value, list):
         return [clean(x) for x in value]
     if isinstance(value, str):
@@ -35,7 +35,10 @@ def write(path, value):
 
 def calculator_note(key):
     key=str(key or '').removesuffix('.md')
-    return key in {'task_plan','session_context','session_progress','output','B','A_role_history'} or key.startswith(('calculator','calculation','cancel_a_plus10'))
+    return key in {'task_plan','session_context','session_progress','output','B','A_role_history',
+        'A_role_first_calc_result','B_role_first_calc_result','A_role_calc_continuation',
+        'A_role_calc_add10_result','multiply_current_record','b_calculator_results',
+        'calc_task_2c7d1e85_audit'} or key.startswith(('calculator','calculation','cancel_a_plus10'))
 
 
 def export(source, target, log=None):
@@ -54,7 +57,10 @@ def export(source, target, log=None):
     for name in ['sessions.json','timeline.json','config.json','closed.json','request.json',
                  'outcome.json','cancel.json','cancel-error.json','error.json','model-process-evidence.json',
                  'cleanup-probe.json','source.json','ownership-audit.json','execution-audit.json','evidence-omissions.json',
-                 'checker-observation-conflict.json']:
+                 'checker-observation-conflict.json','session-persistence-audit.json',
+                 'checker-evidence-source-audit.json','checker-evidence-source-audit-final.json',
+                 'power-observation.json','screenshot-review.json','recovery-attempt-9-timing-audit.json',
+                 'session-persistence-audit-details.json']:
         p = source / name
         if p.exists(): write(target / name, json.loads(p.read_text(encoding='utf-8')))
     result_file = source / 'results.json'
