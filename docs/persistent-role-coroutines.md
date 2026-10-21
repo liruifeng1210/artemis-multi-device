@@ -1,5 +1,7 @@
 # 常驻 Role Session：多协程实现
 
+> 本文记录当前实现。最新收敛设计见[多协程最小改造方案与多进程对比](persistent-role-coroutines-minimal-plan.md)：按原生 session_id 归属会话，以任务和步骤补充标识，保留原生存储组织。该文中的拟调整接口尚未表示已实现。当前协程分支提供 Role SDK，智能 Main 尚未实现；下文 Main 表示调用方承担的编排职责。
+
 本分支以 `351ca8422f7b5b54e80a9c1ce03a222e02415b6b` 为基线，新增
 `artemis.sdk.RoleSession`。Main 在同一事件循环内编排多个 Role；同一 Role 的任务通过队列串行执行，
 不同 Role 可以并发。原有 `Agent.run_task()` 继续提供一次性任务入口。
