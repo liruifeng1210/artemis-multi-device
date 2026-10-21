@@ -38,6 +38,7 @@ from typing import Any
 
 from artemis.core.tool_failure import ToolFailure, is_tool_failure
 from artemis.context import ArtemisContext
+from artemis.runtime.session_scope import read_only_task
 from artemis.controllers.unified_controller import UnifiedMobileController
 from artemis.data_engine.trace import TraceSpan
 from artemis.mcp.action_manifest import OPTIONAL_ACTIONS, REQUIRED_ACTIONS
@@ -161,6 +162,11 @@ class McpActionExecutor:
         *,
         index_elements: list[dict[str, Any]] | None = None,
     ) -> ToolExecutionResult:
+        if read_only_task(self.ctx):
+            return ToolExecutionResult(
+                tool_call_id=tool_call_id, tool_name=name, status="error",
+                text_summary="Read-only task forbids device actions and backend extensions; use screenshots, history, notes, or read-only probes.",
+            )
         span = TraceSpan(name=raw_name, trace_type="action", ctx=self.ctx)
         span.payload = {"args": args}
 

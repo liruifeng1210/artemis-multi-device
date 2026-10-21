@@ -26,16 +26,42 @@ class Completion(Model):
     required: bool = True
 
 
+OUTPUT_SCHEMA_DESCRIPTION = (
+    "Restricted JSON Schema, not arbitrary JSON Schema. Root type must be 'object'. "
+    "Allowed root keys only: type, properties, required, additionalProperties. "
+    "additionalProperties must be false when present; omission also means false. "
+    "properties maps identifier names (not starting with '_') to flat field schemas. "
+    "required must contain only names already declared in properties. "
+    "Allowed field keys only: type, enum, items, description, nullable. "
+    "Supported scalar types: string, integer, number, boolean. Arrays must use scalar items. "
+    "A supported type may be nullable via nullable=true or type=[that_type,'null']; "
+    "array items.type must be one of the four scalar type strings. "
+    "enum is supported for scalar fields only and must contain nonempty, strictly typed values. "
+    "No nested object fields, $defs, $ref, anyOf/oneOf, or root title/description keywords. "
+    'Example: {"type":"object","properties":{"result":{"type":"string"}},'
+    '"required":["result"],"additionalProperties":false}'
+)
+
+
 class TaskSpec(Model):
     goal: str = Field(min_length=1)
     inputs: dict[str, Any] = Field(default_factory=dict)
     input_sources: dict[str, dict] = Field(default_factory=dict)
     completion: list[Completion] = Field(min_length=1)
     outputs_schema: dict = Field(
-        default_factory=lambda: {"type": "object", "properties": {}, "additionalProperties": False}
+        default_factory=lambda: {"type": "object", "properties": {}, "additionalProperties": False},
+        description=OUTPUT_SCHEMA_DESCRIPTION,
     )
     constraints: list[str] = Field(default_factory=list)
-    effect_policy: Literal["read_only", "retry_safe", "verify_before_retry"] = "verify_before_retry"
+    effect_policy: Literal["read_only", "retry_safe", "verify_before_retry"] = Field(
+        default="verify_before_retry",
+        description=(
+            "read_only permits observations/history reads and internal task_plan/output reports only. "
+            "It forbids device actions, arbitrary shell/Python, and persistent business-note writes, "
+            "including creating audit notes. If completion requires updating Role memory or persistent "
+            "notes, choose an appropriate writable policy (retry_safe or verify_before_retry), not read_only."
+        ),
+    )
     execution_timeout_seconds: float = Field(gt=0, le=86400)
     verification_timeout_seconds: float = Field(default=60, gt=0, le=600)
     settlement_timeout_seconds: float = Field(default=30, gt=0, le=600)

@@ -574,7 +574,11 @@ async def test_operator_history_compression():
 
     mock_llm = MagicMock()
     mock_response = MagicMock()
-    mock_response.tool_calls = []
+    mock_response.tool_calls = [{
+        "name": "click",
+        "args": {"target": [50, 50], "target_description": "observed button", "reasoning": "Continue current subgoal"},
+        "id": "continue_current_subgoal",
+    }]
 
     # Smarter file reading mock
     def mock_read_text(path_self, encoding=None):
@@ -626,6 +630,8 @@ async def test_operator_history_compression():
     ):
         node = OperatorNode(mock_ctx, last_n_detailed=5, transcript_config=LEGACY_TRANSCRIPT)
         node_update = await node(mock_state)
+        assert json.loads(node_update["structured_decisions"])[0]["action"] == "tap"
+        mock_llm.ainvoke.assert_called_once()
 
 
 @pytest.mark.asyncio

@@ -38,6 +38,7 @@ running when the automation task ends.
 
 import asyncio
 from artemis.runtime.session_operations import tracked_device_operation
+from artemis.runtime.session_scope import read_only_task
 from asyncio.subprocess import Process as AsyncProcess
 from collections import deque
 import os
@@ -648,6 +649,8 @@ class RunAdbCommandTool(ArtemisTool):
         **kwargs: Any,
     ) -> str:
         # Extract command line supporting alternative key formats
+        if read_only_task(ctx):
+            return ToolFailure("Read-only task forbids ADB shell commands, including background or persistent commands")
         cmd_line = (
             CommandLine
             if CommandLine is not None
@@ -924,6 +927,8 @@ class ManageTaskTool(ArtemisTool):
         action = Action or kwargs.get("action", "list")
         task_id = TaskId if TaskId is not None else kwargs.get("task_id")
         input_str = Input if Input is not None else kwargs.get("input")
+        if read_only_task(ctx) and action not in {"list", "list_finished", "status"}:
+            return ToolFailure("Read-only task forbids mutating background command processes")
         registry = get_adb_task_registry(ctx)
 
         if action == "list":
@@ -1065,6 +1070,8 @@ class RunShortAdbCommandTool(ArtemisTool):
         CommandLine: str | None = None,
         **kwargs: Any,
     ) -> str:
+        if read_only_task(ctx):
+            return ToolFailure("Read-only task forbids ADB shell commands, including background or persistent commands")
         cmd_line = (
             CommandLine
             if CommandLine is not None

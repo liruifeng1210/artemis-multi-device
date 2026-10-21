@@ -17,12 +17,16 @@ from pydantic import (
 
 def output_model(schema):
     allowed = {"type", "properties", "required", "additionalProperties"}
-    if (
-        set(schema) - allowed
-        or schema.get("type") != "object"
-        or schema.get("additionalProperties", False) is not False
-    ):
-        raise ValueError("Unsupported output object schema")
+    if not isinstance(schema, dict):
+        raise ValueError("Output schema root must be an object mapping")
+    unknown = set(schema) - allowed
+    if unknown:
+        # Report unsupported keyword names, never their values or the schema.
+        raise ValueError("Unsupported output object schema keys: " + ", ".join(sorted(map(str, unknown))))
+    if schema.get("type") != "object":
+        raise ValueError("Output schema root type must be 'object'")
+    if schema.get("additionalProperties", False) is not False:
+        raise ValueError("Output schema additionalProperties must be false")
     props = schema.get("properties", {})
     required = set(schema.get("required", []))
     if not isinstance(props, dict) or not required <= props.keys():
@@ -97,7 +101,10 @@ def render_goal(spec):
             *spec.constraints,
             "Effect policy: " + spec.effect_policy,
             *(
-                ["Read-only task: observe and verify; do not modify device or business state."]
+                ["Read-only task: observe and verify; do not modify device or business state. "
+                 "Do not use save_note, append_note, or update_note for any key except exact task_plan, "
+                 "including new audit notes. Existing business notes are read-only. "
+                 "Deliver the report through typed finish_output/output reporting; do not create business memory notes."]
                 if spec.effect_policy == "read_only"
                 else []
             ),

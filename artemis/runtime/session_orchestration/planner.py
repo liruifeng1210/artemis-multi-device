@@ -2,7 +2,7 @@
 
 import json
 from types import SimpleNamespace
-from artemis.runtime.session_orchestration.models import PlanProposal
+from artemis.runtime.session_orchestration.models import OUTPUT_SCHEMA_DESCRIPTION, PlanProposal
 
 
 class MainPlanner:
@@ -74,7 +74,9 @@ class MainPlanner:
                     "Diagnostic RPC query contracts: observe accepts only mode ('cached' or 'fresh') "
                     "and timeout_seconds (>0, <=30); inspect accepts only level, offset (>=0), "
                     "limit (1..100), snapshot_id. Do not put purpose or other prose keys in query.\n"
-                    "The exact required JSON Schema follows; use its field names and nesting:\n"
+                    "Every task outputs_schema must obey the following restricted subset:\n"
+                    + OUTPUT_SCHEMA_DESCRIPTION + "\n"
+                    + "The exact required JSON Schema follows; use its field names and nesting:\n"
                     + json.dumps(PlanProposal.model_json_schema(), ensure_ascii=False)
                 )
             ),

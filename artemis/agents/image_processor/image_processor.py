@@ -30,6 +30,7 @@ from langchain_core.messages import (
 
 from artemis.config import settings
 from artemis.context import ArtemisContext
+from artemis.runtime.session_scope import read_only_task
 from artemis.core.tool_declaration import ToolDeclaration
 from artemis.data_engine.trace import TraceSpan, trace
 from artemis.services.llm import get_llm
@@ -79,6 +80,8 @@ class ImageProcessor:
 
     @trace(type="agent", name="image_processor")
     async def run(self, instruction: str, target_image_path: str) -> dict:
+        if read_only_task(self.ctx):
+            return {"error": "Read-only task forbids free Python image processing; use OCR, inspect_region, or recorded screenshots instead."}
         try:
             llm = get_llm(self.ctx, name="image_processor")
         except Exception:

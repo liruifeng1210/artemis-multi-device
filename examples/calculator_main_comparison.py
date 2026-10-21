@@ -39,6 +39,129 @@ def capture(serial, path):
         (path / "screen.xml").write_bytes(xml.stdout)
 
 
+class ObservedMainSession(MainSession):
+    """Production Main with a bounded, read-only observer before worker close."""
+
+    def __init__(self, output_folder):
+        super().__init__()
+        self.output_folder = Path(output_folder)
+        self._final_inspection_attempted = False
+
+    async def _capture_final_role(self, role_id, worker):
+        folder = self.output_folder / "final-inspections" / role_id
+        manifest = {
+            "time": stamp(), "role_id": role_id, "session_id": worker.session_id,
+            "pid": worker.process.pid, "worker_state": worker.state,
+            "source": "official MainSession.inspect before worker close",
+            "pages": [], "complete": False, "max_pages": 20, "timeout_seconds": 20,
+            "observed_messages": 0, "content_truncation_markers": 0,
+            "content_limitations": "Current ledger view may contain compression. Diagnostics redacts credentials/images and truncates individual strings at 8000 characters; complete pagination does not mean lossless content.",
+        }
+        try:
+            active = any(
+                not future.done() and self.dispatched_workers.get((task_id, attempt)) is worker
+                for task_id, (attempt, future) in self.running.items()
+            )
+            if worker.state != "READY" or worker.process.returncode is not None or active:
+                manifest["skipped"] = "worker_not_alive_settled_and_idle"
+                return
+            scheduler = getattr(self, "scheduler", None)
+            terminals = []
+            if scheduler is not None:
+                for task_id, result in scheduler.results.items():
+                    attempt = scheduler.result_attempts.get(task_id)
+                    if self.dispatched_workers.get((task_id, attempt)) is worker:
+                        terminals.append({"task_id": task_id, "attempt_id": attempt, "observed_at": result.observed_at})
+            if not terminals:
+                manifest["skipped"] = "no_terminal_attempt_for_this_worker_session"
+                return
+            terminal = max(terminals, key=lambda row: datetime.fromisoformat(row["observed_at"]))
+            manifest["last_terminal"] = terminal
+            query, seen, snapshot_id, frozen_meta = {"limit": 100}, set(), None, None
+            async with asyncio.timeout(20):
+                for index in range(20):
+                    page = await self.inspect(role_id, query)
+                    path = f"page-{index:03d}.json"
+                    save(folder / path, page)
+                    manifest["pages"].append({"path": path, "query": query})
+                    if page.get("consistency") != "settled":
+                        manifest["error"] = "inspection_not_settled"
+                        break
+                    if snapshot_id is None:
+                        snapshot_id = page.get("snapshot_id")
+                    if not snapshot_id or page.get("snapshot_id") != snapshot_id:
+                        manifest["error"] = "inspection_snapshot_changed_or_missing"
+                        break
+                    captured_at = page.get("captured_at")
+                    manifest["captured_at"] = captured_at
+                    if not captured_at or datetime.fromisoformat(captured_at) < datetime.fromisoformat(terminal["observed_at"]):
+                        manifest["error"] = "inspection_precedes_last_terminal"
+                        break
+                    transcript = page.get("sections", {}).get("transcript")
+                    if not isinstance(transcript, dict):
+                        manifest["error"] = "transcript_unavailable"
+                        break
+                    expected_offset = query.get("offset", 0)
+                    if "offset" in transcript and transcript["offset"] != expected_offset:
+                        manifest["error"] = "inspection_page_offset_mismatch"
+                        break
+                    messages = transcript.get("messages", [])
+                    if not isinstance(messages, list):
+                        manifest["error"] = "invalid_transcript_messages"
+                        break
+                    metadata = (transcript.get("total"), transcript.get("captured_messages"),
+                                bool(transcript.get("capture_truncated")), bool(transcript.get("has_staged_turn")))
+                    if frozen_meta is None:
+                        frozen_meta = metadata
+                    elif metadata != frozen_meta:
+                        manifest["error"] = "inspection_snapshot_metadata_changed"
+                        break
+                    manifest["snapshot_id"] = snapshot_id
+                    manifest["capture_truncated"] = bool(transcript.get("capture_truncated"))
+                    manifest["captured_messages"] = transcript.get("captured_messages")
+                    manifest["total"] = transcript.get("total")
+                    manifest["has_staged_turn"] = bool(transcript.get("has_staged_turn"))
+                    manifest["observed_messages"] += len(messages)
+                    manifest["content_truncation_markers"] += json.dumps(messages, ensure_ascii=False).count("[truncated]")
+                    cursor = page.get("next_cursor")
+                    manifest["next_cursor"] = cursor
+                    if cursor is None:
+                        manifest["complete"] = (
+                            not manifest["capture_truncated"] and not manifest["has_staged_turn"]
+                            and manifest["observed_messages"] == manifest["captured_messages"] == manifest["total"]
+                        )
+                        if not manifest["complete"]:
+                            manifest["error"] = "transcript_capture_incomplete_or_staged"
+                        break
+                    identity = (cursor.get("snapshot_id"), cursor.get("offset"))
+                    if identity[1] != expected_offset + len(messages):
+                        manifest["error"] = "non_contiguous_inspection_cursor"
+                        break
+                    if identity in seen or identity[0] != snapshot_id or not isinstance(identity[1], int):
+                        manifest["error"] = "invalid_or_repeated_inspection_cursor"
+                        break
+                    seen.add(identity)
+                    query = {"snapshot_id": identity[0], "offset": identity[1], "limit": 100}
+                else:
+                    manifest["error"] = "inspection_page_limit_reached"
+        except Exception as exc:
+            manifest["error"] = type(exc).__name__
+        finally:
+            save(folder / "manifest.json", manifest)
+
+    async def _close(self, reason):
+        try:
+            if self.closed_report is None and not self._final_inspection_attempted:
+                self._final_inspection_attempted = True
+                await asyncio.gather(*(
+                    self._capture_final_role(role, worker) for role, worker in self.workers.items()
+                ), return_exceptions=True)
+        finally:
+            # Observation errors, timeouts, or cancellation never skip real close.
+            report = await super()._close(reason)
+        return report
+
+
 async def monitor(main, folder, done):
     captured, cancel_at, cancelled = set(), {}, set()
     dispatched, proposals = set(), set()
@@ -166,7 +289,7 @@ async def main(args):
     save(folder / "config.json", {"llm":get_default_llm_config().model_dump(mode="json"),
         "agent":load_agent_config().model_dump(mode="json"),"started":stamp(),
         "main_planner":"production MainPlanner, no seeded tasks"})
-    session = MainSession()
+    session = ObservedMainSession(folder)
     done = asyncio.Event()
     watcher = asyncio.create_task(monitor(session, folder, done))
     try:

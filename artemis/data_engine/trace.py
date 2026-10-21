@@ -125,23 +125,21 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
     def _resolve_parent_id(
         self, parent_run_id: uuid.UUID | None, kwargs: dict[str, Any] = None
     ) -> uuid.UUID | None:
-        curr = parent_run_id
-        while curr in self.chain_parents:
-            curr = self.chain_parents[curr]
-        if curr:
-            return curr
-
-        # Check in metadata passed via kwargs
+        # Robust injects the current agent trace explicitly. A LangGraph chain
+        # ancestor may predate that agent's traced scope and must not replace it.
         if kwargs and "metadata" in kwargs:
             metadata = kwargs["metadata"] or {}
             p_id = metadata.get("parent_trace_id")
             if p_id:
                 try:
-                    return uuid.UUID(p_id)
+                    return uuid.UUID(str(p_id))
                 except ValueError:
                     pass
 
-        return CURRENT_TRACE_ID.get()
+        curr = parent_run_id
+        while curr in self.chain_parents:
+            curr = self.chain_parents[curr]
+        return curr or CURRENT_TRACE_ID.get()
 
     def on_chain_start(
         self,
@@ -207,6 +205,7 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
                 "prompts": prompts,
                 "name": name,
                 "start_time": time.time(),
+                "parent_trace_id": self._resolve_parent_id(parent_run_id, kwargs),
             }
 
             self.ctx.data_engine.record_trace(
@@ -214,7 +213,7 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
                 name=name,
                 payload={"prompts": prompts},
                 trace_id=run_id,
-                parent_trace_id=self._resolve_parent_id(parent_run_id, kwargs),
+                parent_trace_id=self.running_spans[run_id]["parent_trace_id"],
                 status="running",
                 step_id=self._current_step_id(),
             )
@@ -240,6 +239,7 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
                 "messages": flat_messages,
                 "name": name,
                 "start_time": time.time(),
+                "parent_trace_id": self._resolve_parent_id(parent_run_id, kwargs),
             }
 
             self.ctx.data_engine.record_trace(
@@ -247,7 +247,7 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
                 name=name,
                 payload={"messages": flat_messages},
                 trace_id=run_id,
-                parent_trace_id=self._resolve_parent_id(parent_run_id, kwargs),
+                parent_trace_id=self.running_spans[run_id]["parent_trace_id"],
                 status="running",
                 step_id=self._current_step_id(),
             )
@@ -326,7 +326,7 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
                 name=name,
                 payload=payload,
                 trace_id=run_id,
-                parent_trace_id=self._resolve_parent_id(parent_run_id),
+                parent_trace_id=span_data.get("parent_trace_id", self._resolve_parent_id(parent_run_id)),
                 status="success",
                 duration=duration,
                 step_id=step_id,
@@ -399,7 +399,7 @@ class DataEngineCallbackHandler(BaseCallbackHandler):
                 name=name,
                 payload=payload,
                 trace_id=run_id,
-                parent_trace_id=self._resolve_parent_id(parent_run_id),
+                parent_trace_id=span_data.get("parent_trace_id", self._resolve_parent_id(parent_run_id)),
                 status="failed",
                 duration=duration,
                 step_id=self._current_step_id(),

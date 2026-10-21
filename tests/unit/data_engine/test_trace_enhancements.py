@@ -187,3 +187,52 @@ def test_callback_handler_chain_parenting():
         assert len(handler.chain_parents) == 0
     finally:
         CURRENT_TRACE_ID.reset(token)
+
+
+@pytest.mark.parametrize('chat', [False, True])
+@pytest.mark.parametrize('error', [False, True])
+def test_explicit_agent_parent_overrides_graph_ancestor_and_is_stable_at_terminal(chat, error):
+    from types import SimpleNamespace
+    from uuid import uuid4
+    from langchain_core.messages import AIMessage, HumanMessage
+    from langchain_core.outputs import ChatGeneration, LLMResult
+    from artemis.data_engine.trace import DataEngineCallbackHandler, CURRENT_TRACE_ID
+    ctx = SimpleNamespace(data_engine=MagicMock(current_step_id=None), session_resources=None)
+    handler = DataEngineCallbackHandler(ctx)
+    graph_node, graph_parent, agent_parent, run = [uuid4() for _ in range(4)]
+    handler.chain_parents[graph_node] = graph_parent
+    if chat:
+        handler.on_chat_model_start({'name': 'synthetic'}, [[HumanMessage(content='Synthetic')]], run_id=run,
+                                    parent_run_id=graph_node, metadata={'parent_trace_id': str(agent_parent)})
+    else:
+        handler.on_llm_start({'name': 'synthetic'}, ['Synthetic'], run_id=run,
+                             parent_run_id=graph_node, metadata={'parent_trace_id': str(agent_parent)})
+    handler.chain_parents.clear()
+    token = CURRENT_TRACE_ID.set(uuid4())
+    try:
+        if error:
+            handler.on_llm_error(RuntimeError('Synthetic failure'), run_id=run, parent_run_id=graph_node)
+        else:
+            handler.on_llm_end(LLMResult(generations=[[ChatGeneration(message=AIMessage(content='Synthetic'))]]),
+                               run_id=run, parent_run_id=graph_node)
+    finally:
+        CURRENT_TRACE_ID.reset(token)
+    records = [call.kwargs for call in ctx.data_engine.record_trace.call_args_list if call.kwargs.get('type') == 'llm_call']
+    assert len(records) == 2 and all(row['parent_trace_id'] == agent_parent for row in records)
+    assert records[1]['status'] == ('failed' if error else 'success')
+
+
+def test_no_explicit_metadata_retains_legacy_graph_and_context_fallbacks():
+    from types import SimpleNamespace
+    from uuid import uuid4
+    from artemis.data_engine.trace import DataEngineCallbackHandler, CURRENT_TRACE_ID
+    handler = DataEngineCallbackHandler(SimpleNamespace(data_engine=None))
+    node, parent, current = uuid4(), uuid4(), uuid4()
+    handler.chain_parents[node] = parent
+    token = CURRENT_TRACE_ID.set(current)
+    try:
+        assert handler._resolve_parent_id(node) == parent
+        assert handler._resolve_parent_id(node, {'metadata': {'parent_trace_id': 'invalid'}}) == parent
+        assert handler._resolve_parent_id(None) == current
+    finally:
+        CURRENT_TRACE_ID.reset(token)

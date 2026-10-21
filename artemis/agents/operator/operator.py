@@ -16,7 +16,7 @@ import json
 from typing import Any
 from uuid import uuid4
 
-from langchain_core.messages import SystemMessage, ToolMessage
+from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from langchain_core.tools import BaseTool
 
 from artemis.core.tool_failure import is_tool_failure
@@ -73,6 +73,10 @@ DEFERRING_TOOLS = {
 
 # Bare key names press_key accepts (case-insensitive, optional KEYCODE_ prefix).
 SUPPORTED_PRESS_KEYS = ("ENTER", "BACK", "HOME", "APP_SWITCH")
+
+
+class OperatorPlanHandoffError(RuntimeError):
+    """The model twice stopped without handing off a still-pending task plan."""
 
 from artemis.agents.operator.prompts import (
     OPERATOR_MAX_TOOL_ITERATIONS,
@@ -490,8 +494,14 @@ class OperatorNode:
         native_thoughts = []
         tool_limit_exceeded = False
         plan_gate_bounced = False
+        no_tool_correction_sent = False
 
-        for iteration in range(max_iterations):
+        # Reserve at most one extra call when the first missing handoff occurs
+        # on the last ordinary iteration. Normal tool budgets stay unchanged.
+        for iteration in range(max_iterations + 1):
+            if iteration == max_iterations and not no_tool_correction_sent:
+                tool_limit_exceeded = True
+                break
             if iteration == max_iterations - 1:
                 logger.warning(
                     "Operator has reached the maximum number of tool calls. Adding reminder."
@@ -573,7 +583,27 @@ class OperatorNode:
                     logger.error(f"Failed to parse function_call fallback: {e}")
 
             if not response.tool_calls:
-                logger.warning("LLM stopped without calling any tool. Encouraging action.")
+                plan = parse_plan(self._read_task_plan_text())
+                if plan.has_top_level and not plan.all_top_level_done:
+                    if no_tool_correction_sent:
+                        raise OperatorPlanHandoffError(
+                            "Operator stopped without tool calls while task_plan remains pending after one correction"
+                        )
+                    no_tool_correction_sent = True
+                    current_messages.extend([
+                        response,
+                        HumanMessage(content=(
+                            "Your task_plan still contains unfinished milestones. A text-only reply does not "
+                            "hand off this task. Use save_note/update_note on exact key task_plan to record "
+                            "the real observed progress, then continue any remaining work. For read-only tasks, "
+                            "internal task_plan bookkeeping is permitted while business-note writes and device "
+                            "mutations remain forbidden. Do not mark unperformed or unverified "
+                            "work complete. If unable to proceed, record the actual blocker and its reason "
+                            "rather than claiming completion. This is the only missing-handoff correction."
+                        )),
+                    ])
+                    continue
+                logger.info("Operator returned without tool calls; keeping the existing convergence decision.")
                 break
 
             current_messages.append(response)

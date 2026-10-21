@@ -40,16 +40,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
+from langchain_core.exceptions import OutputParserException
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.tools import BaseTool, tool
+from langchain_core.runnables.base import RunnableBindingBase
+from langchain_core.runnables.config import ensure_config
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, create_model
 
 from artemis.core.tool_failure import ToolFailure, is_tool_failure
 from artemis.constants import CHECKER_MAX_ITERATIONS
 from artemis.context import ArtemisContext
 from artemis.data_engine.context_vars import CURRENT_TRACE_ID
-from artemis.data_engine.trace import trace, trace_langchain_tool
+from artemis.data_engine.trace import DataEngineCallbackHandler, trace, trace_langchain_tool
 from artemis.services.llm import acomplete, get_llm, invoke_llm_with_timeout_message
 from artemis.tools.history import get_history_tools
 from artemis.tools.scratchpad import get_read_note_tool_pure
@@ -417,26 +420,158 @@ def _matches_check_item_text(item, text: str) -> bool:
 # --- Shared tool loop ----------------------------------------------------------------
 
 
-async def _structured_report(llm, messages) -> CheckReport:
-    structured_llm = llm.with_structured_output(CheckReport)
-    # A conversation must end with a user turn: Gemini rejects requests whose
-    # last message is the model's own answer ("Requests ending with a model
-    # turn are not supported"), which is exactly the state after the loop's
-    # final tool-free reply. Nudge with an explicit verdict request instead.
-    if messages and isinstance(messages[-1], AIMessage):
-        messages = [
-            *messages,
-            HumanMessage(content="Now provide your structured verdict report."),
-        ]
-    result = await invoke_llm_with_timeout_message(structured_llm.ainvoke(messages))
-    if isinstance(result, CheckReport):
-        return result
-    if isinstance(result, dict):
+def _with_checker_config(llm, transformed):
+    """Restore existing callback/config bindings lost by provider transformations."""
+    source = getattr(llm, "base_model", llm)
+    if isinstance(source, RunnableBindingBase) and source.config:
+        config = dict(source.config)
+        inherited = ensure_config().get("callbacks")
+        handlers = inherited if isinstance(inherited, list) else getattr(inherited, "handlers", [])
+        def inherited_handler(handler):
+            if isinstance(handler, DataEngineCallbackHandler):
+                return next((candidate for candidate in handlers
+                             if isinstance(candidate, DataEngineCallbackHandler) and candidate.ctx is handler.ctx), handler)
+            return handler
+        callbacks = config.get("callbacks")
+        if isinstance(callbacks, list):
+            config["callbacks"] = [inherited_handler(handler) for handler in callbacks]
+        elif callbacks is not None:
+            copied = callbacks.copy()
+            for handler in list(callbacks.handlers):
+                replacement = inherited_handler(handler)
+                if replacement is not handler:
+                    inherit = handler in callbacks.inheritable_handlers
+                    copied.remove_handler(handler)
+                    copied.add_handler(replacement, inherit=inherit)
+            config["callbacks"] = copied
+        # Replace the existing config values; never append another callback.
+        return transformed.with_config(config)
+    return transformed
+
+
+class _ReportIdentityError(ValueError):
+    """A structured report did not cover the declared identities exactly once."""
+
+
+def _declared_report_model(check_items: list) -> type[CheckReport]:
+    texts = tuple(dict.fromkeys(ci.text for ci in check_items))
+    if not texts:
+        return CheckReport
+    verdict_model = create_model(
+        "DeclaredCheckVerdict",
+        __base__=CheckVerdict,
+        item_text=(
+            Literal[texts],
+            Field(description="Copy exactly one declared item_text enum value; no presentation wrappers or paraphrases."),
+        ),
+    )
+    return create_model(
+        "DeclaredCheckReport",
+        __base__=CheckReport,
+        verdicts=(list[verdict_model], Field(default_factory=list)),
+    )
+
+
+def _retry_status_constraints(result, check_items: list) -> tuple[dict, set, dict]:
+    """Identity correction has no new evidence and must not revise valid judgments."""
+    data = result.model_dump() if isinstance(result, BaseModel) else result
+    expected = {(ci.kind, ci.text) for ci in check_items}
+    statuses: dict[tuple[str, str], set[str]] = {}
+    failed = {}
+    if not isinstance(data, dict) or not isinstance(data.get("verdicts"), list):
+        return {}, set(), {}
+    for value in data["verdicts"]:
         try:
-            return CheckReport.model_validate(result)
-        except ValidationError as exc:
-            logger.debug("Structured verdict dict failed CheckReport validation: %s", exc)
-    return CheckReport(verdicts=[])
+            verdict = CheckVerdict.model_validate(value)
+        except ValidationError:
+            continue
+        pair = (verdict.kind, verdict.item_text)
+        if pair in expected:
+            statuses.setdefault(pair, set()).add(verdict.status)
+            if verdict.status == "failed" and verdict.evidence.strip():
+                failed.setdefault(pair, verdict)
+    frozen = {pair: next(iter(values)) for pair, values in statuses.items() if len(values) == 1}
+    conflicts = {pair for pair, values in statuses.items() if len(values) > 1}
+    frozen.update({pair: "failed" for pair in failed})
+    return frozen, conflicts, failed
+
+
+def _validate_report_identity(report: CheckReport, check_items: list, frozen: dict, conflicts: set) -> None:
+    expected = {(ci.kind, ci.text) for ci in check_items}
+    seen = set()
+    for verdict in report.verdicts:
+        pair = (verdict.kind, verdict.item_text)
+        if pair not in expected:
+            raise _ReportIdentityError("undeclared_kind_text_pair")
+        if pair in seen:
+            raise _ReportIdentityError("duplicate_kind_text_pair")
+        seen.add(pair)
+        if pair in frozen and verdict.status != frozen[pair]:
+            raise _ReportIdentityError("judgment_changed_during_identity_correction")
+        if frozen.get(pair) == "failed" and not verdict.evidence.strip():
+            raise _ReportIdentityError("failure_evidence_lost_during_identity_correction")
+        if pair in conflicts and verdict.status == "passed":
+            raise _ReportIdentityError("conflicting_judgments_cannot_be_corrected_to_passed")
+    if seen != expected:
+        raise _ReportIdentityError("missing_declared_item")
+
+
+async def _structured_report(llm, messages, check_items=()) -> CheckReport:
+    items = list(check_items)
+    report_model = _declared_report_model(items)
+    # Parsing errors are report data, not transport failures. Keeping parsing
+    # outside the gateway avoids its network retry/pause policy for bad identity.
+    structured_llm = _with_checker_config(llm, llm.with_structured_output(report_model, include_raw=True))
+    # Gemini requires a user-ending conversation after a tool-free model reply.
+    if messages and isinstance(messages[-1], AIMessage):
+        messages = [*messages, HumanMessage(content="Now provide your structured verdict report.")]
+    frozen, conflicts, failed = {}, set(), {}
+    for attempt in range(2):
+        try:
+            result = await invoke_llm_with_timeout_message(structured_llm.ainvoke(messages))
+            if isinstance(result, dict) and {"raw", "parsed", "parsing_error"} <= result.keys():
+                raw = result["raw"]
+                calls = getattr(raw, "tool_calls", [])
+                if attempt == 0 and len(calls) == 1 and calls[0].get("name") == report_model.__name__:
+                    frozen, conflicts, failed = _retry_status_constraints(calls[0].get("args"), items)
+                parsing_error = result["parsing_error"]
+                if parsing_error is not None:
+                    if isinstance(parsing_error, (ValidationError, OutputParserException)):
+                        raise parsing_error
+                    raise TypeError("Unexpected structured report parsing error") from parsing_error
+                result = result["parsed"]
+            if attempt == 0:
+                frozen, conflicts, failed = _retry_status_constraints(result, items)
+            # Provider adapters may return a base CheckReport or dict rather than
+            # the requested dynamic model. Always revalidate against its enum.
+            data = result.model_dump() if isinstance(result, BaseModel) else result
+            report = report_model.model_validate(data)
+            _validate_report_identity(report, items, frozen if attempt else {}, conflicts if attempt else set())
+            return report
+        except (ValidationError, OutputParserException, _ReportIdentityError) as exc:
+            category = str(exc) if isinstance(exc, _ReportIdentityError) else type(exc).__name__
+            logger.warning(f"Structured checker report rejected ({category}), attempt {attempt + 1}/2")
+            if attempt:
+                break
+            declared = [{"kind": ci.kind, "item_text": ci.text} for ci in items]
+            preserved = [{"kind": pair[0], "item_text": pair[1], "status": status} for pair, status in frozen.items()]
+            disputed = [{"kind": pair[0], "item_text": pair[1]} for pair in sorted(conflicts)]
+            messages = [*messages, HumanMessage(content=(
+                "The structured report was rejected for schema/identity validation: " + category + ". "
+                "This is the only correction attempt. Return exactly one verdict per declared (kind, item_text) pair. "
+                "Copy each complete enum string verbatim; omit display wrappers and do not paraphrase. "
+                "Correct identity/coverage only, using the same recorded evidence; no new device actions. "
+                "No judgment is preferred: passed, failed, and inconclusive remain valid. "
+                "Preserve the existing valid judgments listed below. Conflicting pairs without a preserved failure may be failed or inconclusive, never passed.\n"
+                "Declared pairs: " + json.dumps(declared, ensure_ascii=False) + "\n"
+                "Preserved judgments: " + json.dumps(preserved, ensure_ascii=False) + "\n"
+                "Conflicting pairs: " + json.dumps(disputed, ensure_ascii=False)
+            ))]
+    # Preserve exact, evidence-backed failures from the original response:
+    # dropping them to missing/inconclusive would erase a native release block.
+    # The caller fills all other declarations with inconclusive. Never retain a
+    # passed verdict from an invalid response or select a passing duplicate.
+    return CheckReport(verdicts=list(failed.values()))
 
 
 def _normalize_report(report: CheckReport, check_items: list) -> CheckReport:
@@ -506,14 +641,14 @@ async def _run_check_loop(
                     )
                 )
             )
-            report = await _structured_report(llm, messages)
+            report = await _structured_report(llm, messages, check_items)
             break
 
-        active_llm = llm.bind_tools(tools=traced_tools)
+        active_llm = _with_checker_config(llm, llm.bind_tools(tools=traced_tools))
         response = await invoke_llm_with_timeout_message(acomplete(active_llm, messages))
 
         if not response.tool_calls:
-            report = await _structured_report(llm, messages + [response])
+            report = await _structured_report(llm, messages + [response], check_items)
             break
 
         messages.append(response)

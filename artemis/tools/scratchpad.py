@@ -20,6 +20,7 @@ from pydantic import BaseModel, Field
 
 from artemis.core.tool_failure import ToolFailure
 from artemis.context import ArtemisContext
+from artemis.runtime.session_scope import require_note_write_allowed
 from artemis.data_engine.trace import trace_langchain_tool
 from artemis.drivers.base import BaseDeviceDriver
 from artemis.graph.state import State
@@ -148,6 +149,7 @@ class SaveNoteTool(ArtemisTool):
                 )
                 else "."
             )
+            require_note_write_allowed(ctx, k)
             save_note_content(base_dir, k, c)
             agent_outcome = f"Saved note '{k}'."
             status = "success"
@@ -227,6 +229,7 @@ class AppendNoteTool(ArtemisTool):
                 )
                 else "."
             )
+            require_note_write_allowed(ctx, k)
             append_note_content(base_dir, k, c)
             agent_outcome = f"Appended to note '{k}'."
             status = "success"
@@ -308,6 +311,7 @@ class UpdateNoteTool(ArtemisTool):
                 )
                 else "."
             )
+            require_note_write_allowed(ctx, k)
             warning = update_note_content(base_dir, k, t, r)
             if warning:
                 agent_outcome = f"Updated note '{k}'.\nWARNING: {warning}"
@@ -642,6 +646,7 @@ class SaveNotePureTool(ArtemisTool):
                 )
                 else "."
             )
+            require_note_write_allowed(ctx, k)
             save_note_content(base_dir, k, c)
             return f"Saved note '{k}'."
         except Exception as e:  # pylint: disable=broad-exception-caught
@@ -708,6 +713,7 @@ class UpdateNotePureTool(ArtemisTool):
                 )
                 else "."
             )
+            require_note_write_allowed(ctx, k)
             warning = update_note_content(base_dir, k, t, r)
             if warning:
                 return f"Updated note '{k}'.\nWARNING: {warning}"
@@ -774,6 +780,7 @@ class AppendNotePureTool(ArtemisTool):
                 )
                 else "."
             )
+            require_note_write_allowed(ctx, k)
             append_note_content(base_dir, k, c)
             return f"Appended to note '{k}'."
         except Exception as e:  # pylint: disable=broad-exception-caught

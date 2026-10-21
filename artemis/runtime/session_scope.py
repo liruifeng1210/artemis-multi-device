@@ -4,7 +4,7 @@ from __future__ import annotations
 from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 SESSION_PAUSE_PATH: ContextVar[Path | None] = ContextVar("session_pause_path", default=None)
 
@@ -17,6 +17,7 @@ class TaskScope:
     start_step_exclusive: int = 0
     end_step_inclusive: int | None = None
     scope_revision: int = 1
+    effect_policy: Literal["read_only", "retry_safe", "verify_before_retry"] = "verify_before_retry"
 
     def metadata(self) -> dict[str, Any]:
         return {
@@ -24,6 +25,18 @@ class TaskScope:
             "attempt_id": self.attempt_id,
             "scope_revision": self.scope_revision,
         }
+
+
+def read_only_task(ctx: Any) -> bool:
+    scope = getattr(ctx, "active_task", None)
+    return isinstance(scope, TaskScope) and scope.effect_policy == "read_only"
+
+
+def require_note_write_allowed(ctx: Any, key: str) -> None:
+    # Model tools may update their internal plan. Business notes are shared
+    # persistent state; report/bookkeeping writes use trusted program paths.
+    if read_only_task(ctx) and key != "task_plan":
+        raise PermissionError("Read-only task forbids persistent business-note writes; only task_plan may be changed by note tools")
 
 
 def execution_metadata(ctx: Any) -> dict[str, Any]:

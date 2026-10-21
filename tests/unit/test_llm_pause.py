@@ -103,7 +103,8 @@ def test_provider_sdk_retry_is_persisted_and_published(monkeypatch):
 
     assert engine.trace_kwargs["type"] == "llm_call"
     assert engine.trace_kwargs["name"] == "llm_retry"
-    assert engine.trace_kwargs["status"] == "retrying"
+    assert engine.trace_kwargs["status"] == "terminated"
+    assert engine.trace_kwargs["duration"] == 0.0
     assert engine.trace_kwargs["payload"] == {
         "error": "ServerError: 503 UNAVAILABLE: high demand",
         "delay": 1.18,
@@ -112,6 +113,8 @@ def test_provider_sdk_retry_is_persisted_and_published(monkeypatch):
         "recoverable": True,
         "request_id": "request-1",
         "scheduled_at": engine.trace_kwargs["payload"]["scheduled_at"],
+        "event_state": "retry_scheduled",
+        "termination_reason": "instantaneous_telemetry_event",
     }
     event_type, payload = engine.published
     assert event_type == "llm_retrying"
@@ -183,3 +186,42 @@ def test_terminal_failure_aggregates_observed_retries_and_total_wait(monkeypatch
     assert payload["provider"] == "google"
     assert payload["waited_seconds"] == 20.0
     assert payload["retries"] == retries
+
+
+@pytest.mark.parametrize("requested_status,expected_status", [(None, "terminated"), ("retrying", "terminated"), ("failed", "failed"), ("success", "success")])
+def test_instantaneous_llm_events_have_terminal_notification_semantics(monkeypatch, requested_status, expected_status):
+    engine = _RecordingEngine()
+    monkeypatch.setattr(llm, "_CURRENT_DATA_ENGINE", engine)
+    kwargs = {} if requested_status is None else {"status": requested_status}
+    llm._record_llm_event("llm_stream_reset", {"action": "discard", "request_id": "request-not-model-outcome"}, **kwargs)
+    trace = engine.trace_kwargs
+    assert trace["status"] == expected_status
+    assert trace["duration"] == 0.0
+    assert trace["payload"]["termination_reason"] == "instantaneous_telemetry_event"
+    assert trace["payload"]["event_state"] == ("retry_scheduled" if requested_status == "retrying" else "event_recorded")
+    assert engine.published[0] == "llm_stream_reset"
+    assert engine.published[1]["action"] == "discard"
+
+
+@pytest.mark.parametrize("outcome", ["success", "failed", "cancelled"])
+def test_retry_notification_does_not_claim_outcome_of_subsequent_model_call(monkeypatch, outcome):
+    engine = _RecordingEngine()
+    records = []
+    original_record = engine.record_trace
+    def record(**kwargs):
+        records.append(kwargs)
+        return original_record(**kwargs)
+    engine.record_trace = record
+    monkeypatch.setattr(llm, "_CURRENT_DATA_ENGINE", engine)
+    token = llm._begin_llm_request("synthetic")
+    try:
+        llm._record_llm_retry("synthetic transient failure", 1.25, attempt=1, max_retries=2)
+        retry = llm._ACTIVE_LLM_REQUEST.get()["retries"][0]
+        engine.record_trace(type="llm_call", name="synthetic_model", payload={}, status=outcome)
+    finally:
+        llm._ACTIVE_LLM_REQUEST.reset(token)
+    assert [row["status"] for row in records] == ["terminated", outcome]
+    assert not any(row["status"] in {"running", "retrying"} for row in records)
+    assert records[0]["payload"]["event_state"] == "retry_scheduled"
+    assert retry["delay"] == 1.25 and retry["trace_id"] == "trace-1"
+    assert engine.published[0] == "llm_retrying"

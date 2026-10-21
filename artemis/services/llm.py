@@ -130,7 +130,7 @@ def _record_llm_retry(
     provider: str | None = None,
     source: str = "artemis",
 ) -> None:
-    """Persist and publish one recoverable LLM retry for UI transparency."""
+    """Record a completed notification that a retry was scheduled, not its outcome."""
     request = _ACTIVE_LLM_REQUEST.get()
     timestamp = time.time()
     request_id = request.get("request_id") if request else None
@@ -154,6 +154,8 @@ def _record_llm_retry(
         "recoverable": True,
         "request_id": request_id,
         "scheduled_at": timestamp,
+        "event_state": "retry_scheduled",
+        "termination_reason": "instantaneous_telemetry_event",
     }
     payload = {key: value for key, value in payload.items() if value is not None}
     step_id = getattr(engine, "current_step_id", None)
@@ -165,7 +167,8 @@ def _record_llm_retry(
             payload=payload,
             step_id=step_id,
             parent_trace_id=parent_trace_id,
-            status="retrying",
+            status="terminated",
+            duration=0.0,
         )
     except Exception as trace_error:
         llm_logger.warning("Failed to persist LLM retry trace: %s", trace_error)
@@ -195,7 +198,7 @@ def _record_llm_retry(
         llm_logger.warning("Failed to publish LLM retry event: %s", publish_error)
 
 
-def _record_llm_event(name: str, payload: dict[str, Any], *, status: str = "retrying") -> None:
+def _record_llm_event(name: str, payload: dict[str, Any], *, status: str = "terminated") -> None:
     """Persist and publish one degradation/lifecycle event on the LLM IO path.
 
     Every degradation (fallback, stream downgrade, stream reset, giving up)
@@ -208,6 +211,13 @@ def _record_llm_event(name: str, payload: dict[str, Any], *, status: str = "retr
         return
 
     full_payload = dict(payload)
+    # These are instantaneous notifications, never open model-call spans.
+    if status == "retrying":
+        status = "terminated"
+        full_payload.setdefault("event_state", "retry_scheduled")
+    else:
+        full_payload.setdefault("event_state", "event_recorded")
+    full_payload.setdefault("termination_reason", "instantaneous_telemetry_event")
     if request is not None:
         full_payload.setdefault("request_id", request.get("request_id"))
         if request.get("provider"):
@@ -224,6 +234,7 @@ def _record_llm_event(name: str, payload: dict[str, Any], *, status: str = "retr
             step_id=step_id,
             parent_trace_id=CURRENT_TRACE_ID.get(),
             status=status,
+            duration=0.0,
         )
     except Exception as trace_error:
         llm_logger.warning("Failed to persist LLM event trace %s: %s", name, trace_error)

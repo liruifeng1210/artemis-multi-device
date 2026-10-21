@@ -305,7 +305,7 @@ class Worker:
                 self.session.options.settlement_timeout_seconds = spec.settlement_timeout_seconds
                 await self.session.execute(
                     request,
-                    TaskScope(msg.task_id, msg.attempt_id, request.goal),
+                    TaskScope(msg.task_id, msg.attempt_id, request.goal, effect_policy=spec.effect_policy),
                     completion=adapter,
                 )
                 result = adapter.result
