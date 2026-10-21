@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "scope": "B continue task final Checker observation conflict; selected evidence only",
+  "source_database_relative_path": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb/traces/data_engine.db",
+  "checker_llm_observations": [
+    {
+      "trace_id": "01a15b87-6593-7a52-970e-73e8d06cf4e3",
+      "task_id": "25b901c3-d478-44be-8319-100158733b78",
+      "attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761",
+      "final_screen_elements_whitelist": {
+        "status_bar_time": "06:52",
+        "expression": "48÷6",
+        "result": "8"
+      }
+    },
+    {
+      "trace_id": "01a15b87-e82e-7932-a992-aca112be7fae",
+      "task_id": "25b901c3-d478-44be-8319-100158733b78",
+      "attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761",
+      "final_screen_elements_whitelist": {
+        "status_bar_time": "06:52",
+        "expression": "48÷6",
+        "result": "8"
+      }
+    },
+    {
+      "trace_id": "01a15b88-6548-7451-9eac-36a94087e9e9",
+      "task_id": "25b901c3-d478-44be-8319-100158733b78",
+      "attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761",
+      "final_screen_elements_whitelist": {
+        "status_bar_time": "06:52",
+        "expression": "48÷6",
+        "result": "8"
+      }
+    },
+    {
+      "trace_id": "01a15b88-c39a-70e3-aa24-da0d2cb08858",
+      "task_id": "25b901c3-d478-44be-8319-100158733b78",
+      "attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761",
+      "final_screen_elements_whitelist": {
+        "status_bar_time": "06:52",
+        "expression": "48÷6",
+        "result": "8"
+      }
+    }
+  ],
+  "screenshot_observation": {
+    "relative_path": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb/traces/26ba958c-bc03-4eb6-8a8d-0db660cb5eb6/tasks/25b901c3-d478-44be-8319-100158733b78/78ae516c-f48c-465f-9cee-1c071a527761/contract-screen.jpg",
+    "task_id": "25b901c3-d478-44be-8319-100158733b78",
+    "attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761",
+    "method": "Read-only visual inspection of the existing contract-screen.jpg artifact",
+    "visible_expression": "8+17",
+    "visible_result": "25",
+    "visible_device_time": "06:58"
+  },
+  "finding": "The final Checker prompts supplied hierarchy text showing 48÷6 and 8 at device time 06:52 alongside a screenshot visibly showing 8+17 and 25 at device time 06:58. This establishes conflicting observation content, without establishing the underlying helper cache mechanism."
+}

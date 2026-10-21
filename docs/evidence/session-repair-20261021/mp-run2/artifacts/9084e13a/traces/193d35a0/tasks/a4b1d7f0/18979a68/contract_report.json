@@ -1,0 +1,26 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "B自己的归档任务 4b6e2a91-5c73-4f08-b2d4-713850a20402 成功，outputs.result = \"8\"，步骤 1–7，4 项检查通过；b_calculator_results note 引用了该依据，报告给出首次结果 8。",
+      "item_text": "[contract:report_first] 从B自己的原始执行证据或真实观察中确定并报告首次计算结果；若证据不足则明确报告无法核实，不得猜测。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "最终截图显示算式 25×4 和大字结果 100；b_calculator_results note 记录此次重新观察且未与计算器交互、未清空或重输。报告给出当前结果 100。",
+      "item_text": "[contract:report_current] 重新观察B当前计算器屏幕并报告实际当前结果，不清空或重输旧值/算式。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "b_calculator_results note 记录首次结果 8 及归档任务、步骤依据，也记录当前结果 100 及观察说明；输出为标量 result 字符串：\"首次结果：8；当前结果：100。\"",
+      "item_text": "[contract:record_values] 将B的首次结果依据和当前结果记入B的Role持久notes，并以result字符串报告。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    }
+  ]
+}

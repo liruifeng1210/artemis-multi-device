@@ -1,0 +1,14 @@
+- [x] Clear the active calculator exactly once, enter 125+75 using real screen taps, and press equals. If an action has an uncertain outcome, stop and report the observed state without retrying it.
+  - [x] Tap the calculator's Clear key once; the display is 0 and prior history is cleared.
+  - [x] Enter 125+75 using real taps
+    - [x] Tap 1; the screen displays 1
+    - [x] Tap 2; the screen displays 12
+    - [x] Tap 5; the screen displays 125
+    - [x] Tap +; the screen shows 125+ and =125
+    - [x] Tap 7; the screen shows 125+7 and =132
+    - [x] Tap 5; the screen shows 125+75 and =200
+  - [x] Press equals to finalize the current result
+    - [x] Tap equals once; the screen shows 125+75 = 200
+  - verify: The calculator screen shows 125+75 with result 200, and the clear action occurred exactly once.
+- [x] Record the first result and final current result as the values actually displayed on screen in note `calculator_result` (fields: `first_result` and `current_result`, both strings); both are "200".
+- assert@end: 屏幕显示125+75的结果200，且本任务仅清空了一次。

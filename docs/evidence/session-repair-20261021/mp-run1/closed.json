@@ -1,0 +1,42 @@
+{
+  "time": "2026-10-20T23:08:58.986222+00:00",
+  "report": [
+    {
+      "exited": true,
+      "returncode": 0,
+      "session": {
+        "reason": "blocked",
+        "lease_released": true,
+        "errors": []
+      },
+      "graceful": true
+    },
+    {
+      "exited": true,
+      "returncode": 0,
+      "session": {
+        "reason": "blocked",
+        "lease_released": true,
+        "errors": []
+      },
+      "graceful": true
+    }
+  ],
+  "workers": {
+    "A": {
+      "pid": 31564,
+      "exit": 0,
+      "session": "d508f3fb-6bf0-4e64-bb70-e11f65c1c112"
+    },
+    "B": {
+      "pid": 35736,
+      "exit": 0,
+      "session": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6"
+    }
+  },
+  "locks": {
+    "21850fc5": false,
+    "a8acf864": false
+  },
+  "children": []
+}

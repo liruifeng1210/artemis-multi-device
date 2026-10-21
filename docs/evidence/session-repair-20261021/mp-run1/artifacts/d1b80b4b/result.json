@@ -1,0 +1,133 @@
+{
+  "business_status": "blocked",
+  "cleanup_status": [
+    {
+      "exited": true,
+      "graceful": true,
+      "returncode": 0,
+      "session": {
+        "errors": [],
+        "lease_released": true,
+        "reason": "blocked"
+      }
+    },
+    {
+      "exited": true,
+      "graceful": true,
+      "returncode": 0,
+      "session": {
+        "errors": [],
+        "lease_released": true,
+        "reason": "blocked"
+      }
+    }
+  ],
+  "expected_cancelled_tasks": [],
+  "invalidated_tasks": [],
+  "recoveries": {},
+  "tasks": {
+    "25b901c3-d478-44be-8319-100158733b78": {
+      "artifact_refs": [
+        "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract_report.json",
+        "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "The attached final screenshot visibly shows 8+17 and 25, but the supplied Final Screen Elements list shows 48÷6 and 8. The notes record first_result: 8, but no captured calculator history view confirms it remains in history.",
+          "evidence_refs": [
+            "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract_report.json",
+            "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract-screen.jpg"
+          ],
+          "id": "screen_shows_25",
+          "verdict": "inconclusive"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T23:03:20.668127+00:00",
+      "outputs": {
+        "result": "首次结果：8；当前结果：25。"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "blocked",
+      "step_range": {
+        "first": 8,
+        "last": 12
+      },
+      "suggested_next_actions": []
+    },
+    "a78d92a5-49f9-47c5-84cf-e2e4b7161c40": {
+      "artifact_refs": [
+        "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract_report.json",
+        "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "最终截图显示计算器表达式“48÷6”和结果“8”；执行历史仅记录一次清除操作（Step 1 点击“清除”），随后记录显示区为空。",
+          "evidence_refs": [
+            "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract_report.json",
+            "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract-screen.jpg"
+          ],
+          "id": "screen_shows_8",
+          "verdict": "passed"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T22:52:18.263382+00:00",
+      "outputs": {
+        "result": "首次结果：8；当前结果：8；清空次数：1。"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "succeeded",
+      "step_range": {
+        "first": 1,
+        "last": 7
+      },
+      "suggested_next_actions": []
+    },
+    "cfb62282-9e0a-4fe1-a234-27e79b3647a2": {
+      "artifact_refs": [
+        "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract_report.json",
+        "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "no verdict produced for this item",
+          "evidence_refs": [
+            "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract_report.json",
+            "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract-screen.jpg"
+          ],
+          "id": "screen_shows_200",
+          "verdict": "inconclusive"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T22:52:57.467086+00:00",
+      "outputs": {
+        "result": "first_result=200; current_result=200"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "blocked",
+      "step_range": {
+        "first": 1,
+        "last": 9
+      },
+      "suggested_next_actions": []
+    }
+  },
+  "unresolved_tasks": [
+    "26c640e7-0c63-467f-90ab-88a8df32771c",
+    "ec2a0369-449c-4c9c-a7b7-ea3c6c07a5bd",
+    "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+    "f7dd0af5-7346-45f0-9879-95e60da08c6a",
+    "d55f8856-e08a-4a94-8a67-b04c3fc6dd98"
+  ]
+}

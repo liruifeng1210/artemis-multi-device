@@ -1,0 +1,177 @@
+{
+  "schema_version": 2,
+  "audit_utc": "2026-10-21T01:01:38.083642+00:00",
+  "closed_run": true,
+  "live_snapshot": false,
+  "workflow_id": "56961446-10b2-458b-9cd5-7c874c2b5ede",
+  "source_revision": "77e96f198e6dd487cfa3a8970a6f74334d5af4ee",
+  "summary": {
+    "final_checker_count": 4,
+    "inspected_llm_input_count": 16,
+    "checkers_without_persisted_model_inputs": 0
+  },
+  "checks": [
+    {
+      "checker_trace_id": "3a31fb87-c5fa-4b15-941c-660830d3b31b",
+      "role_id": "B",
+      "session_id": "f8062c70-c5fb-4071-b1b3-7799704c42e0",
+      "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+      "attempt_id": "539c1251-5d51-48c7-9dbf-cfcd78e6ec3b",
+      "checker_status": "success",
+      "phase": "native_final",
+      "llm_trace_ids": [
+        "01a15bf0-6ff5-7ae1-8970-4b20ab7ac053",
+        "01a15bf0-d1f8-7892-8a4c-0b84a6336a48",
+        "01a15bf1-4a6b-7703-864f-014b993c2e56",
+        "01a15bf1-fe78-7d70-a2ba-79ddbc5c408a"
+      ],
+      "inspected_llm_input_count": 4,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 4
+        }
+      ],
+      "model_input_audited": true,
+      "normalized_verdict_counts": {
+        "passed": 4
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "348f0130-6619-4c09-94ec-77857eee1908",
+      "role_id": "A",
+      "session_id": "a6ce58da-c831-4b40-9438-24b9f9d37031",
+      "task_id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+      "attempt_id": "4a8fe8c9-a448-4547-b2f8-7e051678a46a",
+      "checker_status": "success",
+      "phase": "native_final",
+      "llm_trace_ids": [
+        "01a15bf2-b1cc-7663-8e4f-83f967f608a8",
+        "01a15bf3-3434-7df1-a53d-f613b3a057bc",
+        "01a15bf3-c515-7101-8112-49b649e82b94"
+      ],
+      "inspected_llm_input_count": 3,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 3
+        }
+      ],
+      "model_input_audited": true,
+      "normalized_verdict_counts": {
+        "passed": 6
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "27636b54-f54d-4961-88a3-d7eee889e685",
+      "role_id": "B",
+      "session_id": "f8062c70-c5fb-4071-b1b3-7799704c42e0",
+      "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+      "attempt_id": "539c1251-5d51-48c7-9dbf-cfcd78e6ec3b",
+      "checker_status": "success",
+      "phase": "contract",
+      "llm_trace_ids": [
+        "01a15bf3-19cb-7661-89c0-b86ebcab30aa",
+        "01a15bf3-b7c8-7632-99b7-b914e7b21ca7",
+        "01a15bf4-28ad-7680-b887-66d645e756be",
+        "01a15bf4-b88a-74f1-ae5f-2698a9f4f97c",
+        "01a15bf5-9607-7592-aa4e-9c0553f555a6"
+      ],
+      "inspected_llm_input_count": 5,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 5
+        }
+      ],
+      "model_input_audited": true,
+      "report_artifact": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/contract_report.json",
+      "normalized_verdict_counts": {
+        "failed": 1,
+        "passed": 2
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "ada21652-6032-46e8-a948-6f3c1c26910b",
+      "role_id": "A",
+      "session_id": "a6ce58da-c831-4b40-9438-24b9f9d37031",
+      "task_id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+      "attempt_id": "4a8fe8c9-a448-4547-b2f8-7e051678a46a",
+      "checker_status": "success",
+      "phase": "contract",
+      "llm_trace_ids": [
+        "01a15bf4-e199-76c3-abb0-00edd799d655",
+        "01a15bf5-65c4-73e2-9258-a1c34f0fe8ed",
+        "01a15bf6-07e7-72e3-8492-ac6cd353500e",
+        "01a15bf6-8ad0-7193-b515-29320c2666b7"
+      ],
+      "inspected_llm_input_count": 4,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 4
+        }
+      ],
+      "model_input_audited": true,
+      "report_artifact": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 3
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    }
+  ],
+  "limits": [
+    "No complete prompt, reasoning, screenshot bytes, OCR strings, device identifier or note content exported.",
+    "Only model_input_audited checks have directly inspected persisted inputs. Report counts do not establish that missing model inputs were captured.",
+    "Raw passed counts are not declared-item coverage. Additional mismatched passed identities and synthetic missing-item inconclusives remain distinct.",
+    "Same-image OCR is real-run coverage only where its actual marker appears; unconfigured OCR verifies screenshot-only input.",
+    "The earlier live audit is preserved separately; its detailed run-specific identity diagnoses are not retroactively rewritten."
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "attempt_id": "18979a68-0fa0-43e7-a2c0-5bc13fcbb146",
+  "child_session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+  "in_reply_to": null,
+  "kind": "execute",
+  "message_id": "cfcbc2f4-183d-4bbb-948e-c7b86d315d80",
+  "payload": {
+    "completion": [
+      {
+        "description": "从B自己的原始执行证据或真实观察中确定并报告首次计算结果；若证据不足则明确报告无法核实，不得猜测。",
+        "id": "report_first",
+        "required": true
+      },
+      {
+        "description": "重新观察B当前计算器屏幕并报告实际当前结果，不清空或重输旧值/算式。",
+        "id": "report_current",
+        "required": true
+      },
+      {
+        "description": "将B的首次结果依据和当前结果记入B的Role持久notes，并以result字符串报告。",
+        "id": "record_values",
+        "required": true
+      }
+    ],
+    "constraints": [
+      "本次“历史/首次结果保留”指当前Role/Session真实已归档任务结果、步骤、截图和持久notes，不是计算器应用的历史记录界面，不要求打开该界面。首次结果必须来自这些原始执行证据或真实观察；需要报告当前值时重新观察屏幕，不得凭目标中的预填数值推断已完成。",
+      "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+      "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+      "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+      "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+      "仅使用B自己的当前Role/Session历史和设备；不得读取或引用A的历史。",
+      "仅操作指定设备计算器；不使用shell代替真实点击。",
+      "首次结果必须来自原始执行证据或真实观察；当前结果必须重新观察屏幕。",
+      "保持B原有子Session和连接；不得清空或重输旧值/算式。",
+      "不得重试有不确定副作用的操作。"
+    ],
+    "effect_policy": "verify_before_retry",
+    "execution_timeout_seconds": 900.0,
+    "goal": "仅依据B自己的当前Role/Session原始任务结果、执行步骤、截图或持久notes确定首次计算结果；重新观察B计算器屏幕确定当前结果。报告首次结果和当前结果，不查看或引用A的历史，不清空或重输旧值/算式。",
+    "input_sources": {},
+    "inputs": {},
+    "max_steps": 100,
+    "outputs_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object"
+    },
+    "settlement_timeout_seconds": 60.0,
+    "verification_timeout_seconds": 600.0
+  },
+  "protocol_version": 1,
+  "role_id": "B",
+  "sequence": 11,
+  "task_id": "a4b1d7f0-6e59-42c8-8f36-418507a80908",
+  "worker_epoch": "066dbc1e-3046-4566-ac5e-b8a290e1f058",
+  "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127"
+}

@@ -1,0 +1,57 @@
+{
+  "attempt_id": "e8916065-7d45-4ff3-8279-babfd40a5151",
+  "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+  "in_reply_to": null,
+  "kind": "execute",
+  "message_id": "dc4d2617-b454-494c-90b3-fdee20d1e29f",
+  "payload": {
+    "completion": [
+      {
+        "description": "在同一子Session观察屏幕后直接将显示值乘3并按等号，屏幕实际显示600；未清空或重输旧值/算式。",
+        "id": "continue_calc",
+        "required": true
+      },
+      {
+        "description": "依据本Role原始执行证据记下首次结果和当前结果，并更新A的Role持久notes。",
+        "id": "record_values",
+        "required": true
+      }
+    ],
+    "constraints": [
+      "本次“历史/首次结果保留”指当前Role/Session真实已归档任务结果、步骤、截图和持久notes，不是计算器应用的历史记录界面，不要求打开该界面。首次结果必须来自这些原始执行证据或真实观察；需要报告当前值时重新观察屏幕，不得凭目标中的预填数值推断已完成。",
+      "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+      "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+      "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+      "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+      "仅只读检查原始任务归档、相关截图与A的Role持久notes，不操作计算器或设备。",
+      "不得修改notes；核实record_values时确认原任务已依据本Role原始执行证据更新持久notes。",
+      "不得用目标值或无关观察代替原始执行证据；证据不足时如实说明无法核实。"
+    ],
+    "effect_policy": "read_only",
+    "execution_timeout_seconds": 900.0,
+    "goal": "只读核对任务2c7d1e85-9a34-4b60-8f12-526941b30403的原始归档执行记录、截图及A的Role持久notes，判断其乘3后屏幕是否实际显示600、是否未清空或重输旧值/算式，以及是否按本Role原始执行证据记录首次结果和当前结果。不得操作设备或修改notes；仅依据该任务自身相关原始证据给出结论，证据不足则明确说明无法核实。",
+    "input_sources": {},
+    "inputs": {},
+    "max_steps": 100,
+    "outputs_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object"
+    },
+    "settlement_timeout_seconds": 60.0,
+    "verification_timeout_seconds": 600.0
+  },
+  "protocol_version": 1,
+  "role_id": "A",
+  "sequence": 16,
+  "task_id": "c9a72e31-4f68-4b15-9d03-6e2f1a8c7054",
+  "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+  "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127"
+}

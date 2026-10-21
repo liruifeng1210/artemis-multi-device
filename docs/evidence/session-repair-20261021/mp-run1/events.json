@@ -1,0 +1,3250 @@
+[
+  {
+    "kind": "ready",
+    "payload": {
+      "state": "READY"
+    },
+    "role_id": "A"
+  },
+  {
+    "kind": "ready",
+    "payload": {
+      "state": "READY"
+    },
+    "role_id": "B"
+  },
+  {
+    "kind": "plan_proposal",
+    "proposal": {
+      "base_plan_revision": 1,
+      "diagnostics": [],
+      "finish": false,
+      "missing_input": null,
+      "recoveries": [],
+      "restart_roles": [],
+      "tasks": [
+        {
+          "dependency_mode": "all",
+          "depends_on": [],
+          "display_name": "initial-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+                "id": "screen_shows_200",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "首次结果和当前结果均记录为屏幕实际显示值。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在当前A计算器会话中清空一次，输入125+75并按等号。记录首次结果和当前结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [],
+          "display_name": "initial-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示48÷6的结果8，且本任务仅清空了一次。",
+                "id": "screen_shows_8",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "首次结果和当前结果均记录为屏幕实际显示值。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在当前B计算器会话中清空一次，输入48÷6并按等号。记录首次结果和当前结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "continue-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "在A原有会话中将屏幕当前结果乘以3并按等号，屏幕显示600；首次结果仍保留在A的历史中。",
+                "id": "screen_shows_600",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "不得清空或重输旧值、旧算式；直接从屏幕当前结果继续。",
+              "保持A原有Session、连接和历史。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "继续使用A原有Session、连接、历史和当前屏幕结果，不清空、不重输旧值或旧算式；在屏幕结果后按×3并按等号，得到600。保留首次结果及新的当前结果。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "A首次计算任务记录的结果，仅用于保留历史。"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "continue-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。",
+                "id": "screen_shows_25",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "不得清空或重输旧值、旧算式；直接从屏幕当前结果继续。",
+              "保持B原有Session、连接和历史。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "继续使用B原有Session、连接、历史和当前屏幕结果，不清空、不重输旧值或旧算式；在屏幕结果后按+17并按等号，得到25。保留首次结果及新的当前结果。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "B首次计算任务记录的结果，仅用于保留历史。"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "25b901c3-d478-44be-8319-100158733b78"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "cancel-A",
+          "expected_terminal_statuses": [
+            "succeeded",
+            "cancelled"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "未被取消时，完成30次逐次+1等号操作，并逐次观察、记录每次屏幕结果。",
+                "id": "observed_30_increments",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持A原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "每次+1后都观察屏幕；不要把未观察的值报告为结果。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在A原有Session中逐次执行+1并按等号，共30次，每次都观察并记录屏幕结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "ec2a0369-449c-4c9c-a7b7-ea3c6c07a5bd"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "multiply-B-x4",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "从B屏幕实际当前值执行×4并按等号，屏幕显示100。",
+                "id": "screen_shows_100",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持B原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "以屏幕实际当前值继续计算并观察结果。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在B原有Session中读取屏幕当前值，按×4并按等号；当前值为25时应显示100。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "ec2a0369-449c-4c9c-a7b7-ea3c6c07a5bd",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "reuse-A-after-cancel",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "取消任务终止后重新读取A屏幕实际值，从该值执行+10并按等号，屏幕显示所得实际结果。",
+                "id": "screen_shows_actual_plus_10",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持A原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "必须在取消任务终止后重新读取实际屏幕值；不得假定操作回滚。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在A原有子Session中重新读取屏幕实际值，然后在该值后按+10并按等号。观察屏幕并报告实际结果，不假设取消会回滚。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "f7dd0af5-7346-45f0-9879-95e60da08c6a"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "report-B-history",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "仅根据B自己的历史，报告首次结果8和当前结果100，并明确区分两者。",
+                "id": "reported_b_own_history",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "报告仅使用B自己的历史和B任务结果，不读取或引用A的结果。",
+              "不清空或重输任何值或算式。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "goal": "仅依据B自己的历史，报告首次计算结果和当前计算结果；当前结果取B的×4任务结果。",
+            "input_sources": {
+              "current_result": {
+                "from_task": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+                "key": "result"
+              },
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "current_result": "B最后一次屏幕计算结果",
+              "first_result": "B首次计算结果"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "d55f8856-e08a-4a94-8a67-b04c3fc6dd98"
+        }
+      ]
+    }
+  },
+  {
+    "attempt_id": "123c7e62-4b09-4bd5-aa8d-22fc8d5598c8",
+    "kind": "dispatch",
+    "spec": {
+      "completion": [
+        {
+          "description": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+          "id": "screen_shows_200",
+          "required": true
+        }
+      ],
+      "constraints": [
+        "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+        "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+        "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+        "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+        "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+        "首次结果和当前结果均记录为屏幕实际显示值。"
+      ],
+      "effect_policy": "verify_before_retry",
+      "execution_timeout_seconds": 900.0,
+      "goal": "在当前A计算器会话中清空一次，输入125+75并按等号。记录首次结果和当前结果。",
+      "input_sources": {},
+      "inputs": {},
+      "max_steps": 100,
+      "outputs_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object"
+      },
+      "settlement_timeout_seconds": 60.0,
+      "verification_timeout_seconds": 600.0
+    },
+    "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2"
+  },
+  {
+    "attempt_id": "b023fbc3-de4d-4c16-9c56-e557a9b3fa2e",
+    "kind": "dispatch",
+    "spec": {
+      "completion": [
+        {
+          "description": "屏幕显示48÷6的结果8，且本任务仅清空了一次。",
+          "id": "screen_shows_8",
+          "required": true
+        }
+      ],
+      "constraints": [
+        "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+        "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+        "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+        "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+        "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+        "首次结果和当前结果均记录为屏幕实际显示值。"
+      ],
+      "effect_policy": "verify_before_retry",
+      "execution_timeout_seconds": 900.0,
+      "goal": "在当前B计算器会话中清空一次，输入48÷6并按等号。记录首次结果和当前结果。",
+      "input_sources": {},
+      "inputs": {},
+      "max_steps": 100,
+      "outputs_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object"
+      },
+      "settlement_timeout_seconds": 60.0,
+      "verification_timeout_seconds": 600.0
+    },
+    "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40"
+  },
+  {
+    "kind": "accepted",
+    "payload": {},
+    "role_id": "A"
+  },
+  {
+    "kind": "started",
+    "payload": {},
+    "role_id": "A"
+  },
+  {
+    "kind": "accepted",
+    "payload": {},
+    "role_id": "B"
+  },
+  {
+    "kind": "started",
+    "payload": {},
+    "role_id": "B"
+  },
+  {
+    "kind": "result",
+    "payload": {
+      "artifact_refs": [
+        "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract_report.json",
+        "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "最终截图显示计算器表达式“48÷6”和结果“8”；执行历史仅记录一次清除操作（Step 1 点击“清除”），随后记录显示区为空。",
+          "evidence_refs": [
+            "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract_report.json",
+            "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract-screen.jpg"
+          ],
+          "id": "screen_shows_8",
+          "verdict": "passed"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T22:52:18.263382+00:00",
+      "outputs": {
+        "result": "首次结果：8；当前结果：8；清空次数：1。"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "succeeded",
+      "step_range": {
+        "first": 1,
+        "last": 7
+      },
+      "suggested_next_actions": []
+    },
+    "role_id": "B"
+  },
+  {
+    "attempt_id": "b023fbc3-de4d-4c16-9c56-e557a9b3fa2e",
+    "kind": "terminal",
+    "result": {
+      "artifact_refs": [
+        "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract_report.json",
+        "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "最终截图显示计算器表达式“48÷6”和结果“8”；执行历史仅记录一次清除操作（Step 1 点击“清除”），随后记录显示区为空。",
+          "evidence_refs": [
+            "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract_report.json",
+            "tasks\\a78d92a5-49f9-47c5-84cf-e2e4b7161c40\\b023fbc3-de4d-4c16-9c56-e557a9b3fa2e\\contract-screen.jpg"
+          ],
+          "id": "screen_shows_8",
+          "verdict": "passed"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T22:52:18.263382+00:00",
+      "outputs": {
+        "result": "首次结果：8；当前结果：8；清空次数：1。"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "succeeded",
+      "step_range": {
+        "first": 1,
+        "last": 7
+      },
+      "suggested_next_actions": []
+    },
+    "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40"
+  },
+  {
+    "attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761",
+    "kind": "dispatch",
+    "spec": {
+      "completion": [
+        {
+          "description": "在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。",
+          "id": "screen_shows_25",
+          "required": true
+        }
+      ],
+      "constraints": [
+        "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+        "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+        "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+        "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+        "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+        "不得清空或重输旧值、旧算式；直接从屏幕当前结果继续。",
+        "保持B原有Session、连接和历史。"
+      ],
+      "effect_policy": "verify_before_retry",
+      "execution_timeout_seconds": 900.0,
+      "goal": "继续使用B原有Session、连接、历史和当前屏幕结果，不清空、不重输旧值或旧算式；在屏幕结果后按+17并按等号，得到25。保留首次结果及新的当前结果。",
+      "input_sources": {},
+      "inputs": {
+        "first_result": "B首次计算任务记录的结果，仅用于保留历史。"
+      },
+      "max_steps": 100,
+      "outputs_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object"
+      },
+      "settlement_timeout_seconds": 60.0,
+      "verification_timeout_seconds": 600.0
+    },
+    "task_id": "25b901c3-d478-44be-8319-100158733b78"
+  },
+  {
+    "kind": "accepted",
+    "payload": {},
+    "role_id": "B"
+  },
+  {
+    "kind": "started",
+    "payload": {},
+    "role_id": "B"
+  },
+  {
+    "kind": "inspection",
+    "payload": {
+      "captured_at": "2026-10-20T22:52:18.437557+00:00",
+      "consistency": "stream_checkpoint",
+      "next_cursor": null,
+      "sections": {
+        "scope": {
+          "attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761",
+          "scope_revision": 1,
+          "task_id": "25b901c3-d478-44be-8319-100158733b78"
+        },
+        "state": "EXECUTING"
+      },
+      "snapshot_id": "376d3d7c-deac-449e-b3a4-4387899473bd",
+      "source": {
+        "active_attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761",
+        "active_task_id": "25b901c3-d478-44be-8319-100158733b78",
+        "child_session_id": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+        "role_id": "B",
+        "worker_epoch": "178b879e-fc18-4654-9a49-a13be1c1147e",
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb"
+      }
+    },
+    "role_id": "B"
+  },
+  {
+    "kind": "result",
+    "payload": {
+      "artifact_refs": [
+        "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract_report.json",
+        "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "no verdict produced for this item",
+          "evidence_refs": [
+            "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract_report.json",
+            "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract-screen.jpg"
+          ],
+          "id": "screen_shows_200",
+          "verdict": "inconclusive"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T22:52:57.467086+00:00",
+      "outputs": {
+        "result": "first_result=200; current_result=200"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "blocked",
+      "step_range": {
+        "first": 1,
+        "last": 9
+      },
+      "suggested_next_actions": []
+    },
+    "role_id": "A"
+  },
+  {
+    "attempt_id": "123c7e62-4b09-4bd5-aa8d-22fc8d5598c8",
+    "kind": "terminal",
+    "result": {
+      "artifact_refs": [
+        "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract_report.json",
+        "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "no verdict produced for this item",
+          "evidence_refs": [
+            "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract_report.json",
+            "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract-screen.jpg"
+          ],
+          "id": "screen_shows_200",
+          "verdict": "inconclusive"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T22:52:57.467086+00:00",
+      "outputs": {
+        "result": "first_result=200; current_result=200"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "blocked",
+      "step_range": {
+        "first": 1,
+        "last": 9
+      },
+      "suggested_next_actions": []
+    },
+    "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2"
+  },
+  {
+    "kind": "inspection",
+    "payload": {
+      "captured_at": "2026-10-20T22:52:57.691322+00:00",
+      "consistency": "settled",
+      "next_cursor": null,
+      "sections": {
+        "scope": null,
+        "state": "READY"
+      },
+      "snapshot_id": "dccb64e2-5ced-41f5-906e-b9b17e8fae6e",
+      "source": {
+        "active_attempt_id": null,
+        "active_task_id": null,
+        "child_session_id": "d508f3fb-6bf0-4e64-bb70-e11f65c1c112",
+        "role_id": "A",
+        "worker_epoch": "bda263e8-ec0a-4f62-bdec-c89e0f242326",
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb"
+      }
+    },
+    "role_id": "A"
+  },
+  {
+    "kind": "result",
+    "payload": {
+      "artifact_refs": [
+        "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract_report.json",
+        "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "The attached final screenshot visibly shows 8+17 and 25, but the supplied Final Screen Elements list shows 48÷6 and 8. The notes record first_result: 8, but no captured calculator history view confirms it remains in history.",
+          "evidence_refs": [
+            "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract_report.json",
+            "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract-screen.jpg"
+          ],
+          "id": "screen_shows_25",
+          "verdict": "inconclusive"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T23:03:20.668127+00:00",
+      "outputs": {
+        "result": "首次结果：8；当前结果：25。"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "blocked",
+      "step_range": {
+        "first": 8,
+        "last": 12
+      },
+      "suggested_next_actions": []
+    },
+    "role_id": "B"
+  },
+  {
+    "attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761",
+    "kind": "terminal",
+    "result": {
+      "artifact_refs": [
+        "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract_report.json",
+        "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "The attached final screenshot visibly shows 8+17 and 25, but the supplied Final Screen Elements list shows 48÷6 and 8. The notes record first_result: 8, but no captured calculator history view confirms it remains in history.",
+          "evidence_refs": [
+            "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract_report.json",
+            "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract-screen.jpg"
+          ],
+          "id": "screen_shows_25",
+          "verdict": "inconclusive"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T23:03:20.668127+00:00",
+      "outputs": {
+        "result": "首次结果：8；当前结果：25。"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "blocked",
+      "step_range": {
+        "first": 8,
+        "last": 12
+      },
+      "suggested_next_actions": []
+    },
+    "task_id": "25b901c3-d478-44be-8319-100158733b78"
+  },
+  {
+    "kind": "inspection",
+    "payload": {
+      "captured_at": "2026-10-20T23:03:20.724018+00:00",
+      "consistency": "settled",
+      "next_cursor": {
+        "offset": 10,
+        "snapshot_id": "f5e316fc-c2bc-4060-9210-a655f62fd309"
+      },
+      "sections": {
+        "scope": null,
+        "state": "READY"
+      },
+      "snapshot_id": "f5e316fc-c2bc-4060-9210-a655f62fd309",
+      "source": {
+        "active_attempt_id": null,
+        "active_task_id": null,
+        "child_session_id": "d508f3fb-6bf0-4e64-bb70-e11f65c1c112",
+        "role_id": "A",
+        "worker_epoch": "bda263e8-ec0a-4f62-bdec-c89e0f242326",
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb"
+      }
+    },
+    "role_id": "A"
+  },
+  {
+    "kind": "inspection",
+    "payload": {
+      "captured_at": "2026-10-20T23:03:20.739730+00:00",
+      "consistency": "settled",
+      "next_cursor": {
+        "offset": 10,
+        "snapshot_id": "4b5f91cf-7ab6-4816-bf67-874169dea334"
+      },
+      "sections": {
+        "scope": null,
+        "state": "READY"
+      },
+      "snapshot_id": "4b5f91cf-7ab6-4816-bf67-874169dea334",
+      "source": {
+        "active_attempt_id": null,
+        "active_task_id": null,
+        "child_session_id": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+        "role_id": "B",
+        "worker_epoch": "178b879e-fc18-4654-9a49-a13be1c1147e",
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb"
+      }
+    },
+    "role_id": "B"
+  },
+  {
+    "kind": "inspection",
+    "payload": {
+      "captured_at": "2026-10-20T23:03:20.842942+00:00",
+      "consistency": "settled",
+      "next_cursor": null,
+      "sections": {
+        "scope": null,
+        "state": "READY"
+      },
+      "snapshot_id": "88957805-a517-46d7-aff9-86bf146b0cdc",
+      "source": {
+        "active_attempt_id": null,
+        "active_task_id": null,
+        "child_session_id": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+        "role_id": "B",
+        "worker_epoch": "178b879e-fc18-4654-9a49-a13be1c1147e",
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb"
+      }
+    },
+    "role_id": "B"
+  },
+  {
+    "kind": "plan_proposal",
+    "proposal": {
+      "base_plan_revision": 2,
+      "diagnostics": [
+        {
+          "kind": "inspect",
+          "query": {
+            "level": "transcript",
+            "limit": 100,
+            "offset": 10,
+            "snapshot_id": "f5e316fc-c2bc-4060-9210-a655f62fd309"
+          },
+          "role_id": "A"
+        },
+        {
+          "kind": "inspect",
+          "query": {
+            "level": "transcript",
+            "limit": 100,
+            "offset": 10,
+            "snapshot_id": "4b5f91cf-7ab6-4816-bf67-874169dea334"
+          },
+          "role_id": "B"
+        },
+        {
+          "kind": "observe",
+          "query": {
+            "mode": "fresh",
+            "timeout_seconds": 15
+          },
+          "role_id": "A"
+        },
+        {
+          "kind": "observe",
+          "query": {
+            "mode": "fresh",
+            "timeout_seconds": 15
+          },
+          "role_id": "B"
+        }
+      ],
+      "finish": false,
+      "missing_input": null,
+      "recoveries": [
+        {
+          "failed_task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+          "replacement_task_ids": [
+            "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001"
+          ]
+        },
+        {
+          "failed_task_id": "25b901c3-d478-44be-8319-100158733b78",
+          "replacement_task_ids": [
+            "eae909f4-b22c-4c95-b7ae-1525d2220002"
+          ]
+        }
+      ],
+      "restart_roles": [],
+      "tasks": [
+        {
+          "dependency_mode": "all",
+          "depends_on": [],
+          "display_name": "initial-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+                "id": "screen_shows_200",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "首次结果和当前结果均记录为屏幕实际显示值。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在当前A计算器会话中清空一次，输入125+75并按等号。记录首次结果和当前结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [],
+          "display_name": "initial-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示48÷6的结果8，且本任务仅清空了一次。",
+                "id": "screen_shows_8",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "首次结果和当前结果均记录为屏幕实际显示值。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在当前B计算器会话中清空一次，输入48÷6并按等号。记录首次结果和当前结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "reconcile-initial-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+                "id": "screen_shows_200",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "只读核对原会话屏幕、历史和任务记录；不得进行任何计算器输入或修改。",
+              "只有原始契约得到证据支持时才判定通过；不得把历史输出当作屏幕证据。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "goal": "只读检查A原有计算器会话、可见历史及任务记录，核实原initial-A任务是否确实只清空一次并得到125+75=200。不得点击或改变计算器状态；报告可观察到的首次结果和当前屏幕值。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "continue-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "在A原有会话中将屏幕当前结果乘以3并按等号，屏幕显示600；首次结果仍保留在A的历史中。",
+                "id": "screen_shows_600",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "不得清空或重输旧值、旧算式；直接从屏幕当前结果继续。",
+              "保持A原有Session、连接和历史。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "继续使用A原有Session、连接、历史和屏幕当前结果，不清空、不重输旧值或旧算式；在屏幕结果后按×3并按等号，得到600。保留首次结果及新的当前结果。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "A只读核验任务记录的首次结果，仅用于保留历史。"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "continue-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。",
+                "id": "screen_shows_25",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "不得清空或重输旧值、旧算式；直接从屏幕当前结果继续。",
+              "保持B原有Session、连接和历史。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "继续使用B原有Session、连接、历史和屏幕当前结果，不清空、不重输旧值或旧算式；在屏幕结果后按+17并按等号，得到25。保留首次结果及新的当前结果。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "B首次计算结果，仅用于保留历史。"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "25b901c3-d478-44be-8319-100158733b78"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "reconcile-continue-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。",
+                "id": "screen_shows_25",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "只读核对原会话屏幕、历史和任务记录；不得进行任何计算器输入或修改。",
+              "只有原始契约得到证据支持时才判定通过；不得把历史输出当作屏幕证据。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "goal": "只读检查B原有计算器会话、可见历史和任务记录，核实原continue-B任务是否在屏幕当前结果后加17并等于25，且首次结果仍在历史中。不得点击或改变计算器状态；报告观察到的首次结果和当前值。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "B首次计算结果"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "eae909f4-b22c-4c95-b7ae-1525d2220002"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c",
+              "verdict": "unchecked"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "unchecked"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "eae909f4-b22c-4c95-b7ae-1525d2220002",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "cancel-A",
+          "expected_terminal_statuses": [
+            "succeeded",
+            "cancelled"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "未被取消时，完成30次逐次+1等号操作，并逐次观察、记录每次屏幕结果。",
+                "id": "observed_30_increments",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持A原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "每次+1后都观察屏幕；不要把未观察的值报告为结果。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在A原有Session中逐次执行+1并按等号，共30次，每次都观察并记录屏幕结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "ec2a0369-449c-4c9c-a7b7-ea3c6c07a5bd"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c",
+              "verdict": "unchecked"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "unchecked"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "eae909f4-b22c-4c95-b7ae-1525d2220002",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "multiply-B-x4",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "从B屏幕实际当前值执行×4并按等号，屏幕显示100。",
+                "id": "screen_shows_100",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持B原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "以屏幕实际当前值继续计算并观察结果。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在B原有Session中读取屏幕当前值，按×4并按等号；当前值为25时应显示100。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "ec2a0369-449c-4c9c-a7b7-ea3c6c07a5bd",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "reuse-A-after-cancel",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "取消任务终止后重新读取A屏幕实际值，从该值执行+10并按等号，屏幕显示所得实际结果。",
+                "id": "screen_shows_actual_plus_10",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持A原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "必须在取消任务终止后重新读取实际屏幕值；不得假定操作回滚。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在A原有子Session中重新读取屏幕实际值，然后在该值后按+10并按等号。观察屏幕并报告实际结果，不假设取消会回滚。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "f7dd0af5-7346-45f0-9879-95e60da08c6a"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "report-B-history",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "仅根据B自己的历史，报告首次结果8和当前结果100，并明确区分两者。",
+                "id": "reported_b_own_history",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "报告仅使用B自己的历史和B任务结果，不读取或引用A的结果。",
+              "不清空或重输任何值或算式。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "goal": "仅依据B自己的历史，报告首次计算结果和当前计算结果；当前结果取B的×4任务结果。",
+            "input_sources": {
+              "current_result": {
+                "from_task": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+                "key": "result"
+              },
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "current_result": "B最后一次屏幕计算结果",
+              "first_result": "B首次计算结果"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "d55f8856-e08a-4a94-8a67-b04c3fc6dd98"
+        }
+      ]
+    }
+  },
+  {
+    "kind": "inspection",
+    "payload": {
+      "captured_at": "2026-10-20T23:03:20.724018+00:00",
+      "consistency": "settled",
+      "next_cursor": null,
+      "sections": {
+        "scope": null,
+        "state": "READY"
+      },
+      "snapshot_id": "f5e316fc-c2bc-4060-9210-a655f62fd309",
+      "source": {
+        "active_attempt_id": null,
+        "active_task_id": null,
+        "child_session_id": "d508f3fb-6bf0-4e64-bb70-e11f65c1c112",
+        "role_id": "A",
+        "worker_epoch": "bda263e8-ec0a-4f62-bdec-c89e0f242326",
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb"
+      }
+    },
+    "role_id": "A"
+  },
+  {
+    "kind": "inspection",
+    "payload": {
+      "captured_at": "2026-10-20T23:03:20.739730+00:00",
+      "consistency": "settled",
+      "next_cursor": null,
+      "sections": {
+        "scope": null,
+        "state": "READY"
+      },
+      "snapshot_id": "4b5f91cf-7ab6-4816-bf67-874169dea334",
+      "source": {
+        "active_attempt_id": null,
+        "active_task_id": null,
+        "child_session_id": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+        "role_id": "B",
+        "worker_epoch": "178b879e-fc18-4654-9a49-a13be1c1147e",
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb"
+      }
+    },
+    "role_id": "B"
+  },
+  {
+    "kind": "observation",
+    "payload": {
+      "captured_at": "2026-10-20T23:05:19.769444+00:00",
+      "consistency": "settled",
+      "screenshot_ref": "diagnostics\\0c3aadfb-b2c0-433b-9c95-95284aa37165\\screen.jpg",
+      "source": {
+        "active_attempt_id": null,
+        "active_task_id": null,
+        "child_session_id": "d508f3fb-6bf0-4e64-bb70-e11f65c1c112",
+        "role_id": "A",
+        "worker_epoch": "bda263e8-ec0a-4f62-bdec-c89e0f242326",
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb"
+      }
+    },
+    "role_id": "A"
+  },
+  {
+    "kind": "observation",
+    "payload": {
+      "captured_at": "2026-10-20T23:05:20.698596+00:00",
+      "consistency": "settled",
+      "screenshot_ref": "diagnostics\\d3380403-df85-4586-9393-991644f2a7df\\screen.jpg",
+      "source": {
+        "active_attempt_id": null,
+        "active_task_id": null,
+        "child_session_id": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+        "role_id": "B",
+        "worker_epoch": "178b879e-fc18-4654-9a49-a13be1c1147e",
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb"
+      }
+    },
+    "role_id": "B"
+  },
+  {
+    "kind": "plan_proposal",
+    "proposal": {
+      "base_plan_revision": 3,
+      "diagnostics": [],
+      "finish": false,
+      "missing_input": null,
+      "recoveries": [
+        {
+          "failed_task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+          "replacement_task_ids": [
+            "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001"
+          ]
+        },
+        {
+          "failed_task_id": "25b901c3-d478-44be-8319-100158733b78",
+          "replacement_task_ids": [
+            "eae909f4-b22c-4c95-b7ae-1525d2220002"
+          ]
+        }
+      ],
+      "restart_roles": [],
+      "tasks": [
+        {
+          "dependency_mode": "all",
+          "depends_on": [],
+          "display_name": "initial-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+                "id": "screen_shows_200",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "首次结果和当前结果均记录为屏幕实际显示值。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在当前A计算器会话中清空一次，输入125+75并按等号。记录首次结果和当前结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [],
+          "display_name": "initial-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示48÷6的结果8，且本任务仅清空了一次。",
+                "id": "screen_shows_8",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "首次结果和当前结果均记录为屏幕实际显示值。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在当前B计算器会话中清空一次，输入48÷6并按等号。记录首次结果和当前结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "reconcile-initial-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+                "id": "screen_shows_200",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "只读核对原会话屏幕、历史和任务记录；不得进行任何计算器输入或修改。",
+              "只有原始契约得到证据支持时才判定通过；不得把历史输出当作屏幕证据。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "goal": "只读检查A原有计算器会话、可见历史及任务记录，核实原initial-A任务是否确实只清空一次并得到125+75=200。不得点击或改变计算器状态；报告可观察到的首次结果和当前屏幕值。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "continue-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "在A原有会话中将屏幕当前结果乘以3并按等号，屏幕显示600；首次结果仍保留在A的历史中。",
+                "id": "screen_shows_600",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "不得清空或重输旧值、旧算式；直接从屏幕当前结果继续。",
+              "保持A原有Session、连接和历史。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "继续使用A原有Session、连接、历史和屏幕当前结果，不清空、不重输旧值或旧算式；在屏幕结果后按×3并按等号，得到600。保留首次结果及新的当前结果。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "A只读核验任务记录的首次结果，仅用于保留历史。"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "continue-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。",
+                "id": "screen_shows_25",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "不得清空或重输旧值、旧算式；直接从屏幕当前结果继续。",
+              "保持B原有Session、连接和历史。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "继续使用B原有Session、连接、历史和当前屏幕结果，不清空、不重输旧值或旧算式；在屏幕结果后按+17并按等号，得到25。保留首次结果及新的当前结果。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "B首次计算任务记录的结果，仅用于保留历史。"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "25b901c3-d478-44be-8319-100158733b78"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "cancel-A",
+          "expected_terminal_statuses": [
+            "succeeded",
+            "cancelled"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "未被取消时，完成30次逐次+1等号操作，并逐次观察、记录每次屏幕结果。",
+                "id": "observed_30_increments",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持A原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "每次+1后都观察屏幕；不要把未观察的值报告为结果。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在A原有Session中逐次执行+1并按等号，共30次，每次都观察并记录屏幕结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "ec2a0369-449c-4c9c-a7b7-ea3c6c07a5bd"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "multiply-B-x4",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "从B屏幕实际当前值执行×4并按等号，屏幕显示100。",
+                "id": "screen_shows_100",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持B原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "以屏幕实际当前值继续计算并观察结果。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在B原有Session中读取屏幕当前值，按×4并按等号；当前值为25时应显示100。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "task_id": "ec2a0369-449c-4c9c-a7b7-ea3c6c07a5bd",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "reuse-A-after-cancel",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "取消任务终止后重新读取A屏幕实际值，从该值执行+10并按等号，屏幕显示所得实际结果。",
+                "id": "screen_shows_actual_plus_10",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持A原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "必须在取消任务终止后重新读取实际屏幕值；不得假定操作回滚。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在A原有子Session中重新读取屏幕实际值，然后在该值后按+10并按等号。观察屏幕并报告实际结果，不假设取消会回滚。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "f7dd0af5-7346-45f0-9879-95e60da08c6a"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled",
+                "unknown"
+              ],
+              "task_id": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "reconcile-continue-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。",
+                "id": "screen_shows_25",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "只读核对原会话屏幕、历史和任务记录；不得进行任何计算器输入或修改。",
+              "只有原始契约得到证据支持时才判定通过；不得把历史输出当作屏幕证据。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "goal": "只读检查B原有计算器会话、可见历史和任务记录，核实原continue-B任务是否在屏幕当前结果后加17并等于25，且首次结果仍在历史中。不得点击或改变计算器状态；报告观察到的首次结果和当前值。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "B首次计算结果"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "eae909f4-b22c-4c95-b7ae-1525d2220002"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "eae909f4-b22c-4c95-b7ae-1525d2220002",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "report-B-history",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "仅根据B自己的历史，报告首次结果8和当前结果100，并明确区分两者。",
+                "id": "reported_b_own_history",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "报告仅使用B自己的历史和B任务结果，不读取或引用A的结果。",
+              "不清空或重输任何值或算式。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "goal": "仅依据B自己的历史，报告首次计算结果和当前计算结果；当前结果取B的×4任务结果。",
+            "input_sources": {
+              "current_result": {
+                "from_task": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+                "key": "result"
+              },
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "current_result": "B最后一次屏幕计算结果",
+              "first_result": "B首次计算结果"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "d55f8856-e08a-4a94-8a67-b04c3fc6dd98"
+        }
+      ]
+    }
+  },
+  {
+    "base_plan_revision": 2,
+    "error": "Stale plan revision",
+    "kind": "plan_rejected",
+    "planning_attempt": 2
+  },
+  {
+    "kind": "plan_proposal",
+    "proposal": {
+      "base_plan_revision": 3,
+      "diagnostics": [],
+      "finish": false,
+      "missing_input": null,
+      "recoveries": [
+        {
+          "failed_task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+          "replacement_task_ids": [
+            "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001"
+          ]
+        },
+        {
+          "failed_task_id": "25b901c3-d478-44be-8319-100158733b78",
+          "replacement_task_ids": [
+            "eae909f4-b22c-4c95-b7ae-1525d2220002"
+          ]
+        }
+      ],
+      "restart_roles": [],
+      "tasks": [
+        {
+          "dependency_mode": "all",
+          "depends_on": [],
+          "display_name": "initial-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+                "id": "screen_shows_200",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "首次结果和当前结果均记录为屏幕实际显示值。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在当前A计算器会话中清空一次，输入125+75并按等号。记录首次结果和当前结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [],
+          "display_name": "initial-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示48÷6的结果8，且本任务仅清空了一次。",
+                "id": "screen_shows_8",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "首次结果和当前结果均记录为屏幕实际显示值。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在当前B计算器会话中清空一次，输入48÷6并按等号。记录首次结果和当前结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "reconcile-initial-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+                "id": "screen_shows_200",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "只读核对原会话屏幕、历史和任务记录；不得进行任何计算器输入或修改。",
+              "只有原始契约得到证据支持时才判定通过；不得把历史输出当作屏幕证据。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "goal": "只读检查A原有计算器会话、可见历史及任务记录，核实原initial-A任务是否确实只清空一次并得到125+75=200。不得点击或改变计算器状态；报告可观察到的首次结果和当前屏幕值。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "continue-A",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "在A原有会话中将屏幕当前结果乘以3并按等号，屏幕显示600；首次结果仍保留在A的历史中。",
+                "id": "screen_shows_600",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "不得清空或重输旧值、旧算式；直接从屏幕当前结果继续。",
+              "保持A原有Session、连接和历史。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "继续使用A原有Session、连接、历史和屏幕当前结果，不清空、不重输旧值或旧算式；在屏幕结果后按×3并按等号，得到600。保留首次结果及新的当前结果。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "d6d1c9b0-3b4b-4d67-9f0e-3c6a6c7b0001",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "A只读核验任务记录的首次结果，仅用于保留历史。"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            }
+          ],
+          "display_name": "continue-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。",
+                "id": "screen_shows_25",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "不得清空或重输旧值、旧算式；直接从屏幕当前结果继续。",
+              "保持B原有Session、连接和历史。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "继续使用B原有Session、连接、历史和屏幕当前结果，不清空、不重输旧值或旧算式；在屏幕结果后按+17并按等号，得到25。保留首次结果及新的当前结果。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "B首次计算结果，仅用于保留历史。"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "25b901c3-d478-44be-8319-100158733b78"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c",
+              "verdict": "unchecked"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "cancel-A",
+          "expected_terminal_statuses": [
+            "succeeded",
+            "cancelled"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "未被取消时，完成30次逐次+1等号操作，并逐次观察、记录每次屏幕结果。",
+                "id": "observed_30_increments",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持A原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "每次+1后都观察屏幕；不要把未观察的值报告为结果。",
+              "测试员将在派发20秒后通过Main.cancel取消本任务；如实保留已观察进度，不声称完成30次。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在A原有Session中逐次执行+1并按等号，共30次，每次都观察并记录屏幕结果。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "ec2a0369-449c-4c9c-a7b7-ea3c6c07a5bd"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "26c640e7-0c63-467f-90ab-88a8df32771c",
+              "verdict": "unchecked"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "multiply-B-x4",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "从B屏幕实际当前值执行×4并按等号，屏幕显示100。",
+                "id": "screen_shows_100",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持B原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "以屏幕实际当前值继续计算并观察结果。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在B原有Session中读取屏幕当前值，按×4并按等号；当前值为25时应显示100。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "25b901c3-d478-44be-8319-100158733b78",
+              "verdict": "unchecked"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "reconcile-continue-B",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。",
+                "id": "screen_shows_25",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "只读核对原会话屏幕、历史和任务记录；不得进行任何计算器输入或修改。",
+              "只有原始契约得到证据支持时才判定通过；不得把历史输出当作屏幕证据。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "goal": "只读检查B原有计算器会话、可见历史和任务记录，核实原continue-B任务是否在屏幕当前结果后加17并等于25，且首次结果仍在历史中。不得点击或改变计算器状态；报告观察到的首次结果和当前值。",
+            "input_sources": {
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "first_result": "B首次计算结果"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "eae909f4-b22c-4c95-b7ae-1525d2220002"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "ec2a0369-449c-4c9c-a7b7-ea3c6c07a5bd",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "reuse-A-after-cancel",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "A",
+          "spec": {
+            "completion": [
+              {
+                "description": "取消任务终止后重新读取A屏幕实际值，从该值执行+10并按等号，屏幕显示所得实际结果。",
+                "id": "screen_shows_actual_plus_10",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+              "保持A原有Session、连接和历史；不得清空或重输旧值或旧算式。",
+              "必须在取消任务终止后重新读取实际屏幕值；不得假定操作回滚。",
+              "报告A自己历史中记录的首次结果和本次观察到的当前结果；首次结果不可核实时如实说明。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "goal": "在A原有子Session中重新读取屏幕实际值，然后在该值后按+10并按等号。观察屏幕并报告实际结果，同时报告A自己记录的首次结果；不假设取消会回滚。",
+            "input_sources": {},
+            "inputs": {},
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "f7dd0af5-7346-45f0-9879-95e60da08c6a"
+        },
+        {
+          "dependency_mode": "all",
+          "depends_on": [
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded"
+              ],
+              "task_id": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+              "verdict": "passed"
+            },
+            {
+              "check_id": null,
+              "equals": null,
+              "max_age_seconds": null,
+              "output_key": null,
+              "statuses": [
+                "succeeded",
+                "failed",
+                "blocked",
+                "cancelled"
+              ],
+              "task_id": "eae909f4-b22c-4c95-b7ae-1525d2220002",
+              "verdict": "unchecked"
+            }
+          ],
+          "display_name": "report-B-history",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ],
+          "role_id": "B",
+          "spec": {
+            "completion": [
+              {
+                "description": "仅根据B自己的历史，报告首次结果8和当前结果100，并明确区分两者。",
+                "id": "reported_b_own_history",
+                "required": true
+              }
+            ],
+            "constraints": [
+              "报告仅使用B自己的历史和B任务结果，不读取或引用A的结果。",
+              "不清空或重输任何值或算式。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "goal": "仅依据B自己的历史，报告首次计算结果和当前计算结果；当前结果取B的×4任务结果。",
+            "input_sources": {
+              "current_result": {
+                "from_task": "2c230a97-59ba-4bc1-8b55-ad03f2188c6a",
+                "key": "result"
+              },
+              "first_result": {
+                "from_task": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+                "key": "result"
+              }
+            },
+            "inputs": {
+              "current_result": "B最后一次屏幕计算结果",
+              "first_result": "B首次计算结果"
+            },
+            "max_steps": 100,
+            "outputs_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "type": "object"
+            },
+            "settlement_timeout_seconds": 60.0,
+            "verification_timeout_seconds": 600.0
+          },
+          "task_id": "d55f8856-e08a-4a94-8a67-b04c3fc6dd98"
+        }
+      ]
+    }
+  },
+  {
+    "base_plan_revision": 2,
+    "error": "Stale plan revision",
+    "kind": "plan_rejected",
+    "planning_attempt": 3
+  },
+  {
+    "kind": "closed",
+    "payload": {
+      "errors": [],
+      "lease_released": true,
+      "reason": "blocked"
+    },
+    "role_id": "A"
+  },
+  {
+    "kind": "connection_lost",
+    "payload": {
+      "error": "EOFError('Control connection closed')"
+    },
+    "role_id": "A"
+  },
+  {
+    "kind": "closed",
+    "payload": {
+      "errors": [],
+      "lease_released": true,
+      "reason": "blocked"
+    },
+    "role_id": "B"
+  },
+  {
+    "kind": "connection_lost",
+    "payload": {
+      "error": "EOFError('Control connection closed')"
+    },
+    "role_id": "B"
+  },
+  {
+    "kind": "exited",
+    "payload": 0,
+    "role_id": "A"
+  },
+  {
+    "kind": "exited",
+    "payload": 0,
+    "role_id": "B"
+  }
+]

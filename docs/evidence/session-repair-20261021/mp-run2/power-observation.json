@@ -1,0 +1,20 @@
+{
+  "observed_utc_minute": "2026-10-20T23:58Z",
+  "method": "adb shell dumpsys power filtered to wakefulness, powered, stay-on, screen timeout only",
+  "device_actions_performed": false,
+  "settings_changed": false,
+  "roles": {
+    "A": {
+      "awake": true,
+      "powered": true,
+      "stay_on": true,
+      "screen_timeout_ms": 2147483647
+    },
+    "B": {
+      "awake": true,
+      "powered": true,
+      "stay_on": true,
+      "screen_timeout_ms": 1800000
+    }
+  }
+}

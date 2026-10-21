@@ -1,0 +1,12 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "最终截图显示计算器表达式“48÷6”和结果“8”；执行历史仅记录一次清除操作（Step 1 点击“清除”），随后记录显示区为空。",
+      "item_text": "[contract:screen_shows_8] 屏幕显示48÷6的结果8，且本任务仅清空了一次。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    }
+  ]
+}

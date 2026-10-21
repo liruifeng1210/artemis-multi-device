@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "audit_utc": "2026-10-21T00:21:05.101196+00:00",
+  "workflow_still_live": true,
+  "task_id": "c9a72e31-4f68-4b15-9d03-6e2f1a8c7054",
+  "attempt_id": "e8916065-7d45-4ff3-8279-babfd40a5151",
+  "source": "Read-only SQLite snapshot, exact execution task identity; nested duplicate same-name tool spans excluded only within owned trace set.",
+  "agents": [
+    {
+      "trace_id": "ce33d544-d3d4-4519-b554-0677c80b1976",
+      "name": "planner",
+      "offset_seconds": 0.008,
+      "duration_seconds": 73.758,
+      "status": "success",
+      "structured_action_present": false,
+      "tool_limit_exceeded": null
+    },
+    {
+      "trace_id": "2004619e-5d02-4aa8-965d-ca4755070613",
+      "name": "operator",
+      "offset_seconds": 74.706,
+      "duration_seconds": 233.407,
+      "status": "success",
+      "structured_action_present": false,
+      "tool_limit_exceeded": false
+    },
+    {
+      "trace_id": "a0e0a8e8-1678-494a-b059-352101637978",
+      "name": "operator",
+      "offset_seconds": 309.19,
+      "duration_seconds": 316.552,
+      "status": "success",
+      "structured_action_present": false,
+      "tool_limit_exceeded": false
+    },
+    {
+      "trace_id": "a688deb0-db9d-4bc7-8f9d-7527e9af52ff",
+      "name": "operator",
+      "offset_seconds": 626.877,
+      "duration_seconds": 110.223,
+      "status": "success",
+      "structured_action_present": false,
+      "tool_limit_exceeded": false
+    },
+    {
+      "trace_id": "4c3de658-682d-45ee-bdd2-db4137d85e96",
+      "name": "operator",
+      "offset_seconds": 738.14,
+      "duration_seconds": 53.219,
+      "status": "success",
+      "structured_action_present": false,
+      "tool_limit_exceeded": false
+    },
+    {
+      "trace_id": "5228eb3e-1210-4253-a0ea-1002eef768ce",
+      "name": "operator",
+      "offset_seconds": 792.372,
+      "duration_seconds": 88.676,
+      "status": "success",
+      "structured_action_present": false,
+      "tool_limit_exceeded": false
+    },
+    {
+      "trace_id": "a9d50250-9f65-4c40-b19e-c990f291ad78",
+      "name": "operator",
+      "offset_seconds": 882.082,
+      "duration_seconds": 17.949,
+      "status": "cancelled",
+      "structured_action_present": null,
+      "tool_limit_exceeded": null
+    }
+  ],
+  "tool_counts": {
+    "save_note": 2,
+    "compress_history": 4,
+    "search_history": 7,
+    "list_notes": 1,
+    "replay_steps": 4,
+    "get_step_screenshot": 19,
+    "read_note": 5
+  },
+  "note_writes": [
+    {
+      "trace_id": "c77cc08c-f628-4002-a300-a8c0de113fdf",
+      "name": "save_note",
+      "key": "calc_task_2c7d1e85_audit",
+      "offset_seconds": 73.753,
+      "status": "success"
+    },
+    {
+      "trace_id": "c58dc4f1-b6c5-4901-bab8-6902921e1a3b",
+      "name": "save_note",
+      "key": "task_plan",
+      "offset_seconds": 73.756,
+      "status": "success"
+    }
+  ],
+  "history_receipts": [
+    {
+      "trace_id": "484f522c-d9ce-4ebc-ab9a-92f4e7dac300",
+      "name": "replay_steps",
+      "offset_seconds": 146.502,
+      "args": {
+        "start_step": 1,
+        "end_step": 5
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "f4ccb5f9-d97c-474a-8b8c-194bd167bdff",
+      "name": "replay_steps",
+      "offset_seconds": 146.578,
+      "args": {
+        "start_step": 6,
+        "end_step": 11
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "4749b413-179f-4007-aeae-2875f19ffbb2",
+      "name": "get_step_screenshot",
+      "offset_seconds": 146.633,
+      "args": {
+        "step_number": 11,
+        "which": "post"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "8b7dc4cc-e0b6-41f0-8160-22db6a879337",
+      "name": "replay_steps",
+      "offset_seconds": 183.505,
+      "args": {
+        "start_step": 12,
+        "end_step": 15
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "f9986853-d1db-492d-a462-3d14558c8eb3",
+      "name": "get_step_screenshot",
+      "offset_seconds": 183.572,
+      "args": {
+        "step_number": 14,
+        "which": "post"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "d02764c2-1a56-47c5-b6df-7a8daf00e317",
+      "name": "get_step_screenshot",
+      "offset_seconds": 183.587,
+      "args": {
+        "step_number": 15,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "e138f8f6-f8b6-47a0-9fbc-4c22db1d4bcd",
+      "name": "get_step_screenshot",
+      "offset_seconds": 245.748,
+      "args": {
+        "step_number": 10,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "0cdcf262-0897-40d2-8b36-e15a970cf068",
+      "name": "get_step_screenshot",
+      "offset_seconds": 245.767,
+      "args": {
+        "step_number": 11,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "b9d9d9dc-d251-40ec-b629-4fa9ef6091f7",
+      "name": "get_step_screenshot",
+      "offset_seconds": 245.784,
+      "args": {
+        "step_number": 12,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "6787d64f-fe01-442e-80c6-43900430817f",
+      "name": "get_step_screenshot",
+      "offset_seconds": 245.795,
+      "args": {
+        "step_number": 13,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "18a42d0e-11c4-4fdc-b9a4-de04bf585906",
+      "name": "get_step_screenshot",
+      "offset_seconds": 245.805,
+      "args": {
+        "step_number": 14,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "e4e5d7be-764c-4082-9f68-86d01b4ec93c",
+      "name": "get_step_screenshot",
+      "offset_seconds": 245.815,
+      "args": {
+        "step_number": 15,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "1597941e-019a-4bdb-b0b2-4a7e8d2a8b0e",
+      "name": "get_step_screenshot",
+      "offset_seconds": 245.826,
+      "args": {
+        "step_number": 16,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "468516c0-41fa-4c9b-8387-c5119d10518c",
+      "name": "get_step_screenshot",
+      "offset_seconds": 245.836,
+      "args": {
+        "step_number": 20,
+        "which": "post"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "16f3605a-6395-4300-9a83-d60aec36fcee",
+      "name": "replay_steps",
+      "offset_seconds": 245.855,
+      "args": {
+        "start_step": 16,
+        "end_step": 20
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "4ae42310-19c5-48ec-a414-ed77fc964123",
+      "name": "get_step_screenshot",
+      "offset_seconds": 376.436,
+      "args": {
+        "step_number": 15,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "07712826-f70d-4c29-832d-bc19e66e97c3",
+      "name": "get_step_screenshot",
+      "offset_seconds": 427.439,
+      "args": {
+        "step_number": 10,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "d798da87-aa1e-4be5-b6d7-03931e73a874",
+      "name": "get_step_screenshot",
+      "offset_seconds": 427.458,
+      "args": {
+        "step_number": 12,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "bdd9b58d-97cf-4e04-95d4-5f739a4fd3b8",
+      "name": "get_step_screenshot",
+      "offset_seconds": 427.476,
+      "args": {
+        "step_number": 13,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "11438db0-62bd-4772-88ef-dedb52407050",
+      "name": "get_step_screenshot",
+      "offset_seconds": 427.486,
+      "args": {
+        "step_number": 14,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "3b0b7bf8-4a48-4f69-adc7-62ad10507778",
+      "name": "get_step_screenshot",
+      "offset_seconds": 538.808,
+      "args": {
+        "step_number": 11,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "a6edce7a-682d-41b7-8cee-47d3d6d8d76b",
+      "name": "get_step_screenshot",
+      "offset_seconds": 684.089,
+      "args": {
+        "step_number": 15,
+        "which": "pre"
+      },
+      "status": "success"
+    },
+    {
+      "trace_id": "41e53a6d-53b1-4d7e-a785-043a15f8316f",
+      "name": "get_step_screenshot",
+      "offset_seconds": 832.577,
+      "args": {
+        "step_number": 15,
+        "which": "pre"
+      },
+      "status": "success"
+    }
+  ],
+  "model_calls": {
+    "count": 22,
+    "sum_duration_seconds_including_parallel_and_settlement": 1051.958,
+    "step_owned_count": 17,
+    "step_owned_sum_seconds_including_settlement": 831.863
+  },
+  "finding": "Completed Operator rounds all returned no structured action without tool-limit exhaustion; none wrote task_plan. Graph completion depends on explicit task_plan completion. Repeated historical reads occurred after the original requested step range and image had already been retrieved.",
+  "limits": [
+    "Agent duration and parallel background model durations must not be added as serial wall time.",
+    "LLM callback cancellation settlement may extend recorded duration beyond the 900-second execution boundary.",
+    "No raw prompts, hidden reasoning, UI hierarchy or business-note content exported."
+  ]
+}

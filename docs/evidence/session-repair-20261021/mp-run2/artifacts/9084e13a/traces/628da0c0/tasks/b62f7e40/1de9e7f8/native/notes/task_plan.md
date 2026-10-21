@@ -1,0 +1,8 @@
+- [x] Retrieve the original archived execution record and evidence manifest for task 2c7d1e85-9a34-4b60-8f12-526941b30403; use only this task's own archive and linked artifacts.
+  - verify: Evidence is bound to the specified task attempt, not inferred from its goal text, outputs, or later task screenshots.
+- [x] [Loop] Inspect every available original action, observation, and screenshot for this attempt, focusing on steps 12–15 (Exit: all original evidence items linked to this attempt inspected; Interval: one evidence item at a time).
+  - [x] Inspected original steps 12–15 and linked screenshots: Step 12 starts at 125+75 = 200; steps 12–14 dispatch ×, 3, =; Step 15 screenshot after the equals action shows 200×3 and =600.
+  - assert: 在同一子Session观察屏幕后直接将显示值乘3并按等号，屏幕实际显示600；未清空或重输旧值/算式。
+- [x] Read A_role_first_calc_result without changing it; it records first result 200 and current result 600 with references to this attempt's original actions and screenshots.
+  - assert: 依据本Role原始执行证据记下首次结果和当前结果，并更新A的Role持久notes。
+- [x] Consolidate the evidence-based audit: the original attempt's Step 12–15 record and screenshots verify the displayed starting 200, direct ×3 and equals sequence, post-equals 600, and no intervening clear or re-entry; the persistent note was updated with first=200 and current=600.

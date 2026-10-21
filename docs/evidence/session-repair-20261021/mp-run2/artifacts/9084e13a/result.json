@@ -1,0 +1,439 @@
+{
+  "business_status": "failed",
+  "cleanup_status": [
+    {
+      "exited": true,
+      "graceful": true,
+      "returncode": 0,
+      "session": {
+        "errors": [],
+        "lease_released": true,
+        "reason": "failed"
+      }
+    },
+    {
+      "exited": true,
+      "graceful": true,
+      "returncode": 0,
+      "session": {
+        "errors": [],
+        "lease_released": true,
+        "reason": "failed"
+      }
+    }
+  ],
+  "error": "TimeoutError()",
+  "expected_cancelled_tasks": [
+    "d1e8a4c7-3b26-4f95-9c03-185274d50605"
+  ],
+  "invalidated_tasks": [],
+  "recoveries": {
+    "2c7d1e85-9a34-4b60-8f12-526941b30403": [
+      "b62f7e40-9c13-4a81-9d56-2f087b63e209"
+    ],
+    "c9a72e31-4f68-4b15-9d03-6e2f1a8c7054": [
+      "b62f7e40-9c13-4a81-9d56-2f087b63e209"
+    ]
+  },
+  "tasks": {
+    "2c7d1e85-9a34-4b60-8f12-526941b30403": {
+      "artifact_refs": [
+        "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract_report.json",
+        "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "no verdict produced for this item",
+          "evidence_refs": [
+            "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract_report.json",
+            "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract-screen.jpg"
+          ],
+          "id": "continue_calc",
+          "verdict": "inconclusive"
+        },
+        {
+          "evidence": "no verdict produced for this item",
+          "evidence_refs": [
+            "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract_report.json",
+            "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract-screen.jpg"
+          ],
+          "id": "record_values",
+          "verdict": "inconclusive"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T23:42:59.799875+00:00",
+      "outputs": {
+        "result": "600"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "blocked",
+      "step_range": {
+        "first": 12,
+        "last": 15
+      },
+      "suggested_next_actions": []
+    },
+    "4b6e2a91-5c73-4f08-b2d4-713850a20402": {
+      "artifact_refs": [
+        "tasks\\4b6e2a91-5c73-4f08-b2d4-713850a20402\\d1531037-0f45-4b4d-9563-21eb737686e8\\contract_report.json",
+        "tasks\\4b6e2a91-5c73-4f08-b2d4-713850a20402\\d1531037-0f45-4b4d-9563-21eb737686e8\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "Step 1 records one tap on the clear key and the next screen observation shows a blank display. Steps 2–6 record input of 4, 8, ÷, 6, then =. The final screenshot shows 48÷6 and a large 8.",
+          "evidence_refs": [
+            "tasks\\4b6e2a91-5c73-4f08-b2d4-713850a20402\\d1531037-0f45-4b4d-9563-21eb737686e8\\contract_report.json",
+            "tasks\\4b6e2a91-5c73-4f08-b2d4-713850a20402\\d1531037-0f45-4b4d-9563-21eb737686e8\\contract-screen.jpg"
+          ],
+          "id": "initial_calc",
+          "verdict": "passed"
+        },
+        {
+          "evidence": "The read-back of B_role_first_calc_result contains result: \"8\", the execution steps, dispatched actions, and screenshot references including the post-equals observation. The extracted output is {\"result\":\"8\"}.",
+          "evidence_refs": [
+            "tasks\\4b6e2a91-5c73-4f08-b2d4-713850a20402\\d1531037-0f45-4b4d-9563-21eb737686e8\\contract_report.json",
+            "tasks\\4b6e2a91-5c73-4f08-b2d4-713850a20402\\d1531037-0f45-4b4d-9563-21eb737686e8\\contract-screen.jpg"
+          ],
+          "id": "record_first",
+          "verdict": "passed"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T23:33:20.386939+00:00",
+      "outputs": {
+        "result": "8"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "succeeded",
+      "step_range": {
+        "first": 1,
+        "last": 7
+      },
+      "suggested_next_actions": []
+    },
+    "7a0f3c96-1d52-4e81-a6b9-934762c40504": {
+      "artifact_refs": [
+        "tasks\\7a0f3c96-1d52-4e81-a6b9-934762c40504\\1abee41d-f39a-414d-9e0e-b58b1c97258b\\contract_report.json",
+        "tasks\\7a0f3c96-1d52-4e81-a6b9-934762c40504\\1abee41d-f39a-414d-9e0e-b58b1c97258b\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "Step 8 屏幕观察记录显示计算器原有算式 48÷6、结果 8；Step 8–11 记录依次点击加号、输入 1、输入 7、点击等号。最终附图显示 8+17 和大号结果 25。读取到的 B_role_first_calc_result note 也记录本次操作未清空或重输旧值/算式。",
+          "evidence_refs": [
+            "tasks\\7a0f3c96-1d52-4e81-a6b9-934762c40504\\1abee41d-f39a-414d-9e0e-b58b1c97258b\\contract_report.json",
+            "tasks\\7a0f3c96-1d52-4e81-a6b9-934762c40504\\1abee41d-f39a-414d-9e0e-b58b1c97258b\\contract-screen.jpg"
+          ],
+          "id": "continue_calc",
+          "verdict": "passed"
+        },
+        {
+          "evidence": "read_note 返回的 B_role_first_calc_result 保留首次结果 8 及 Step 1–6 的执行步骤和截图依据；其追加内容记录当前结果 25、Step 8–11 的操作回执及 T+20:12 屏幕观察依据。",
+          "evidence_refs": [
+            "tasks\\7a0f3c96-1d52-4e81-a6b9-934762c40504\\1abee41d-f39a-414d-9e0e-b58b1c97258b\\contract_report.json",
+            "tasks\\7a0f3c96-1d52-4e81-a6b9-934762c40504\\1abee41d-f39a-414d-9e0e-b58b1c97258b\\contract-screen.jpg"
+          ],
+          "id": "record_values",
+          "verdict": "passed"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T23:44:22.250761+00:00",
+      "outputs": {
+        "result": "25"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "succeeded",
+      "step_range": {
+        "first": 8,
+        "last": 12
+      },
+      "suggested_next_actions": []
+    },
+    "8f9a3b42-6e17-4d20-a5c1-921730a10401": {
+      "artifact_refs": [
+        "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract_report.json",
+        "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "Execution history records one 清除 tap at Step 1, followed by a 退格 correction at Step 6 and no further clear action. Steps 7–10 record tapping +, 7, 5, and 等于. Step 10 records the screen showing 125+75 and = 200; the attached final screenshot also visibly shows 125+75 and = 200.",
+          "evidence_refs": [
+            "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract_report.json",
+            "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract-screen.jpg"
+          ],
+          "id": "initial_calc",
+          "verdict": "passed"
+        },
+        {
+          "evidence": "Read-back of persistent note A_role_first_calc_result contains result=200, the first observation, execution steps, and screenshot/session references. The extracted output is {\"result\":\"200\"}.",
+          "evidence_refs": [
+            "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract_report.json",
+            "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract-screen.jpg"
+          ],
+          "id": "record_first",
+          "verdict": "passed"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T23:34:46.066573+00:00",
+      "outputs": {
+        "result": "200"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "succeeded",
+      "step_range": {
+        "first": 1,
+        "last": 11
+      },
+      "suggested_next_actions": []
+    },
+    "a4b1d7f0-6e59-42c8-8f36-418507a80908": {
+      "artifact_refs": [
+        "tasks\\a4b1d7f0-6e59-42c8-8f36-418507a80908\\18979a68-0fa0-43e7-a2c0-5bc13fcbb146\\contract_report.json",
+        "tasks\\a4b1d7f0-6e59-42c8-8f36-418507a80908\\18979a68-0fa0-43e7-a2c0-5bc13fcbb146\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "B自己的归档任务 4b6e2a91-5c73-4f08-b2d4-713850a20402 成功，outputs.result = \"8\"，步骤 1–7，4 项检查通过；b_calculator_results note 引用了该依据，报告给出首次结果 8。",
+          "evidence_refs": [
+            "tasks\\a4b1d7f0-6e59-42c8-8f36-418507a80908\\18979a68-0fa0-43e7-a2c0-5bc13fcbb146\\contract_report.json",
+            "tasks\\a4b1d7f0-6e59-42c8-8f36-418507a80908\\18979a68-0fa0-43e7-a2c0-5bc13fcbb146\\contract-screen.jpg"
+          ],
+          "id": "report_first",
+          "verdict": "passed"
+        },
+        {
+          "evidence": "最终截图显示算式 25×4 和大字结果 100；b_calculator_results note 记录此次重新观察且未与计算器交互、未清空或重输。报告给出当前结果 100。",
+          "evidence_refs": [
+            "tasks\\a4b1d7f0-6e59-42c8-8f36-418507a80908\\18979a68-0fa0-43e7-a2c0-5bc13fcbb146\\contract_report.json",
+            "tasks\\a4b1d7f0-6e59-42c8-8f36-418507a80908\\18979a68-0fa0-43e7-a2c0-5bc13fcbb146\\contract-screen.jpg"
+          ],
+          "id": "report_current",
+          "verdict": "passed"
+        },
+        {
+          "evidence": "b_calculator_results note 记录首次结果 8 及归档任务、步骤依据，也记录当前结果 100 及观察说明；输出为标量 result 字符串：\"首次结果：8；当前结果：100。\"",
+          "evidence_refs": [
+            "tasks\\a4b1d7f0-6e59-42c8-8f36-418507a80908\\18979a68-0fa0-43e7-a2c0-5bc13fcbb146\\contract_report.json",
+            "tasks\\a4b1d7f0-6e59-42c8-8f36-418507a80908\\18979a68-0fa0-43e7-a2c0-5bc13fcbb146\\contract-screen.jpg"
+          ],
+          "id": "record_values",
+          "verdict": "passed"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T23:59:16.627212+00:00",
+      "outputs": {
+        "result": "首次结果：8；当前结果：100。"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "succeeded",
+      "step_range": {
+        "first": 17,
+        "last": 17
+      },
+      "suggested_next_actions": []
+    },
+    "b62f7e40-9c13-4a81-9d56-2f087b63e209": {
+      "artifact_refs": [],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "",
+          "evidence_refs": [],
+          "id": "continue_calc",
+          "verdict": "unchecked"
+        },
+        {
+          "evidence": "",
+          "evidence_refs": [],
+          "id": "record_values",
+          "verdict": "unchecked"
+        }
+      ],
+      "error": {
+        "code": "execution_failed",
+        "description": "cancelled"
+      },
+      "observations": [],
+      "observed_at": "2026-10-21T00:31:07.831024+00:00",
+      "outputs": {},
+      "session_reusable": true,
+      "side_effect_state": "uncertain",
+      "status": "cancelled",
+      "step_range": {
+        "first": 26,
+        "last": 32
+      },
+      "suggested_next_actions": []
+    },
+    "c9a72e31-4f68-4b15-9d03-6e2f1a8c7054": {
+      "artifact_refs": [],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "",
+          "evidence_refs": [],
+          "id": "continue_calc",
+          "verdict": "unchecked"
+        },
+        {
+          "evidence": "",
+          "evidence_refs": [],
+          "id": "record_values",
+          "verdict": "unchecked"
+        }
+      ],
+      "error": {
+        "code": "execution_failed",
+        "description": "cancelled"
+      },
+      "observations": [],
+      "observed_at": "2026-10-21T00:15:21.324138+00:00",
+      "outputs": {},
+      "session_reusable": true,
+      "side_effect_state": "uncertain",
+      "status": "cancelled",
+      "step_range": {
+        "first": 21,
+        "last": 25
+      },
+      "suggested_next_actions": []
+    },
+    "d1e8a4c7-3b26-4f95-9c03-185274d50605": {
+      "artifact_refs": [],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "",
+          "evidence_refs": [],
+          "id": "baseline",
+          "verdict": "unchecked"
+        },
+        {
+          "evidence": "",
+          "evidence_refs": [],
+          "id": "thirty_steps",
+          "verdict": "unchecked"
+        },
+        {
+          "evidence": "",
+          "evidence_refs": [],
+          "id": "final_value",
+          "verdict": "unchecked"
+        }
+      ],
+      "error": {
+        "code": "execution_failed",
+        "description": "cancelled"
+      },
+      "observations": [],
+      "observed_at": "2026-10-20T23:44:42.396736+00:00",
+      "outputs": {},
+      "session_reusable": true,
+      "side_effect_state": "uncertain",
+      "status": "cancelled",
+      "step_range": null,
+      "suggested_next_actions": []
+    },
+    "e2f9b5d8-4c37-40a6-8d14-296385e60706": {
+      "artifact_refs": [
+        "tasks\\e2f9b5d8-4c37-40a6-8d14-296385e60706\\877a12b9-378e-471e-ac45-69d097fb080e\\contract_report.json",
+        "tasks\\e2f9b5d8-4c37-40a6-8d14-296385e60706\\877a12b9-378e-471e-ac45-69d097fb080e\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "multiply_current_record 记载起始实时屏幕显示表达式“8+17”、主显示值“25”，之后点击乘号、输入4并按等号。附加最终截图显示表达式“25×4”和主显示值“100”。",
+          "evidence_refs": [
+            "tasks\\e2f9b5d8-4c37-40a6-8d14-296385e60706\\877a12b9-378e-471e-ac45-69d097fb080e\\contract_report.json",
+            "tasks\\e2f9b5d8-4c37-40a6-8d14-296385e60706\\877a12b9-378e-471e-ac45-69d097fb080e\\contract-screen.jpg"
+          ],
+          "id": "multiply_current",
+          "verdict": "passed"
+        },
+        {
+          "evidence": "multiply_current_record 记录了点击乘号、输入4、点击等号，并注明各步均未清空或重输旧值/算式；执行历史步骤13–15也对应这些操作。",
+          "evidence_refs": [
+            "tasks\\e2f9b5d8-4c37-40a6-8d14-296385e60706\\877a12b9-378e-471e-ac45-69d097fb080e\\contract_report.json",
+            "tasks\\e2f9b5d8-4c37-40a6-8d14-296385e60706\\877a12b9-378e-471e-ac45-69d097fb080e\\contract-screen.jpg"
+          ],
+          "id": "preserve_session",
+          "verdict": "passed"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T23:52:16.249015+00:00",
+      "outputs": {
+        "result": "100"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "succeeded",
+      "step_range": {
+        "first": 13,
+        "last": 16
+      },
+      "suggested_next_actions": []
+    },
+    "f3a0c6e9-5d48-41b7-9e25-307496f70807": {
+      "artifact_refs": [
+        "tasks\\f3a0c6e9-5d48-41b7-9e25-307496f70807\\bb5f982d-02b2-40c8-8680-002831f896b3\\contract_report.json",
+        "tasks\\f3a0c6e9-5d48-41b7-9e25-307496f70807\\bb5f982d-02b2-40c8-8680-002831f896b3\\contract-screen.jpg"
+      ],
+      "blocker": null,
+      "checks": [
+        {
+          "evidence": "最终截图显示表达式600+10及结果=610。执行历史记录了点击加号、1、0和等号；两份Role notes记录加10前重新观察到=600，且没有清空或重输旧值/算式。",
+          "evidence_refs": [
+            "tasks\\f3a0c6e9-5d48-41b7-9e25-307496f70807\\bb5f982d-02b2-40c8-8680-002831f896b3\\contract_report.json",
+            "tasks\\f3a0c6e9-5d48-41b7-9e25-307496f70807\\bb5f982d-02b2-40c8-8680-002831f896b3\\contract-screen.jpg"
+          ],
+          "id": "add_ten",
+          "verdict": "passed"
+        },
+        {
+          "evidence": "A_role_calc_continuation和A_role_calc_add10_result均记载首次结果为200，并引用A_role_first_calc_result、A自己的原始任务记录及125+75显示=200的原始执行证据；两份notes也记录取消后观察到=600、最终实时截图显示600+10及=610。",
+          "evidence_refs": [
+            "tasks\\f3a0c6e9-5d48-41b7-9e25-307496f70807\\bb5f982d-02b2-40c8-8680-002831f896b3\\contract_report.json",
+            "tasks\\f3a0c6e9-5d48-41b7-9e25-307496f70807\\bb5f982d-02b2-40c8-8680-002831f896b3\\contract-screen.jpg"
+          ],
+          "id": "report_values",
+          "verdict": "passed"
+        }
+      ],
+      "error": null,
+      "observations": [],
+      "observed_at": "2026-10-20T23:55:10.922732+00:00",
+      "outputs": {
+        "result": "首次结果：200；取消后加10前重新观察到：600；加10并按等号后屏幕显示：610。"
+      },
+      "session_reusable": true,
+      "side_effect_state": "confirmed",
+      "status": "succeeded",
+      "step_range": {
+        "first": 16,
+        "last": 20
+      },
+      "suggested_next_actions": []
+    }
+  },
+  "unresolved_tasks": []
+}

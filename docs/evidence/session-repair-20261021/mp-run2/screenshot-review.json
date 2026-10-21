@@ -1,0 +1,74 @@
+{
+  "reviewed_at": "2026-10-21T00:35:35.447320+00:00",
+  "method": "Assistant visually inspected each original boundary/contract screenshot. Calculator UI only; no About Phone page or message content. No image edits.",
+  "images": [
+    {
+      "path": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/tasks/4b6e2a91-5c73-4f08-b2d4-713850a20402/d1531037-0f45-4b4d-9563-21eb737686e8/contract-screen.jpg",
+      "sha256": "a37cca5aa7c336a8d002d5699aba448451cdf1566d6f7538c49e96f4a9f859d4"
+    },
+    {
+      "path": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/tasks/7a0f3c96-1d52-4e81-a6b9-934762c40504/1abee41d-f39a-414d-9e0e-b58b1c97258b/contract-screen.jpg",
+      "sha256": "2ab6fecba4999e41ab2b189e6b54b0b1944e4adc07640f9ef8052f81d737218a"
+    },
+    {
+      "path": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/tasks/a4b1d7f0-6e59-42c8-8f36-418507a80908/18979a68-0fa0-43e7-a2c0-5bc13fcbb146/contract-screen.jpg",
+      "sha256": "290ae2a18fba0160609b7db01bf9a1af0bd266e58e8839c6498bf2cb667c1bd8"
+    },
+    {
+      "path": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/tasks/e2f9b5d8-4c37-40a6-8d14-296385e60706/877a12b9-378e-471e-ac45-69d097fb080e/contract-screen.jpg",
+      "sha256": "9700c0a62299831fbf3afb8ef42b4cbde2594d16095e61f7096a2ab2ef838238"
+    },
+    {
+      "path": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/628da0c0-9792-4948-b07c-0fc2a960ba67/tasks/2c7d1e85-9a34-4b60-8f12-526941b30403/2cc7af5f-4b61-43d7-8506-e1727b8a0fb8/contract-screen.jpg",
+      "sha256": "542d0c3401e15ef3e5437b351f91db95a62690fe02d005e407f611995ecd66ff"
+    },
+    {
+      "path": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/628da0c0-9792-4948-b07c-0fc2a960ba67/tasks/8f9a3b42-6e17-4d20-a5c1-921730a10401/908bf92b-6ca3-4044-a0f6-1d0af701496f/contract-screen.jpg",
+      "sha256": "bc24d90afb18cc13331f1602356aa608386c4602339eafa3a21e9cab4f0ebbdf"
+    },
+    {
+      "path": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/628da0c0-9792-4948-b07c-0fc2a960ba67/tasks/f3a0c6e9-5d48-41b7-9e25-307496f70807/bb5f982d-02b2-40c8-8680-002831f896b3/contract-screen.jpg",
+      "sha256": "74825f79e800af9e7938345c2395ac18d4e6a6d15221134da94e54d349cbbfd7"
+    },
+    {
+      "path": "boundaries/2c7d1e85-9a34-4b60-8f12-526941b30403/screen.png",
+      "sha256": "7f31ce862741ef5c688aeb562f50fce2958748890819cc29b10947094ebf074a"
+    },
+    {
+      "path": "boundaries/4b6e2a91-5c73-4f08-b2d4-713850a20402/screen.png",
+      "sha256": "95ae9cd9cf3046f04f7d4c127c02e65d9967cadd2cae7040f377c15f566c3e3c"
+    },
+    {
+      "path": "boundaries/7a0f3c96-1d52-4e81-a6b9-934762c40504/screen.png",
+      "sha256": "f0e167056f8533179ae97483584ce70c578eb1237ac8bb7b6826e05a05e2ad96"
+    },
+    {
+      "path": "boundaries/8f9a3b42-6e17-4d20-a5c1-921730a10401/screen.png",
+      "sha256": "00cb1b0a3b0cb0ba1e3eadb0870870555256bf8a08a740f9cac9c87a1149d36f"
+    },
+    {
+      "path": "boundaries/a4b1d7f0-6e59-42c8-8f36-418507a80908/screen.png",
+      "sha256": "413f9bbf99771e834b3c32f78eda2d0cb656dc915925540b8f21846fa2bfac08"
+    },
+    {
+      "path": "boundaries/b62f7e40-9c13-4a81-9d56-2f087b63e209/screen.png",
+      "sha256": "8d6bf0fb3590163bdc9bc13deff7f4b8756669c340202c2aee1b56d767fa2fb5"
+    },
+    {
+      "path": "boundaries/c9a72e31-4f68-4b15-9d03-6e2f1a8c7054/screen.png",
+      "sha256": "e6a83dce4b5416de7f7dc4bde8f407cd44ff091edc2b4323b218d42bc9f0c07b"
+    },
+    {
+      "path": "boundaries/d1e8a4c7-3b26-4f95-9c03-185274d50605/screen.png",
+      "sha256": "59084d4fe7dbe168ce289b3a995f97a4288095650d9a16f4edf7bb7433e06d4d"
+    },
+    {
+      "path": "boundaries/e2f9b5d8-4c37-40a6-8d14-296385e60706/screen.png",
+      "sha256": "69c02f882ac69ba8687007ef2555fdbd3556cb84ca38fafab29f2413b5988f0c"
+    },
+    {
+      "path": "boundaries/f3a0c6e9-5d48-41b7-9e25-307496f70807/screen.png",
+      "sha256": "6d091d2b2ae912306c481bfaf61044d97904df79ebba5776efa85b864d80cfd7"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "method": "All four original images inspected via full-screen contact sheets after close; calculator UI only; no notification message content or About Phone page; originals not edited.",
+  "images": [
+    {
+      "relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/contract-screen.jpg",
+      "sha256": "c3b73c6825796a40cc9cdb9290f0e85843ec5e5d02b8e060f1994e94f4317c97",
+      "business_value": "200"
+    },
+    {
+      "relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/contract-screen.jpg",
+      "sha256": "fabc238b276fb7e4a518d8b34aebf2be28b38e3be2e3351c38dbaa087793c411",
+      "business_value": "8"
+    },
+    {
+      "relative_path": "boundaries/9dcb92ab-b119-4959-88f7-0e8d047ab21d/screen.png",
+      "sha256": "2e23b6adff0e58c562cd883f21d76a3a947746e507b0c1285f2c93b09fd37d5f",
+      "business_value": "200"
+    },
+    {
+      "relative_path": "boundaries/ef8f9094-bced-4cb7-9169-e9d3c6957f81/screen.png",
+      "sha256": "8f904edef85f01ce21772758649c0e390701c9b3a92c901ade7f8b9d7d6b9a68",
+      "business_value": "8"
+    }
+  ]
+}

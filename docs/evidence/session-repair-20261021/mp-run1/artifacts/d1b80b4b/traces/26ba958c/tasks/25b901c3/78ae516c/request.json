@@ -1,0 +1,40 @@
+{
+  "completion": [
+    {
+      "description": "在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。",
+      "id": "screen_shows_25",
+      "required": true
+    }
+  ],
+  "constraints": [
+    "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+    "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+    "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+    "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+    "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+    "不得清空或重输旧值、旧算式；直接从屏幕当前结果继续。",
+    "保持B原有Session、连接和历史。"
+  ],
+  "effect_policy": "verify_before_retry",
+  "execution_timeout_seconds": 900.0,
+  "goal": "继续使用B原有Session、连接、历史和当前屏幕结果，不清空、不重输旧值或旧算式；在屏幕结果后按+17并按等号，得到25。保留首次结果及新的当前结果。",
+  "input_sources": {},
+  "inputs": {
+    "first_result": "B首次计算任务记录的结果，仅用于保留历史。"
+  },
+  "max_steps": 100,
+  "outputs_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "result": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "result"
+    ],
+    "type": "object"
+  },
+  "settlement_timeout_seconds": 60.0,
+  "verification_timeout_seconds": 600.0
+}

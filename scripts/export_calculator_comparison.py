@@ -38,7 +38,7 @@ def calculator_note(key):
     return key in {'task_plan','session_context','session_progress','output','B','A_role_history',
         'A_role_first_calc_result','B_role_first_calc_result','A_role_calc_continuation',
         'A_role_calc_add10_result','multiply_current_record','b_calculator_results',
-        'calc_task_2c7d1e85_audit'} or key.startswith(('calculator','calculation','cancel_a_plus10'))
+        'calc_task_2c7d1e85_audit','calc_125_75_results'} or key.startswith(('calculator','calculation','cancel_a_plus10'))
 
 
 def export(source, target, log=None):

@@ -1,0 +1,564 @@
+[
+  {
+    "observed_at": "2026-10-21T00:44:46.323033+00:00",
+    "kind": "model_proposal",
+    "proposal": {
+      "base_plan_revision": 1,
+      "tasks": [
+        {
+          "task_id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+          "display_name": "initial-A",
+          "role_id": "A",
+          "spec": {
+            "goal": "在设备 A 的计算器中清空一次，真实点击输入 125+75 并执行计算。观察屏幕确认结果为 200；将观察到的结果作为 first_result 和 current_result 输出，并在当前 Role/Session 的持久 notes 中记录首次结果与当前结果。确认此任务的原始执行结果、步骤和截图归档在当前 Role/Session 中。",
+            "inputs": {
+              "expression": "125+75",
+              "expected_result": "200",
+              "clear_once": true
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "calculation",
+                "description": "已在指定设备计算器中清空一次并通过真实点击计算 125+75，屏幕观察结果为 200。",
+                "required": true
+              },
+              {
+                "id": "archive",
+                "description": "当前 Role/Session 中保留本任务的原始执行结果、步骤和截图。",
+                "required": true
+              },
+              {
+                "id": "memory",
+                "description": "当前 Role/Session 的持久 notes 已记录从原始执行证据观察到的首次结果和当前结果。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "first_result": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "first_result",
+                "current_result"
+              ],
+              "additionalProperties": false
+            },
+            "constraints": [
+              "只操作指定设备的计算器；不得用 shell 或其他方式替代真实点击计算。",
+              "结果必须来自屏幕观察；不得根据目标中的预填数值推断完成。",
+              "不要重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [],
+          "dependency_mode": "all",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ]
+        },
+        {
+          "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+          "display_name": "initial-B",
+          "role_id": "B",
+          "spec": {
+            "goal": "在设备 B 的计算器中清空一次，真实点击输入 48÷6 并执行计算。观察屏幕确认结果为 8；将观察到的结果作为 first_result 和 current_result 输出，并在当前 Role/Session 的持久 notes 中记录首次结果与当前结果。确认此任务的原始执行结果、步骤和截图归档在当前 Role/Session 中。",
+            "inputs": {
+              "expression": "48÷6",
+              "expected_result": "8",
+              "clear_once": true
+            },
+            "input_sources": {},
+            "completion": [
+              {
+                "id": "calculation",
+                "description": "已在指定设备计算器中清空一次并通过真实点击计算 48÷6，屏幕观察结果为 8。",
+                "required": true
+              },
+              {
+                "id": "archive",
+                "description": "当前 Role/Session 中保留本任务的原始执行结果、步骤和截图。",
+                "required": true
+              },
+              {
+                "id": "memory",
+                "description": "当前 Role/Session 的持久 notes 已记录从原始执行证据观察到的首次结果和当前结果。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "first_result": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "first_result",
+                "current_result"
+              ],
+              "additionalProperties": false
+            },
+            "constraints": [
+              "只操作指定设备的计算器；不得用 shell 或其他方式替代真实点击计算。",
+              "结果必须来自屏幕观察；不得根据目标中的预填数值推断完成。",
+              "不要重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [],
+          "dependency_mode": "all",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ]
+        },
+        {
+          "task_id": "17b94e8b-6971-49ef-8a1d-86380a113a7e",
+          "display_name": "continue-A",
+          "role_id": "A",
+          "spec": {
+            "goal": "在与 initial-A 相同的 Role、Session、设备连接和计算器状态中继续。保留该任务真实归档的原始结果、步骤、截图和持久 notes；不得清空、重输旧值或重输旧算式。先观察屏幕当前值，再通过真实点击将屏幕结果乘以 3 并计算，观察确认当前值为 600。first_result 必须取自绑定的 initial-A 原始任务输出；将观察到的屏幕结果作为 current_result 输出，并在持久 notes 中保留首次结果、更新当前结果。",
+            "inputs": {
+              "operation": "multiply_visible_screen_result_by_3",
+              "expected_current_result": "600",
+              "preserve_session": true,
+              "do_not_clear_or_reenter_prior_input": true
+            },
+            "input_sources": {
+              "first_result": {
+                "from_task": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+                "key": "first_result"
+              }
+            },
+            "completion": [
+              {
+                "id": "session",
+                "description": "在与 initial-A 相同的 Role、Session、连接和计算器状态中继续，未清空或重输旧值或旧算式。",
+                "required": true
+              },
+              {
+                "id": "calculation",
+                "description": "已先观察屏幕当前值，再通过真实点击乘以 3；屏幕观察确认当前值为 600。",
+                "required": true
+              },
+              {
+                "id": "archive",
+                "description": "initial-A 的原始执行结果、步骤、截图和持久 notes 仍可在当前 Role/Session 中追溯，且本任务的原始执行结果、步骤和截图已归档。",
+                "required": true
+              },
+              {
+                "id": "memory",
+                "description": "持久 notes 保留来自 initial-A 原始证据的首次结果，并已更新为本次观察到的当前结果。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "first_result": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "first_result",
+                "current_result"
+              ],
+              "additionalProperties": false
+            },
+            "constraints": [
+              "只操作指定设备的计算器；不得用 shell 或其他方式替代真实点击计算。",
+              "当前值必须重新从屏幕观察；首次结果必须来自绑定的 initial-A 原始任务输出。",
+              "不得清空或重输旧值或旧算式。",
+              "不要重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+              "statuses": [
+                "succeeded"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": "first_result",
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ]
+        },
+        {
+          "task_id": "c186c432-c469-4be1-9094-d456e533a170",
+          "display_name": "continue-B",
+          "role_id": "B",
+          "spec": {
+            "goal": "在与 initial-B 相同的 Role、Session、设备连接和计算器状态中继续。保留该任务真实归档的原始结果、步骤、截图和持久 notes；不得清空、重输旧值或重输旧算式。先观察屏幕当前值，再通过真实点击将屏幕结果加 17 并计算，观察确认当前值为 25。first_result 必须取自绑定的 initial-B 原始任务输出；将观察到的屏幕结果作为 current_result 输出，并在持久 notes 中保留首次结果、更新当前结果。",
+            "inputs": {
+              "operation": "add_17_to_visible_screen_result",
+              "expected_current_result": "25",
+              "preserve_session": true,
+              "do_not_clear_or_reenter_prior_input": true
+            },
+            "input_sources": {
+              "first_result": {
+                "from_task": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+                "key": "first_result"
+              }
+            },
+            "completion": [
+              {
+                "id": "session",
+                "description": "在与 initial-B 相同的 Role、Session、连接和计算器状态中继续，未清空或重输旧值或旧算式。",
+                "required": true
+              },
+              {
+                "id": "calculation",
+                "description": "已先观察屏幕当前值，再通过真实点击加 17；屏幕观察确认当前值为 25。",
+                "required": true
+              },
+              {
+                "id": "archive",
+                "description": "initial-B 的原始执行结果、步骤、截图和持久 notes 仍可在当前 Role/Session 中追溯，且本任务的原始执行结果、步骤和截图已归档。",
+                "required": true
+              },
+              {
+                "id": "memory",
+                "description": "持久 notes 保留来自 initial-B 原始证据的首次结果，并已更新为本次观察到的当前结果。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "first_result": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "first_result",
+                "current_result"
+              ],
+              "additionalProperties": false
+            },
+            "constraints": [
+              "只操作指定设备的计算器；不得用 shell 或其他方式替代真实点击计算。",
+              "当前值必须重新从屏幕观察；首次结果必须来自绑定的 initial-B 原始任务输出。",
+              "不得清空或重输旧值或旧算式。",
+              "不要重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+              "statuses": [
+                "succeeded"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": "first_result",
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ]
+        }
+      ],
+      "finish": false,
+      "missing_input": null,
+      "diagnostics": [],
+      "recoveries": [],
+      "restart_roles": []
+    }
+  },
+  {
+    "observed_at": "2026-10-21T00:44:46.324302+00:00",
+    "kind": "dispatch_seen",
+    "task_id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+    "attempt_id": "4a8fe8c9-a448-4547-b2f8-7e051678a46a",
+    "role": "A",
+    "device": "21850fc5",
+    "session": "a6ce58da-c831-4b40-9438-24b9f9d37031",
+    "pid": 22128,
+    "display_name": "initial-A"
+  },
+  {
+    "observed_at": "2026-10-21T00:44:46.325310+00:00",
+    "kind": "dispatch_seen",
+    "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+    "attempt_id": "539c1251-5d51-48c7-9dbf-cfcd78e6ec3b",
+    "role": "B",
+    "device": "a8acf864",
+    "session": "f8062c70-c5fb-4071-b1b3-7799704c42e0",
+    "pid": 34364,
+    "display_name": "initial-B"
+  },
+  {
+    "observed_at": "2026-10-21T00:58:48.278263+00:00",
+    "kind": "model_proposal",
+    "proposal": {
+      "base_plan_revision": 2,
+      "tasks": [],
+      "finish": false,
+      "missing_input": null,
+      "diagnostics": [
+        {
+          "role_id": "B",
+          "kind": "observe",
+          "query": {
+            "mode": "fresh",
+            "timeout_seconds": 20
+          }
+        },
+        {
+          "role_id": "B",
+          "kind": "inspect",
+          "query": {
+            "level": "full",
+            "offset": 10,
+            "limit": 30,
+            "snapshot_id": "460d6327-1602-4a5c-a2b0-118fd1833dc2"
+          }
+        }
+      ],
+      "recoveries": [],
+      "restart_roles": []
+    }
+  },
+  {
+    "observed_at": "2026-10-21T01:00:05.963310+00:00",
+    "kind": "model_proposal",
+    "proposal": {
+      "base_plan_revision": 2,
+      "tasks": [
+        {
+          "task_id": "39c245ac-9fa2-411e-82dc-866f4a21c339",
+          "display_name": "initial-B-reconcile",
+          "role_id": "B",
+          "spec": {
+            "goal": "只读核对已失败的 initial-B 原始任务：检查其执行步骤、截图和持久 notes，确认原任务是否满足原始契约；重新观察计算器当前屏幕。first_result 取自绑定的 initial-B 原始任务输出，current_result 取自本次屏幕观察。不得对设备执行操作或写入持久 notes。",
+            "inputs": {
+              "original_task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+              "verify_original_contract": true
+            },
+            "input_sources": {
+              "first_result": {
+                "from_task": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+                "key": "first_result"
+              }
+            },
+            "completion": [
+              {
+                "id": "calculation",
+                "description": "已在指定设备计算器中清空一次并通过真实点击计算 48÷6，屏幕观察结果为 8。",
+                "required": true
+              },
+              {
+                "id": "archive",
+                "description": "当前 Role/Session 中保留本任务的原始执行结果、步骤和截图。",
+                "required": true
+              },
+              {
+                "id": "memory",
+                "description": "当前 Role/Session 的持久 notes 已记录从原始执行证据观察到的首次结果和当前结果。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "first_result": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "first_result",
+                "current_result"
+              ],
+              "additionalProperties": false
+            },
+            "constraints": [
+              "只读检查原始执行记录、截图和持久 notes，并观察计算器屏幕；不得操作计算器。",
+              "如实核对原始任务是否只清空一次；不得把额外清除操作当作满足契约。",
+              "不要重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "read_only",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+              "statuses": [
+                "failed"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": "first_result",
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ]
+        },
+        {
+          "task_id": "c186c432-c469-4be1-9094-d456e533a170",
+          "display_name": "continue-B",
+          "role_id": "B",
+          "spec": {
+            "goal": "在与 initial-B 相同的 Role、Session、设备连接和计算器状态中继续。保留 initial-B 的真实归档原始结果、步骤、截图和持久 notes；不得清空、重输旧值或重输旧算式。先观察屏幕当前值，再通过真实点击将屏幕结果加 17 并计算，观察确认当前值为 25。first_result 必须取自只读核对任务输出，该值来自绑定的 initial-B 原始任务输出；将观察到的屏幕结果作为 current_result 输出，并在持久 notes 中保留首次结果、更新当前结果。",
+            "inputs": {
+              "operation": "add_17_to_visible_screen_result",
+              "expected_current_result": "25",
+              "preserve_session": true,
+              "do_not_clear_or_reenter_prior_input": true
+            },
+            "input_sources": {
+              "first_result": {
+                "from_task": "39c245ac-9fa2-411e-82dc-866f4a21c339",
+                "key": "first_result"
+              }
+            },
+            "completion": [
+              {
+                "id": "session",
+                "description": "在与 initial-B 相同的 Role、Session、连接和计算器状态中继续，未清空或重输旧值或旧算式。",
+                "required": true
+              },
+              {
+                "id": "calculation",
+                "description": "已先观察屏幕当前值，再通过真实点击加 17；屏幕观察确认当前值为 25。",
+                "required": true
+              },
+              {
+                "id": "archive",
+                "description": "initial-B 的原始执行结果、步骤、截图和持久 notes 仍可在当前 Role/Session 中追溯，且本任务的原始执行结果、步骤和截图已归档。",
+                "required": true
+              },
+              {
+                "id": "memory",
+                "description": "持久 notes 保留来自 initial-B 原始证据的首次结果，并已更新为本次观察到的当前结果。",
+                "required": true
+              }
+            ],
+            "outputs_schema": {
+              "type": "object",
+              "properties": {
+                "first_result": {
+                  "type": "string"
+                },
+                "current_result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "first_result",
+                "current_result"
+              ],
+              "additionalProperties": false
+            },
+            "constraints": [
+              "只操作指定设备的计算器；不得用 shell 或其他方式替代真实点击计算。",
+              "当前值必须重新从屏幕观察；首次结果必须来自绑定 initial-B 原始任务输出的只读核对结果。",
+              "不得清空或重输旧值或旧算式。",
+              "不要重试有不确定副作用的操作。"
+            ],
+            "effect_policy": "verify_before_retry",
+            "execution_timeout_seconds": 900.0,
+            "verification_timeout_seconds": 600.0,
+            "settlement_timeout_seconds": 60.0,
+            "max_steps": 100
+          },
+          "depends_on": [
+            {
+              "task_id": "39c245ac-9fa2-411e-82dc-866f4a21c339",
+              "statuses": [
+                "failed"
+              ],
+              "check_id": null,
+              "verdict": "passed",
+              "output_key": "first_result",
+              "equals": null,
+              "max_age_seconds": null
+            }
+          ],
+          "dependency_mode": "all",
+          "expected_terminal_statuses": [
+            "succeeded"
+          ]
+        }
+      ],
+      "finish": false,
+      "missing_input": null,
+      "diagnostics": [],
+      "recoveries": [
+        {
+          "failed_task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+          "replacement_task_ids": [
+            "39c245ac-9fa2-411e-82dc-866f4a21c339"
+          ]
+        }
+      ],
+      "restart_roles": []
+    }
+  },
+  {
+    "observed_at": "2026-10-21T01:00:55.031320+00:00",
+    "kind": "model_proposal",
+    "proposal": {
+      "base_plan_revision": 3,
+      "tasks": [],
+      "finish": false,
+      "missing_input": null,
+      "diagnostics": [],
+      "recoveries": [],
+      "restart_roles": []
+    }
+  }
+]

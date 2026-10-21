@@ -1,0 +1,70 @@
+{
+  "attempt_id": "539c1251-5d51-48c7-9dbf-cfcd78e6ec3b",
+  "child_session_id": "f8062c70-c5fb-4071-b1b3-7799704c42e0",
+  "in_reply_to": null,
+  "kind": "execute",
+  "message_id": "547aa080-8df2-48d6-a554-4330f9fc66d2",
+  "payload": {
+    "completion": [
+      {
+        "description": "已在指定设备计算器中清空一次并通过真实点击计算 48÷6，屏幕观察结果为 8。",
+        "id": "calculation",
+        "required": true
+      },
+      {
+        "description": "当前 Role/Session 中保留本任务的原始执行结果、步骤和截图。",
+        "id": "archive",
+        "required": true
+      },
+      {
+        "description": "当前 Role/Session 的持久 notes 已记录从原始执行证据观察到的首次结果和当前结果。",
+        "id": "memory",
+        "required": true
+      }
+    ],
+    "constraints": [
+      "本次“历史/首次结果保留”指当前Role/Session真实已归档任务结果、步骤、截图和持久notes，不是计算器应用的历史记录界面，不要求打开该界面。首次结果必须来自这些原始执行证据或真实观察；需要报告当前值时重新观察屏幕，不得凭目标中的预填数值推断已完成。",
+      "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+      "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+      "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+      "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+      "只操作指定设备的计算器；不得用 shell 或其他方式替代真实点击计算。",
+      "结果必须来自屏幕观察；不得根据目标中的预填数值推断完成。",
+      "不要重试有不确定副作用的操作。"
+    ],
+    "effect_policy": "verify_before_retry",
+    "execution_timeout_seconds": 900.0,
+    "goal": "在设备 B 的计算器中清空一次，真实点击输入 48÷6 并执行计算。观察屏幕确认结果为 8；将观察到的结果作为 first_result 和 current_result 输出，并在当前 Role/Session 的持久 notes 中记录首次结果与当前结果。确认此任务的原始执行结果、步骤和截图归档在当前 Role/Session 中。",
+    "input_sources": {},
+    "inputs": {
+      "clear_once": true,
+      "expected_result": "8",
+      "expression": "48÷6"
+    },
+    "max_steps": 100,
+    "outputs_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "current_result": {
+          "type": "string"
+        },
+        "first_result": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "first_result",
+        "current_result"
+      ],
+      "type": "object"
+    },
+    "settlement_timeout_seconds": 60.0,
+    "verification_timeout_seconds": 600.0
+  },
+  "protocol_version": 1,
+  "role_id": "B",
+  "sequence": 2,
+  "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+  "worker_epoch": "d80e0348-188c-49ae-8973-5c79375dad96",
+  "workflow_id": "56961446-10b2-458b-9cd5-7c874c2b5ede"
+}

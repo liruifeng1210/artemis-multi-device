@@ -1,0 +1,422 @@
+{
+  "run": "mp-acceptance",
+  "tasks": [
+    {
+      "id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+      "name": "initial-A",
+      "role": "A",
+      "status": "succeeded",
+      "result": {
+        "current_result": "200",
+        "first_result": "200"
+      },
+      "observed_at": "2026-10-21T00:58:03.879096+00:00",
+      "native": null,
+      "contract": {
+        "passed": 3
+      },
+      "contract_file": "artifacts\\56961446\\traces\\a6ce58da\\tasks\\9dcb92ab\\4a8fe8c9\\contract_report.json",
+      "native_ledger": {
+        "passed": 6
+      },
+      "actions": 10,
+      "agent_durations": [
+        {
+          "name": "planner",
+          "status": "success",
+          "seconds": 41.80093550682068
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 25.31487488746643
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 1.3847413063049316
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.037580013275146484
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 23.60408329963684
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 1.2947142124176025
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.03817605972290039
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 26.33435845375061
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 1.2981736660003662
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.03664064407348633
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 22.2397563457489
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 1.3100237846374512
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.04086756706237793
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 29.171114206314087
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 1.3189125061035156
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.03983736038208008
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 55.73602819442749
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 1.340404987335205
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.038565635681152344
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 30.238046407699585
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 1.3436481952667236
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.0398716926574707
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 24.606396913528442
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 1.3726913928985596
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.04109764099121094
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 25.718748331069946
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 1.3643336296081543
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.039732933044433594
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 41.26684355735779
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 1.3550605773925781
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.03977060317993164
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 131.15210580825806
+        },
+        {
+          "name": "checker",
+          "status": "success",
+          "seconds": 110.3764340877533
+        },
+        {
+          "name": "outputter",
+          "status": "success",
+          "seconds": 32.854905128479004
+        },
+        {
+          "name": "checker",
+          "status": "success",
+          "seconds": 147.1565661430359
+        }
+      ]
+    },
+    {
+      "id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+      "name": "initial-B",
+      "role": "B",
+      "status": "failed",
+      "result": {
+        "current_result": "8",
+        "first_result": "8"
+      },
+      "observed_at": "2026-10-21T00:57:01.948099+00:00",
+      "native": null,
+      "contract": {
+        "failed": 1,
+        "passed": 2
+      },
+      "contract_file": "artifacts\\56961446\\traces\\f8062c70\\tasks\\ef8f9094\\539c1251\\contract_report.json",
+      "native_ledger": {
+        "passed": 4
+      },
+      "actions": 7,
+      "agent_durations": [
+        {
+          "name": "planner",
+          "status": "success",
+          "seconds": 77.26412868499756
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 24.60072684288025
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 0.6004509925842285
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.038110971450805664
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 26.686789512634277
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 0.567192554473877
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.038156986236572266
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 35.37039017677307
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 0.5260627269744873
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.037152767181396484
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 23.626784324645996
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 0.49500536918640137
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.0379788875579834
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 30.515411376953125
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 0.5362768173217773
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.03583073616027832
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 25.12314248085022
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 0.5164163112640381
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.03914213180541992
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 30.69137740135193
+        },
+        {
+          "name": "validator",
+          "status": "success",
+          "seconds": 0.5605213642120361
+        },
+        {
+          "name": "summarizer",
+          "status": "success",
+          "seconds": 0.03853201866149902
+        },
+        {
+          "name": "operator",
+          "status": "success",
+          "seconds": 73.82405853271484
+        },
+        {
+          "name": "checker",
+          "status": "success",
+          "seconds": 141.16415238380432
+        },
+        {
+          "name": "outputter",
+          "status": "success",
+          "seconds": 33.31433176994324
+        },
+        {
+          "name": "checker",
+          "status": "success",
+          "seconds": 201.45298552513123
+        }
+      ]
+    },
+    {
+      "id": "17b94e8b-6971-49ef-8a1d-86380a113a7e",
+      "name": "continue-A",
+      "role": "A",
+      "status": "not_executed",
+      "actions": 0,
+      "agent_durations": []
+    },
+    {
+      "id": "c186c432-c469-4be1-9094-d456e533a170",
+      "name": "continue-B",
+      "role": "B",
+      "status": "not_executed",
+      "actions": 0,
+      "agent_durations": []
+    },
+    {
+      "id": "39c245ac-9fa2-411e-82dc-866f4a21c339",
+      "name": "initial-B-reconcile",
+      "role": "B",
+      "status": "not_executed",
+      "actions": 0,
+      "agent_durations": []
+    }
+  ],
+  "co_results": null,
+  "status_counts": {
+    "succeeded": 1,
+    "failed": 1,
+    "not_executed": 3
+  },
+  "trace_count": 1094,
+  "running": [],
+  "owner_errors": [],
+  "device_gaps": [],
+  "check_owner_errors": [],
+  "check_metadata_gaps": 0,
+  "chunk_latest": {
+    "ready": 1
+  },
+  "terminal_reasons": {},
+  "process_metrics": {
+    "sample_interval_s": 5,
+    "samples": 197,
+    "first": "2026-10-21T00:43:47.357264+00:00",
+    "last": "2026-10-21T01:00:50.866669+00:00",
+    "method": "psutil current real interpreter plus recursive children; sampled RSS sum, not unique/private memory. Main venv launcher and shared adb daemon excluded; child venv launchers and transient CLI/conhost/ADB processes included when sampled. Nominal 5s; MP boundary capture can delay samples.",
+    "total_processes": {
+      "min": 1,
+      "median": 11,
+      "max": 17
+    },
+    "python_processes": {
+      "min": 1,
+      "median": 5,
+      "max": 5
+    },
+    "codex_processes": {
+      "min": 0,
+      "median": 2,
+      "max": 5
+    },
+    "summed_rss_bytes": {
+      "min": 169185280,
+      "median": 814489600,
+      "max": 1168195584
+    }
+  }
+}

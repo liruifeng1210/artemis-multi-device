@@ -1,0 +1,108 @@
+{
+  "protocol_only": true,
+  "real_device_acceptance": false,
+  "provider": "codex",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "xhigh",
+  "cli_timeout_seconds": 300,
+  "max_cli_invocations": 2,
+  "max_identity_corrections": 1,
+  "schema": {
+    "$defs": {
+      "DeclaredCheckVerdict": {
+        "properties": {
+          "item_text": {
+            "description": "Copy exactly one declared item_text enum value; no presentation wrappers or paraphrases.",
+            "enum": [
+              "[contract:synthetic_value] The synthetic record explicitly states value=7.",
+              "[contract:synthetic_label] The synthetic record explicitly states label=blue."
+            ],
+            "title": "Item Text",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "verify",
+              "assert"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "inconclusive"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "evidence": {
+            "description": "Concrete observation backing the verdict: a probe output, note excerpt, or screenshot element. Vague evidence invalidates a failed verdict.",
+            "title": "Evidence",
+            "type": "string"
+          },
+          "suggestion": {
+            "default": "",
+            "description": "For failed verify items only: actionable repair hint.",
+            "title": "Suggestion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_text",
+          "kind",
+          "status",
+          "evidence"
+        ],
+        "title": "DeclaredCheckVerdict",
+        "type": "object"
+      }
+    },
+    "properties": {
+      "verdicts": {
+        "items": {
+          "$ref": "#/$defs/DeclaredCheckVerdict"
+        },
+        "title": "Verdicts",
+        "type": "array"
+      },
+      "unmet_subgoals": {
+        "description": "Final check only: plan subgoals (quoted verbatim) marked complete whose verify criteria are demonstrably unmet.",
+        "items": {
+          "type": "string"
+        },
+        "title": "Unmet Subgoals",
+        "type": "array"
+      }
+    },
+    "title": "DeclaredCheckReport",
+    "type": "object"
+  },
+  "passed": true,
+  "report": {
+    "verdicts": [
+      {
+        "item_text": "[contract:synthetic_value] The synthetic record explicitly states value=7.",
+        "kind": "verify",
+        "status": "passed",
+        "evidence": "Synthetic record states value=7.",
+        "suggestion": ""
+      },
+      {
+        "item_text": "[contract:synthetic_label] The synthetic record explicitly states label=blue.",
+        "kind": "verify",
+        "status": "failed",
+        "evidence": "Synthetic record states label=red.",
+        "suggestion": "Correct the record to state label=blue, or update the declared item if red is intended."
+      }
+    ],
+    "unmet_subgoals": []
+  },
+  "cli_invocations": 1,
+  "callback_starts": 1,
+  "callback_ends": 1,
+  "trace_count": 1,
+  "session_id": "09a4d724-490b-4a64-98c5-927167cff480",
+  "parent_trace_id": "42bf6042-e4c4-4b88-bc1b-9fec97157bd9"
+}

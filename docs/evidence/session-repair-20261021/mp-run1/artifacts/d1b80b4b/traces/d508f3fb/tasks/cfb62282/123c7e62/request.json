@@ -1,0 +1,37 @@
+{
+  "completion": [
+    {
+      "description": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+      "id": "screen_shows_200",
+      "required": true
+    }
+  ],
+  "constraints": [
+    "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+    "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+    "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+    "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+    "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+    "首次结果和当前结果均记录为屏幕实际显示值。"
+  ],
+  "effect_policy": "verify_before_retry",
+  "execution_timeout_seconds": 900.0,
+  "goal": "在当前A计算器会话中清空一次，输入125+75并按等号。记录首次结果和当前结果。",
+  "input_sources": {},
+  "inputs": {},
+  "max_steps": 100,
+  "outputs_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "result": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "result"
+    ],
+    "type": "object"
+  },
+  "settlement_timeout_seconds": 60.0,
+  "verification_timeout_seconds": 600.0
+}

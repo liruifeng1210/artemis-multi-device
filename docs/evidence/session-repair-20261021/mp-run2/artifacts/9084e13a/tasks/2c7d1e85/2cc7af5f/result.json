@@ -1,0 +1,41 @@
+{
+  "artifact_refs": [
+    "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract_report.json",
+    "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract-screen.jpg"
+  ],
+  "blocker": null,
+  "checks": [
+    {
+      "evidence": "no verdict produced for this item",
+      "evidence_refs": [
+        "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract_report.json",
+        "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract-screen.jpg"
+      ],
+      "id": "continue_calc",
+      "verdict": "inconclusive"
+    },
+    {
+      "evidence": "no verdict produced for this item",
+      "evidence_refs": [
+        "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract_report.json",
+        "tasks\\2c7d1e85-9a34-4b60-8f12-526941b30403\\2cc7af5f-4b61-43d7-8506-e1727b8a0fb8\\contract-screen.jpg"
+      ],
+      "id": "record_values",
+      "verdict": "inconclusive"
+    }
+  ],
+  "error": null,
+  "observations": [],
+  "observed_at": "2026-10-20T23:42:59.799875+00:00",
+  "outputs": {
+    "result": "600"
+  },
+  "session_reusable": true,
+  "side_effect_state": "confirmed",
+  "status": "blocked",
+  "step_range": {
+    "first": 12,
+    "last": 15
+  },
+  "suggested_next_actions": []
+}

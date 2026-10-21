@@ -1,0 +1,19 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "最终截图显示表达式600+10及结果=610。执行历史记录了点击加号、1、0和等号；两份Role notes记录加10前重新观察到=600，且没有清空或重输旧值/算式。",
+      "item_text": "[contract:add_ten] 取消后重新观察实际屏幕值，直接加10并按等号，观察到并记录真实新屏幕结果。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "A_role_calc_continuation和A_role_calc_add10_result均记载首次结果为200，并引用A_role_first_calc_result、A自己的原始任务记录及125+75显示=200的原始执行证据；两份notes也记录取消后观察到=600、最终实时截图显示600+10及=610。",
+      "item_text": "[contract:report_values] 仅依据A自身原始执行证据报告首次计算结果；依据真实观察报告当前结果，并更新A的Role持久notes。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    }
+  ]
+}

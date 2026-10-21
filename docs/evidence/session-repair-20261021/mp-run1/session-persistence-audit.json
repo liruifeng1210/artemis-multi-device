@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "source_revision": "9259864",
+  "method": "Read-only audit of completed run1 database, paginated inspection events, and existing notes; no source results modified.",
+  "sessions": [
+    {
+      "role": "A",
+      "session_id": "d508f3fb-6bf0-4e64-bb70-e11f65c1c112",
+      "stored_session_status": "cancelled",
+      "end_time_persisted": true,
+      "last_action_step": 8,
+      "settled_transcript": {
+        "snapshot_id": "f5e316fc-c2bc-4060-9210-a655f62fd309",
+        "source_relative_path": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb/events.jsonl",
+        "total_messages": 49,
+        "pages": [
+          {
+            "offset": 0,
+            "count": 10
+          },
+          {
+            "offset": 10,
+            "count": 39
+          }
+        ],
+        "full_page_coverage": true,
+        "capture_truncated": false,
+        "has_staged_turn": false,
+        "message_content_sha256": "f776648b56086dbd3f0c8a29f0ed0bec5c70e253b96ed4d03db651d7e72cc1c7",
+        "last_message_type": "tool",
+        "last_tool_name": "update_note",
+        "last_tool_status": "success"
+      },
+      "last_model_exchange": {
+        "trace_id": "01a15b81-bf46-75a2-81c5-e845e668c22f",
+        "status": "success",
+        "messages_count": 9,
+        "response_payload_nonempty": true
+      },
+      "latest_persisted_chunks": [
+        {
+          "chunk_id": "3b86b97f-f023-4d67-b24a-0e166bce184a",
+          "start_step": 1,
+          "end_step": 3,
+          "version": 2,
+          "status": "ready",
+          "summary_payload_nonempty": true,
+          "rendered_text_nonempty": true
+        }
+      ]
+    },
+    {
+      "role": "B",
+      "session_id": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+      "stored_session_status": "cancelled",
+      "end_time_persisted": true,
+      "last_action_step": 11,
+      "settled_transcript": {
+        "snapshot_id": "4b5f91cf-7ab6-4816-bf67-874169dea334",
+        "source_relative_path": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb/events.jsonl",
+        "total_messages": 46,
+        "pages": [
+          {
+            "offset": 0,
+            "count": 10
+          },
+          {
+            "offset": 10,
+            "count": 36
+          }
+        ],
+        "full_page_coverage": true,
+        "capture_truncated": false,
+        "has_staged_turn": false,
+        "message_content_sha256": "681454f655e83be096f6524693563c0b4eec27664708e8c7e9aa932f12a3dd94",
+        "last_message_type": "tool",
+        "last_tool_name": "update_note",
+        "last_tool_status": "success"
+      },
+      "last_model_exchange": {
+        "trace_id": "01a15b88-c39a-70e3-aa24-da0d2cb08858",
+        "status": "success",
+        "messages_count": 10,
+        "response_payload_nonempty": true
+      },
+      "latest_persisted_chunks": [
+        {
+          "chunk_id": "bd22a9a2-0f92-4a7e-a732-0369fb7d9fe0",
+          "start_step": 1,
+          "end_step": 3,
+          "version": 2,
+          "status": "ready",
+          "summary_payload_nonempty": true,
+          "rendered_text_nonempty": true
+        },
+        {
+          "chunk_id": "1a430a15-cc6c-4c75-8512-4021d4d6feba",
+          "start_step": 4,
+          "end_step": 6,
+          "version": 2,
+          "status": "ready",
+          "summary_payload_nonempty": true,
+          "rendered_text_nonempty": true
+        }
+      ]
+    }
+  ],
+  "persisted_business_notes": [
+    {
+      "role": "B",
+      "relative_path": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb/traces/26ba958c-bc03-4eb6-8a8d-0db660cb5eb6/notes/calculator_result.md",
+      "values": {
+        "first_result": "8",
+        "current_result": "8"
+      },
+      "sha256": "7e32d4f7d3421537c09a8fc00bbc45fb8294e483349031393288b1e3bec58092"
+    },
+    {
+      "role": "B",
+      "relative_path": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb/traces/26ba958c-bc03-4eb6-8a8d-0db660cb5eb6/notes/calculator_continuation_result.md",
+      "values": {
+        "first_result": "8",
+        "current_result": "25"
+      },
+      "sha256": "6b28d2d2c00690fa128b3ca821b721c7b59b68ad0dc882d51ba4be0ef4e0f2b9"
+    },
+    {
+      "role": "A",
+      "relative_path": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb/traces/d508f3fb-6bf0-4e64-bb70-e11f65c1c112/notes/calculator_result.md",
+      "values": {
+        "current_result": "200"
+      },
+      "sha256": "74d307d38233c6c3d96e5dfaea9acc0ddb4f40c15e7942c60eb65530d5c776d9"
+    }
+  ],
+  "compression_trace_records": [
+    {
+      "trace_id": "7380cc09-3dd5-4cec-993f-3d801baa0b67",
+      "role": "A",
+      "status": "failed",
+      "phase": "summarizing",
+      "start_step": 1,
+      "end_step": 3,
+      "forced": false,
+      "termination_reason": "task_producers_settled_without_trace_completion",
+      "reported_fallback_before_summary_ready": false
+    },
+    {
+      "trace_id": "9ae30a7f-cf20-4bd1-a53b-7d987757fc30",
+      "role": "B",
+      "status": "success",
+      "phase": "applied",
+      "start_step": 1,
+      "end_step": 3,
+      "forced": true,
+      "termination_reason": null,
+      "reported_fallback_before_summary_ready": true
+    },
+    {
+      "trace_id": "8b3e28dd-0e0c-4870-bde2-1eaf5acf3b44",
+      "role": "B",
+      "status": "failed",
+      "phase": "summarizing",
+      "start_step": 4,
+      "end_step": 6,
+      "forced": false,
+      "termination_reason": "task_producers_settled_without_trace_completion",
+      "reported_fallback_before_summary_ready": false
+    }
+  ],
+  "running_trace_count": 0,
+  "close": {
+    "workers_exited_zero": true,
+    "all_graceful": true,
+    "all_leases_released": true,
+    "cleanup_errors": []
+  },
+  "limits": [
+    "Full final native dialogue is persisted in inspection-event pages and model exchanges. This is not proof that every final dialogue turn was summarized or loaded into a later model context.",
+    "The three latest chunk ranges have nonempty ready summaries. Two boundary-finalized failed compression traces do not establish summary-generation failure.",
+    "One B step-1-to-3 trace records applied context folding before its summary was ready; this proves a fallback fold, not that all later ready capsules were applied.",
+    "The latest completed action steps A8 and B11 are beyond the persisted chunk ranges; their final dialogue remains evidenced by persisted transcript pages, model exchanges and notes.",
+    "Stored Session status cancelled accompanies workflow blocked shutdown in this run; close evidence records graceful exits and released leases, and does not establish the planned exact-task cancellation scenario was exercised."
+  ]
+}

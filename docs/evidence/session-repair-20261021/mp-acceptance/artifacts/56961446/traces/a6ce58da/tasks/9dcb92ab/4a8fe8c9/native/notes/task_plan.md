@@ -1,0 +1,17 @@
+- [x] In device A's visible calculator, tap C exactly once, enter 125+75 with keypad taps, tap =, and observe the displayed result
+  - [x] Tap C once to clear the current expression
+  - [x] Enter 125+75 with keypad taps
+  - [x] Tap = to execute the calculation and confirm the result; the post-tap screenshot shows 200
+    - [x] Tap 7; the display now reads 125+7
+    - [x] Remove trailing 7; display now 125+
+    - [x] Enter first digit 7; display now 125+7
+    - [x] Enter final digit 5; screen shows 125+75 = 200
+  - verify: The calculator display visibly shows 200 after the entered expression
+- [x] Preserve this task's original execution result, action steps, and screenshot in the current Role/Session archive
+  - verify: The current Role/Session archive contains the execution result, steps, and screenshot for this run
+- [x] Re-observe the calculator display and record the evidence-based first_result and current_result in persistent note `calc_125_75_results`; return both as scalar string outputs
+  - [x] Save first_result and current_result from the observed screenshots to the persistent note
+  - verify: Persistent notes record both values from this run's recorded evidence, and current_result comes from a fresh screen observation
+- assert@end: 已在指定设备计算器中清空一次并通过真实点击计算 125+75，屏幕观察结果为 200。
+- assert@end: 当前 Role/Session 中保留本任务的原始执行结果、步骤和截图。
+- assert@end: 当前 Role/Session 的持久 notes 已记录从原始执行证据观察到的首次结果和当前结果。

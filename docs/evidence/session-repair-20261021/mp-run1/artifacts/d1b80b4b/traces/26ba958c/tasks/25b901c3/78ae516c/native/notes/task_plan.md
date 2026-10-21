@@ -1,0 +1,10 @@
+- [x] Continue in B's existing calculator session from the current on-screen result 8 (`48÷6`): confirm the actual screen still shows 8, then use real UI clicks to tap `+`, `1`, `7`, and `=` without clearing or re-entering the old value or expression; if the screen differs or an action outcome is uncertain, stop and report the observed state.
+  - [x] Continue from the displayed result 8 and enter +17
+    - [x] Tap +; the display now shows 8+
+    - [x] Tap 1; the display now shows 8+1
+    - [x] Tap 7; the display now shows 8+17 with preview 25
+    - [x] Tap equals; the current screen shows 25
+- [x] Verify the screen shows 25 and confirm the first result 8 remains in B's history; record both results and completion evidence in `calculator_continuation_result`.
+  - [x] Current screenshot shows 25; the prior completed task records first result 8 in B's calculator history, and both results are recorded in `calculator_continuation_result`.
+  - verify: The current screen shows 25 after continuing from the existing result 8, and B's history retains the first result 8.
+- assert@end: [contract:screen_shows_25] 在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。

@@ -1,0 +1,47 @@
+[
+  {
+    "path": "acceptance-summary.json",
+    "bytes": 10863,
+    "sha256": "2ceffb6bdef6778948b7f8d2008b74e9476530a1854986492737ce314db40714"
+  },
+  {
+    "path": "architecture-counts-at-device-source.json",
+    "bytes": 206,
+    "sha256": "7462d712f84d719d21fb0c30b95bb6f77ee402b1983ce5514ff673e62852a63a"
+  },
+  {
+    "path": "architecture-counts-final.json",
+    "bytes": 206,
+    "sha256": "faecfa3dd534941f744951e26859179e3522ecdba20e8a8d9a303b5fb4249f2a"
+  },
+  {
+    "path": "checker-codex-protocol-smoke.py",
+    "bytes": 6968,
+    "sha256": "b444a2252203aa948616f1522ea956a233111ab88e127a3363ebfe38bb15570b"
+  },
+  {
+    "path": "dependency-regression-result.txt",
+    "bytes": 101,
+    "sha256": "75826a33bb82f15fb37207e927260ca2b41fa72a0dca65cd7dc56285bd1d7551"
+  },
+  {
+    "path": "dependency-regression.json",
+    "bytes": 1189,
+    "sha256": "dd8b85cb6feee5597a2cae2de65412f17905da5aa8f6f7c680ca72bc7a82644c"
+  },
+  {
+    "path": "protocol-config.json",
+    "bytes": 2452,
+    "sha256": "acf1efa6a5eeba3416298de78c5e01c5a1f9958ccf60657c55fc4ce7eb396f7d"
+  },
+  {
+    "path": "protocol-summary.json",
+    "bytes": 3365,
+    "sha256": "4902c8cf72fbd0dec60e620e7cf287b30ddf500295f482aa1ae08cfe5d9fb2da"
+  },
+  {
+    "path": "regression-summary.json",
+    "bytes": 10185,
+    "sha256": "fd5c800fa0bde44ffff83147dab27ba4f9cd484f3d2cdbf64034f41f9972c87d"
+  }
+]

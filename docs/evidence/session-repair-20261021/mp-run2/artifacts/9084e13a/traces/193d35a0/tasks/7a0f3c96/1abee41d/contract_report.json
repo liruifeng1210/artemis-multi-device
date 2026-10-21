@@ -1,0 +1,19 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "Step 8 屏幕观察记录显示计算器原有算式 48÷6、结果 8；Step 8–11 记录依次点击加号、输入 1、输入 7、点击等号。最终附图显示 8+17 和大号结果 25。读取到的 B_role_first_calc_result note 也记录本次操作未清空或重输旧值/算式。",
+      "item_text": "[contract:continue_calc] 在同一子Session观察屏幕后直接将显示值加17并按等号，屏幕实际显示25；未清空或重输旧值/算式。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "read_note 返回的 B_role_first_calc_result 保留首次结果 8 及 Step 1–6 的执行步骤和截图依据；其追加内容记录当前结果 25、Step 8–11 的操作回执及 T+20:12 屏幕观察依据。",
+      "item_text": "[contract:record_values] 依据本Role原始执行证据记下首次结果和当前结果，并更新B的Role持久notes。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    }
+  ]
+}

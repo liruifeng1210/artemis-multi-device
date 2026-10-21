@@ -1,0 +1,6 @@
+{
+  "commit": "2d0d1afb119c5f3fa373bc2e6f50ca62a3a3356a",
+  "status": "",
+  "scenario": "all",
+  "command": "python -u examples/calculator_main_comparison.py --scenario all --output <LOCAL_EVIDENCE>/mp-repair-20261021/run2"
+}

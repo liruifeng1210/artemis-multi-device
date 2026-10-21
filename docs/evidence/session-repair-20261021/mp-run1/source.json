@@ -1,0 +1,10 @@
+{
+  "as_run_sha": "9259864b96dcb1a8a4838ad991b80ec1afdb0fa9",
+  "dirty": [],
+  "recorded_at": "2026-10-20T22:40:57.081835+00:00",
+  "command": "python -u examples/calculator_main_comparison.py --scenario all --output <LOCAL_EVIDENCE>/mp-repair-20261021/run1",
+  "development_design": "gpt-6-astra/high",
+  "development_implementation": "gpt-6.1-sol/high",
+  "runtime_model": "codex/gpt-6-luna/xhigh",
+  "manual_device_actions": []
+}

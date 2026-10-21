@@ -1,0 +1,465 @@
+{
+  "schema_version": 2,
+  "audit_utc": "2026-10-21T00:32:19.499095+00:00",
+  "closed_run": true,
+  "live_snapshot": false,
+  "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+  "source_revision": "2d0d1afb119c5f3fa373bc2e6f50ca62a3a3356a",
+  "summary": {
+    "final_checker_count": 15,
+    "inspected_llm_input_count": 29,
+    "checkers_without_persisted_model_inputs": 7
+  },
+  "checks": [
+    {
+      "checker_trace_id": "79487ae7-5b6f-4ea7-b4d5-98a82839be97",
+      "role_id": "B",
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "4b6e2a91-5c73-4f08-b2d4-713850a20402",
+      "attempt_id": "d1531037-0f45-4b4d-9563-21eb737686e8",
+      "checker_status": "success",
+      "phase": "native_final",
+      "llm_trace_ids": [
+        "01a15ba4-5102-7a03-a879-f5b8cc61383e",
+        "01a15ba4-bffc-7942-8d03-6c04488560a6",
+        "01a15ba5-b8db-7320-a407-b3ed56dc07a9",
+        "01a15ba6-211d-7042-a345-a434a562d0d7",
+        "01a15ba6-9992-77c2-859e-9bc8e11a69f1"
+      ],
+      "inspected_llm_input_count": 5,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 5
+        }
+      ],
+      "model_input_audited": true,
+      "normalized_verdict_counts": {
+        "passed": 4
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "275f9a65-c5e7-4854-8105-10c4ff9412eb",
+      "role_id": "A",
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "8f9a3b42-6e17-4d20-a5c1-921730a10401",
+      "attempt_id": "908bf92b-6ca3-4044-a0f6-1d0af701496f",
+      "checker_status": "success",
+      "phase": "native_final",
+      "llm_trace_ids": [
+        "01a15ba6-df13-77c3-9154-821ac46bfa90",
+        "01a15ba7-5b8f-71c2-a785-810c2c715a35",
+        "01a15ba8-4da7-7571-9d4c-cdc93e9cd031"
+      ],
+      "inspected_llm_input_count": 3,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 3
+        }
+      ],
+      "model_input_audited": true,
+      "normalized_verdict_counts": {
+        "passed": 3,
+        "inconclusive": 1
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "0219085f-d0f0-4533-ada5-ffab5b1417ee",
+      "role_id": "B",
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "4b6e2a91-5c73-4f08-b2d4-713850a20402",
+      "attempt_id": "d1531037-0f45-4b4d-9563-21eb737686e8",
+      "checker_status": "success",
+      "phase": "contract",
+      "llm_trace_ids": [],
+      "inspected_llm_input_count": 0,
+      "source_observation_counts": [],
+      "model_input_audited": false,
+      "report_artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/tasks/4b6e2a91-5c73-4f08-b2d4-713850a20402/d1531037-0f45-4b4d-9563-21eb737686e8/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 2
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "aca8aeb2-9fbc-4919-a173-cfe1333cf43d",
+      "role_id": "A",
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "8f9a3b42-6e17-4d20-a5c1-921730a10401",
+      "attempt_id": "908bf92b-6ca3-4044-a0f6-1d0af701496f",
+      "checker_status": "success",
+      "phase": "contract",
+      "llm_trace_ids": [],
+      "inspected_llm_input_count": 0,
+      "source_observation_counts": [],
+      "model_input_audited": false,
+      "report_artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/628da0c0-9792-4948-b07c-0fc2a960ba67/tasks/8f9a3b42-6e17-4d20-a5c1-921730a10401/908bf92b-6ca3-4044-a0f6-1d0af701496f/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 2
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "a3e614b1-54a0-436c-9c21-910e85037aa0",
+      "role_id": "A",
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "2c7d1e85-9a34-4b60-8f12-526941b30403",
+      "attempt_id": "2cc7af5f-4b61-43d7-8506-e1727b8a0fb8",
+      "checker_status": "success",
+      "phase": "native_final",
+      "llm_trace_ids": [
+        "01a15bae-c22f-7840-acfd-01d3dd12351a",
+        "01a15baf-4729-7502-a4bc-2d3a573d44df",
+        "01a15baf-b401-71b0-87bd-1249b5d8fc32"
+      ],
+      "inspected_llm_input_count": 3,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 3
+        }
+      ],
+      "model_input_audited": true,
+      "normalized_verdict_counts": {
+        "passed": 3
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "98c0a78c-6f05-4bce-92ab-cbfad71079d0",
+      "role_id": "B",
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "7a0f3c96-1d52-4e81-a6b9-934762c40504",
+      "attempt_id": "1abee41d-f39a-414d-9e0e-b58b1c97258b",
+      "checker_status": "success",
+      "phase": "native_final",
+      "llm_trace_ids": [
+        "01a15baf-656d-7683-8efc-6f4b80012e8c",
+        "01a15baf-b5ac-78b0-91f2-1514724e5388",
+        "01a15bb0-2f66-7270-96a7-302c3b8215cc"
+      ],
+      "inspected_llm_input_count": 3,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 3
+        }
+      ],
+      "model_input_audited": true,
+      "normalized_verdict_counts": {
+        "passed": 4,
+        "inconclusive": 1
+      },
+      "synthetic_missing_identity_count": 1,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "a803c7c6-c7ad-4713-9504-4671830a8248",
+      "role_id": "A",
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "2c7d1e85-9a34-4b60-8f12-526941b30403",
+      "attempt_id": "2cc7af5f-4b61-43d7-8506-e1727b8a0fb8",
+      "checker_status": "success",
+      "phase": "contract",
+      "llm_trace_ids": [],
+      "inspected_llm_input_count": 0,
+      "source_observation_counts": [],
+      "model_input_audited": false,
+      "report_artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/628da0c0-9792-4948-b07c-0fc2a960ba67/tasks/2c7d1e85-9a34-4b60-8f12-526941b30403/2cc7af5f-4b61-43d7-8506-e1727b8a0fb8/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 2,
+        "inconclusive": 2
+      },
+      "synthetic_missing_identity_count": 2,
+      "passed_with_timing_only_prefix_count": 2,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "5da078ca-98ae-42ce-807b-8311796e45f0",
+      "role_id": "B",
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "7a0f3c96-1d52-4e81-a6b9-934762c40504",
+      "attempt_id": "1abee41d-f39a-414d-9e0e-b58b1c97258b",
+      "checker_status": "success",
+      "phase": "contract",
+      "llm_trace_ids": [],
+      "inspected_llm_input_count": 0,
+      "source_observation_counts": [],
+      "model_input_audited": false,
+      "report_artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/tasks/7a0f3c96-1d52-4e81-a6b9-934762c40504/1abee41d-f39a-414d-9e0e-b58b1c97258b/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 2
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "897e4b6c-8e1f-4601-a747-7ea51231aec7",
+      "role_id": "B",
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "e2f9b5d8-4c37-40a6-8d14-296385e60706",
+      "attempt_id": "877a12b9-378e-471e-ac45-69d097fb080e",
+      "checker_status": "success",
+      "phase": "native_final",
+      "llm_trace_ids": [
+        "01a15bb6-e705-7d00-922c-4eba4b6ac011",
+        "01a15bb7-51f2-7353-a479-6c946ad34424",
+        "01a15bb7-c095-70f3-a3f6-86a217c2aba1",
+        "01a15bb8-3774-7451-9bd0-5568a7ef9171"
+      ],
+      "inspected_llm_input_count": 4,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 4
+        }
+      ],
+      "model_input_audited": true,
+      "normalized_verdict_counts": {
+        "passed": 3
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "faff6bdf-b951-432a-a0b1-060e349f7bd6",
+      "role_id": "B",
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "e2f9b5d8-4c37-40a6-8d14-296385e60706",
+      "attempt_id": "877a12b9-378e-471e-ac45-69d097fb080e",
+      "checker_status": "success",
+      "phase": "contract",
+      "llm_trace_ids": [],
+      "inspected_llm_input_count": 0,
+      "source_observation_counts": [],
+      "model_input_audited": false,
+      "report_artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/tasks/e2f9b5d8-4c37-40a6-8d14-296385e60706/877a12b9-378e-471e-ac45-69d097fb080e/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 2
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "75592092-e5f4-455a-8e73-566df597294b",
+      "role_id": "A",
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "f3a0c6e9-5d48-41b7-9e25-307496f70807",
+      "attempt_id": "bb5f982d-02b2-40c8-8680-002831f896b3",
+      "checker_status": "success",
+      "phase": "native_final",
+      "llm_trace_ids": [
+        "01a15bb9-3c0f-75a2-a5ce-c2817bf3fb2e",
+        "01a15bb9-ae47-7091-b3cc-68e9373f89ad",
+        "01a15bba-3ed2-7dc3-b514-16a0d657d287",
+        "01a15bba-d274-73b1-baf9-492ee858fc4c"
+      ],
+      "inspected_llm_input_count": 4,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 4
+        }
+      ],
+      "model_input_audited": true,
+      "normalized_verdict_counts": {
+        "passed": 3
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "86187cac-bf0b-485d-b5b7-3e3fa559fed8",
+      "role_id": "A",
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "f3a0c6e9-5d48-41b7-9e25-307496f70807",
+      "attempt_id": "bb5f982d-02b2-40c8-8680-002831f896b3",
+      "checker_status": "success",
+      "phase": "contract",
+      "llm_trace_ids": [],
+      "inspected_llm_input_count": 0,
+      "source_observation_counts": [],
+      "model_input_audited": false,
+      "report_artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/628da0c0-9792-4948-b07c-0fc2a960ba67/tasks/f3a0c6e9-5d48-41b7-9e25-307496f70807/bb5f982d-02b2-40c8-8680-002831f896b3/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 2
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "743fc6dd-9a0d-41c7-9ee6-e7a744aa23f4",
+      "role_id": "B",
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "a4b1d7f0-6e59-42c8-8f36-418507a80908",
+      "attempt_id": "18979a68-0fa0-43e7-a2c0-5bc13fcbb146",
+      "checker_status": "success",
+      "phase": "native_final",
+      "llm_trace_ids": [
+        "01a15bbd-50ed-7111-9c6f-04aa66876ef1",
+        "01a15bbd-cb0d-7a63-ac7b-eabb1fdc94cb",
+        "01a15bbe-38d7-76d1-b59f-4f7b65098570",
+        "01a15bbe-f0f8-7753-9050-5ae33adec46a"
+      ],
+      "inspected_llm_input_count": 4,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 4
+        }
+      ],
+      "model_input_audited": true,
+      "normalized_verdict_counts": {
+        "passed": 2,
+        "inconclusive": 1
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "b7164952-d287-4c76-80bb-68e158c326fa",
+      "role_id": "B",
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "a4b1d7f0-6e59-42c8-8f36-418507a80908",
+      "attempt_id": "18979a68-0fa0-43e7-a2c0-5bc13fcbb146",
+      "checker_status": "success",
+      "phase": "contract",
+      "llm_trace_ids": [],
+      "inspected_llm_input_count": 0,
+      "source_observation_counts": [],
+      "model_input_audited": false,
+      "report_artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/tasks/a4b1d7f0-6e59-42c8-8f36-418507a80908/18979a68-0fa0-43e7-a2c0-5bc13fcbb146/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 3
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    },
+    {
+      "checker_trace_id": "2f7b695e-5f92-4b7a-8cf7-c6981c39587e",
+      "role_id": "A",
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "b62f7e40-9c13-4a81-9d56-2f087b63e209",
+      "attempt_id": "1de9e7f8-babd-4a4e-a02c-2b464a5d4f21",
+      "checker_status": "cancelled",
+      "phase": "native_final",
+      "llm_trace_ids": [
+        "01a15bdd-6504-7082-bc4d-d6e303e9247b",
+        "01a15bdd-dd4e-71b2-99cf-2815c42b2f79",
+        "01a15bde-70b9-7cf3-80a3-4e86110b759e"
+      ],
+      "inspected_llm_input_count": 3,
+      "source_observation_counts": [
+        {
+          "observation": {
+            "source_markers": [
+              "OCR is not configured; inspect the attached screenshot directly.",
+              "Device hierarchy omitted because its freshness is not guaranteed."
+            ],
+            "section_line_count": 1,
+            "same_human_message_image_count": 1,
+            "section_equals_whitelisted_screenshot_only_message": true,
+            "same_image_ocr_marker_present": false
+          },
+          "count": 3
+        }
+      ],
+      "model_input_audited": true,
+      "normalized_verdict_counts": {},
+      "synthetic_missing_identity_count": 0,
+      "passed_with_timing_only_prefix_count": 0,
+      "failed_without_evidence_downgrade_count": 0
+    }
+  ],
+  "limits": [
+    "No complete prompt, reasoning, screenshot bytes, OCR strings, device identifier or note content exported.",
+    "Only model_input_audited checks have directly inspected persisted inputs. Report counts do not establish that missing model inputs were captured.",
+    "Raw passed counts are not declared-item coverage. Additional mismatched passed identities and synthetic missing-item inconclusives remain distinct.",
+    "Same-image OCR is real-run coverage only where its actual marker appears; unconfigured OCR verifies screenshot-only input.",
+    "The earlier live audit is preserved separately; its detailed run-specific identity diagnoses are not retroactively rewritten."
+  ]
+}

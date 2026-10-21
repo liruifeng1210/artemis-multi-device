@@ -1,0 +1,138 @@
+[
+  {
+    "public_path": "artifacts/56961446/plan.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/plan.json"
+  },
+  {
+    "public_path": "artifacts/56961446/result.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/result.json"
+  },
+  {
+    "public_path": "artifacts/56961446/roles/A/worker.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/roles/A/worker.json"
+  },
+  {
+    "public_path": "artifacts/56961446/roles/B/worker.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/roles/B/worker.json"
+  },
+  {
+    "public_path": "artifacts/56961446/tasks/9dcb92ab/4a8fe8c9/request.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/request.json"
+  },
+  {
+    "public_path": "artifacts/56961446/tasks/9dcb92ab/4a8fe8c9/result.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/result.json"
+  },
+  {
+    "public_path": "artifacts/56961446/tasks/ef8f9094/539c1251/request.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/request.json"
+  },
+  {
+    "public_path": "artifacts/56961446/tasks/ef8f9094/539c1251/result.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/result.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/a6ce58da/notes/calc_125_75_results.md",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/notes/calc_125_75_results.md"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/a6ce58da/tasks/9dcb92ab/4a8fe8c9/accepted.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/accepted.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/a6ce58da/tasks/9dcb92ab/4a8fe8c9/contract-screen.jpg",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/contract-screen.jpg"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/a6ce58da/tasks/9dcb92ab/4a8fe8c9/contract_report.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/contract_report.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/a6ce58da/tasks/9dcb92ab/4a8fe8c9/manifest.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/manifest.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/a6ce58da/tasks/9dcb92ab/4a8fe8c9/native/notes/output.md",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/native/notes/output.md"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/a6ce58da/tasks/9dcb92ab/4a8fe8c9/native/notes/task_plan.md",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/native/notes/task_plan.md"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/a6ce58da/tasks/9dcb92ab/4a8fe8c9/native/run_outcome.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/native/run_outcome.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/a6ce58da/tasks/9dcb92ab/4a8fe8c9/request.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/request.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/a6ce58da/tasks/9dcb92ab/4a8fe8c9/result.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/tasks/9dcb92ab-b119-4959-88f7-0e8d047ab21d/4a8fe8c9-a448-4547-b2f8-7e051678a46a/result.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/f8062c70/notes/calculator_b_result_record.md",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/notes/calculator_b_result_record.md"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/f8062c70/tasks/ef8f9094/539c1251/accepted.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/accepted.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/f8062c70/tasks/ef8f9094/539c1251/contract-screen.jpg",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/contract-screen.jpg"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/f8062c70/tasks/ef8f9094/539c1251/contract_report.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/contract_report.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/f8062c70/tasks/ef8f9094/539c1251/manifest.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/manifest.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/f8062c70/tasks/ef8f9094/539c1251/native/notes/output.md",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/native/notes/output.md"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/f8062c70/tasks/ef8f9094/539c1251/native/notes/task_plan.md",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/native/notes/task_plan.md"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/f8062c70/tasks/ef8f9094/539c1251/native/run_outcome.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/native/run_outcome.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/f8062c70/tasks/ef8f9094/539c1251/request.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/request.json"
+  },
+  {
+    "public_path": "artifacts/56961446/traces/f8062c70/tasks/ef8f9094/539c1251/result.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/tasks/ef8f9094-bced-4cb7-9169-e9d3c6957f81/539c1251-5d51-48c7-9dbf-cfcd78e6ec3b/result.json"
+  },
+  {
+    "public_path": "artifacts/56961446/workflow.json",
+    "original_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/workflow.json"
+  },
+  {
+    "public_path": "artifacts/boundaries/9dcb92ab/result.json",
+    "original_relative_path": "boundaries/9dcb92ab-b119-4959-88f7-0e8d047ab21d/result.json"
+  },
+  {
+    "public_path": "artifacts/boundaries/ef8f9094/result.json",
+    "original_relative_path": "boundaries/ef8f9094-bced-4cb7-9169-e9d3c6957f81/result.json"
+  },
+  {
+    "public_path": "artifacts/final-inspections/A/manifest.json",
+    "original_relative_path": "final-inspections/A/manifest.json"
+  },
+  {
+    "public_path": "artifacts/final-inspections/B/manifest.json",
+    "original_relative_path": "final-inspections/B/manifest.json"
+  },
+  {
+    "public_path": "artifacts/request.json",
+    "original_relative_path": "request.json"
+  }
+]

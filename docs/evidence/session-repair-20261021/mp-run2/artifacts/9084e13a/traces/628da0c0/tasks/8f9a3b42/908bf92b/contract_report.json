@@ -1,0 +1,19 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "Execution history records one 清除 tap at Step 1, followed by a 退格 correction at Step 6 and no further clear action. Steps 7–10 record tapping +, 7, 5, and 等于. Step 10 records the screen showing 125+75 and = 200; the attached final screenshot also visibly shows 125+75 and = 200.",
+      "item_text": "[contract:initial_calc] 指定计算器清空恰好一次，执行125+75并按等号，实际观察到屏幕结果为200。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "Read-back of persistent note A_role_first_calc_result contains result=200, the first observation, execution steps, and screenshot/session references. The extracted output is {\"result\":\"200\"}.",
+      "item_text": "[contract:record_first] 将首次结果及其原始执行依据记入A的Role持久notes，并以result字符串输出。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    }
+  ]
+}

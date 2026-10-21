@@ -1,0 +1,16 @@
+{
+  "source_commit": "9638b06e953570d8c9ef34a341fe94d9dc0ca1c8",
+  "passed": 20,
+  "failed": 0,
+  "elapsed_seconds": 0.57,
+  "exit_code": 0,
+  "real_model_or_device_used": false,
+  "command": "$env:PYTHONUTF8='1'; $env:PYTHONUNBUFFERED='1'; $env:GOOGLE_API_KEY='unit-test-placeholder'; E:/workplace/artemis/.venv/Scripts/python.exe -u -m pytest -q tests/session_orchestration/test_dependency_output_filters.py tests/session_orchestration/test_live_planner_contract.py tests/session_orchestration/test_contract_and_storage.py 2>&1 | Tee-Object -FilePath E:/workplace/artemis/scratch/mp-dependency-filter-regression-final.log; exit $LASTEXITCODE",
+  "findings": [
+    "Reject unknown output keys and wrong-type/null nonnullable filters before accepting a graph.",
+    "Keep legitimate nullable null filters; absent keys do not compare equal to null.",
+    "Production Main.run regression: reject malformed proposal, accept corrected plan, dispatch independent A continuation and B recovery; original failed B result preserved.",
+    "No viable plan closes blocked without a busy loop."
+  ],
+  "limitation": "No post-patch real-device rerun, per final time/usage constraint."
+}

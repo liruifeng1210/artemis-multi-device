@@ -1,0 +1,19 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "multiply_current_record 记载起始实时屏幕显示表达式“8+17”、主显示值“25”，之后点击乘号、输入4并按等号。附加最终截图显示表达式“25×4”和主显示值“100”。",
+      "item_text": "[contract:multiply_current] 基于真实观察到的当前屏幕值直接乘4并按等号，记录实际屏幕结果；若前置状态异常也如实记录，不伪造100。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "multiply_current_record 记录了点击乘号、输入4、点击等号，并注明各步均未清空或重输旧值/算式；执行历史步骤13–15也对应这些操作。",
+      "item_text": "[contract:preserve_session] 全程保持B原子Session，不清空或重输旧值/算式，并记录执行步骤。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    }
+  ]
+}

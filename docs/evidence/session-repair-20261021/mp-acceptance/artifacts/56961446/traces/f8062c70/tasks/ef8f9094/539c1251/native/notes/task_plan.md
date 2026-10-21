@@ -1,0 +1,16 @@
+- [x] Clear the currently open Calculator B once and enter 48÷6 using real calculator taps, then execute the calculation. The provided screen shows the calculator with 1 displayed.
+  - [x] Clear the displayed 1 once.
+  - [x] Enter 48÷6 with real taps.
+    - [x] Tap 4; display shows 4.
+    - [x] Tap 8; display shows 48.
+    - [x] Tap ÷; expression shows 48÷.
+    - [x] Tap 6; expression shows 48÷6 and preview shows 8.
+    - [x] Execute by tapping =; fresh screen shows 8.
+  - assert: 已在指定设备计算器中清空一次并通过真实点击计算 48÷6，屏幕观察结果为 8。
+- [x] Archive this run’s original execution result, steps, and screenshot in the current Role/Session.
+  - [x] Original action steps, dispatch results, and screenshots are present in this session history.
+  - assert@end: 当前 Role/Session 中保留本任务的原始执行结果、步骤和截图。
+- [x] Take the first result from the original execution evidence, freshly observe the current calculator screen, and record both values in `calculator_b_result_record`; return `first_result` and `current_result` as scalar strings. Do not retry an operation with uncertain side effects.
+  - assert: 当前 Role/Session 的持久 notes 已记录从原始执行证据观察到的首次结果和当前结果。
+  - [x] `first_result=8` from the original screenshot; `current_result=8` from the fresh screen; both recorded in the persistent note.
+  - assert: 当前 Role/Session 的持久 notes 已记录从原始执行证据观察到的首次结果和当前结果.

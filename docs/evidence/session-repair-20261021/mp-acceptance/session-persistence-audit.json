@@ -1,0 +1,467 @@
+{
+  "schema_version": 2,
+  "audit_utc": "2026-10-21T01:01:37.564656+00:00",
+  "closed_run": true,
+  "workflow_id": "56961446-10b2-458b-9cd5-7c874c2b5ede",
+  "source_revision": "77e96f198e6dd487cfa3a8970a6f74334d5af4ee",
+  "method": "Read-only database transaction plus closed-run event pages and business-note files. No raw results modified.",
+  "sessions": [
+    {
+      "role": "B",
+      "session_id": "f8062c70-c5fb-4071-b1b3-7799704c42e0",
+      "stored_session_status": "cancelled",
+      "end_time_persisted": true,
+      "last_recorded_step": 8,
+      "settled_transcript": {
+        "snapshot_id": "63abda3e-8b7f-4d68-8eaf-6edaf4909cf9",
+        "captured_at": "2026-10-21T01:00:54.888854+00:00",
+        "source_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/events.jsonl",
+        "total_messages": 40,
+        "pages": [
+          {
+            "offset": 0,
+            "count": 40
+          },
+          {
+            "offset": 0,
+            "count": 40
+          }
+        ],
+        "full_page_coverage": true,
+        "capture_truncated": false,
+        "diagnostic_string_truncation_marker_count": 1,
+        "has_staged_turn": false,
+        "message_content_sha256": "e15aa56fceec11a452d10109c29462db0f7026ffde04530410723008a39ef27e",
+        "last_message_type": "tool",
+        "last_tool_name": "update_note",
+        "last_tool_status": "success",
+        "captured_after_last_terminal": true
+      },
+      "last_action_step": 7,
+      "last_persisted_model_exchange": {
+        "trace_id": "01a15bf5-9607-7592-aa4e-9c0553f555a6",
+        "status": "success",
+        "messages_count": 17,
+        "response_payload_nonempty": true,
+        "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+        "attempt_id": "539c1251-5d51-48c7-9dbf-cfcd78e6ec3b"
+      },
+      "latest_persisted_chunks": [],
+      "last_terminal_attempt": {
+        "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+        "attempt_id": "539c1251-5d51-48c7-9dbf-cfcd78e6ec3b",
+        "observed_at": "2026-10-21T00:57:01.948099+00:00"
+      }
+    },
+    {
+      "role": "A",
+      "session_id": "a6ce58da-c831-4b40-9438-24b9f9d37031",
+      "stored_session_status": "cancelled",
+      "end_time_persisted": true,
+      "last_recorded_step": 11,
+      "settled_transcript": {
+        "snapshot_id": "37228564-e3f3-421c-9994-14835ee94af4",
+        "captured_at": "2026-10-21T01:00:54.888854+00:00",
+        "source_relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/events.jsonl",
+        "total_messages": 49,
+        "pages": [
+          {
+            "offset": 0,
+            "count": 49
+          },
+          {
+            "offset": 0,
+            "count": 49
+          }
+        ],
+        "full_page_coverage": true,
+        "capture_truncated": false,
+        "diagnostic_string_truncation_marker_count": 1,
+        "has_staged_turn": false,
+        "message_content_sha256": "000bebf54fc3102bd558421593d6300499f7926f0b75b5aacad84c9a9f48a526",
+        "last_message_type": "tool",
+        "last_tool_name": "update_note",
+        "last_tool_status": "success",
+        "captured_after_last_terminal": true
+      },
+      "last_action_step": 10,
+      "last_persisted_model_exchange": {
+        "trace_id": "01a15bf6-8ad0-7193-b515-29320c2666b7",
+        "status": "success",
+        "messages_count": 12,
+        "response_payload_nonempty": true,
+        "task_id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+        "attempt_id": "4a8fe8c9-a448-4547-b2f8-7e051678a46a"
+      },
+      "latest_persisted_chunks": [
+        {
+          "chunk_id": "9e2c8ceb-6b34-4b45-aac9-36da4a82b9fd",
+          "start_step": 1,
+          "end_step": 3,
+          "version": 2,
+          "status": "ready",
+          "summary_payload_nonempty": true,
+          "rendered_text_nonempty": true
+        }
+      ],
+      "last_terminal_attempt": {
+        "task_id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+        "attempt_id": "4a8fe8c9-a448-4547-b2f8-7e051678a46a",
+        "observed_at": "2026-10-21T00:58:03.879096+00:00"
+      }
+    }
+  ],
+  "persisted_business_notes": [
+    {
+      "role": "B",
+      "relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/f8062c70-c5fb-4071-b1b3-7799704c42e0/notes/calculator_b_result_record.md",
+      "sha256": "7e4489207d9aa6aecf5f12b61a080cff9e7bf5bdd8f3cdee5077fa96b8ed8c04",
+      "bytes": 565,
+      "narrowly_labelled_numeric_claims": [
+        {
+          "label": "first_result",
+          "value": "8"
+        },
+        {
+          "label": "current_result",
+          "value": "8"
+        }
+      ]
+    },
+    {
+      "role": "A",
+      "relative_path": "56961446-10b2-458b-9cd5-7c874c2b5ede/traces/a6ce58da-c831-4b40-9438-24b9f9d37031/notes/calc_125_75_results.md",
+      "sha256": "9c90219f6578b52f72057a4d1ec81e58234af2ced3ba368661e8d32ffe49488c",
+      "bytes": 441,
+      "narrowly_labelled_numeric_claims": [
+        {
+          "label": "first_result",
+          "value": "200"
+        },
+        {
+          "label": "current_result",
+          "value": "200"
+        }
+      ]
+    }
+  ],
+  "compression_trace_records": [
+    {
+      "trace_id": "e4da4751-c55c-4996-bd7b-dff5333a3a4a",
+      "role": "A",
+      "status": "success",
+      "phase": "applied",
+      "start_step": 1,
+      "end_step": 3,
+      "forced": false,
+      "termination_reason": null,
+      "reported_fallback_before_summary_ready": false,
+      "reported_summary_replacement": true
+    }
+  ],
+  "terminal_tasks": [
+    {
+      "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+      "attempt_id": "539c1251-5d51-48c7-9dbf-cfcd78e6ec3b",
+      "session_ids_in_persisted_traces": [
+        "f8062c70-c5fb-4071-b1b3-7799704c42e0"
+      ],
+      "status": "failed",
+      "observed_at": "2026-10-21T00:57:01.948099+00:00",
+      "output_payload_nonempty": true,
+      "output_sha256": "73073fe2a54f2792efe537f6d0c4a1e6f1c2054418e5173d7fa120ccfb2cfedc",
+      "recorded_device_action_count": 7,
+      "persisted_handoff_input_count": 0,
+      "non_completion_guard_occurrences": 0,
+      "prior_attempt_facts_in_model_inputs": [],
+      "read_tool_counts": {
+        "replay_steps": 4,
+        "read_note": 2,
+        "get_step_screenshot": 6
+      },
+      "history_read_receipts": [
+        {
+          "trace_id": "3a44bcbd-9c20-404c-9c70-1d0986c96fbc",
+          "name": "replay_steps",
+          "status": "success",
+          "args": {
+            "start_step": "1",
+            "end_step": "7"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "d3221194-7e37-413c-abee-6f50cce11906",
+          "name": "replay_steps",
+          "status": "success",
+          "args": {
+            "start_step": "6",
+            "end_step": "7"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "a6a61341-e03d-4bb5-a069-a2986b394251",
+          "name": "get_step_screenshot",
+          "status": "success",
+          "args": {
+            "step_number": "7",
+            "which": "pre"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": true,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "64c4bd6e-d1f6-4662-ad3f-b752c64b66d7",
+          "name": "get_step_screenshot",
+          "status": "success",
+          "args": {
+            "step_number": "7",
+            "which": "post"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": true
+        },
+        {
+          "trace_id": "6abe5e73-861c-42f6-816b-03bcb7cf0221",
+          "name": "replay_steps",
+          "status": "success",
+          "args": {
+            "start_step": "1",
+            "end_step": "7"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "7a18c266-f09d-49f8-938a-8fb9c0c3a509",
+          "name": "replay_steps",
+          "status": "success",
+          "args": {
+            "start_step": "6",
+            "end_step": "7"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "7891eb1e-f5b4-44fa-b8d4-146494ee747b",
+          "name": "get_step_screenshot",
+          "status": "success",
+          "args": {
+            "step_number": "7",
+            "which": "pre"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": true,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "c1a4110c-70dd-4ed7-b3fa-73f51187e477",
+          "name": "get_step_screenshot",
+          "status": "success",
+          "args": {
+            "step_number": "7",
+            "which": "post"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": true
+        },
+        {
+          "trace_id": "9806b1ee-f893-4e3d-9eb7-0425808390f8",
+          "name": "get_step_screenshot",
+          "status": "success",
+          "args": {
+            "step_number": "1",
+            "which": "overlay"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": true,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "c0996aa2-940a-4365-93a7-0974d5731bd3",
+          "name": "get_step_screenshot",
+          "status": "success",
+          "args": {
+            "step_number": "2",
+            "which": "overlay"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": true,
+          "missing_post_screenshot_reported": false
+        }
+      ],
+      "business_note_write_receipts": [
+        {
+          "trace_id": "5bdd1f42-a4b1-4046-b1f6-7d7652ca567c",
+          "name": "save_note",
+          "status": "success",
+          "result_payload_nonempty": true,
+          "explicit_write_rejection_in_result": false
+        },
+        {
+          "trace_id": "d44f3f85-a338-4734-a1d4-e921bf9c8a7b",
+          "name": "save_note",
+          "status": "success",
+          "result_payload_nonempty": true,
+          "explicit_write_rejection_in_result": false
+        },
+        {
+          "trace_id": "4900a90b-cf6d-4c66-b772-8c4108f9e007",
+          "name": "save_note",
+          "status": "success",
+          "result_payload_nonempty": true,
+          "explicit_write_rejection_in_result": false
+        }
+      ]
+    },
+    {
+      "task_id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+      "attempt_id": "4a8fe8c9-a448-4547-b2f8-7e051678a46a",
+      "session_ids_in_persisted_traces": [
+        "a6ce58da-c831-4b40-9438-24b9f9d37031"
+      ],
+      "status": "succeeded",
+      "observed_at": "2026-10-21T00:58:03.879096+00:00",
+      "output_payload_nonempty": true,
+      "output_sha256": "5c7a6940a02d8f23382e943794e8c817ac446e8fffe1fd36dee499596a2aecbc",
+      "recorded_device_action_count": 10,
+      "persisted_handoff_input_count": 0,
+      "non_completion_guard_occurrences": 0,
+      "prior_attempt_facts_in_model_inputs": [],
+      "read_tool_counts": {
+        "replay_steps": 4,
+        "get_step_screenshot": 3,
+        "read_note": 2,
+        "search_history": 2
+      },
+      "history_read_receipts": [
+        {
+          "trace_id": "bf53f971-d325-4864-8626-1435ef98b39a",
+          "name": "replay_steps",
+          "status": "success",
+          "args": {
+            "start_step": "1",
+            "end_step": "5"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "011ae936-231e-40bf-bb91-a8557bbd0f27",
+          "name": "replay_steps",
+          "status": "success",
+          "args": {
+            "start_step": "6",
+            "end_step": "10"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "03593088-20c3-4d70-8ef2-b679252deab2",
+          "name": "get_step_screenshot",
+          "status": "success",
+          "args": {
+            "step_number": "10",
+            "which": "post"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": true
+        },
+        {
+          "trace_id": "ceec0adf-8586-42b8-8102-2be33ba1eef0",
+          "name": "replay_steps",
+          "status": "success",
+          "args": {
+            "start_step": "1",
+            "end_step": "5"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "d3869883-71b5-4cdb-8aa6-907e780f4205",
+          "name": "replay_steps",
+          "status": "success",
+          "args": {
+            "start_step": "6",
+            "end_step": "10"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "d25971f4-d2c5-443a-95dc-e1404dbaa137",
+          "name": "get_step_screenshot",
+          "status": "success",
+          "args": {
+            "step_number": "1",
+            "which": "pre"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": true,
+          "missing_post_screenshot_reported": false
+        },
+        {
+          "trace_id": "ac6ecd90-ecc5-497e-9181-4ea136ad4dee",
+          "name": "get_step_screenshot",
+          "status": "success",
+          "args": {
+            "step_number": "10",
+            "which": "post"
+          },
+          "result_payload_nonempty": true,
+          "screenshot_attachment_recorded": false,
+          "missing_post_screenshot_reported": true
+        }
+      ],
+      "business_note_write_receipts": [
+        {
+          "trace_id": "15327515-0380-4a0f-8be8-959f49d7ee57",
+          "name": "save_note",
+          "status": "success",
+          "result_payload_nonempty": true,
+          "explicit_write_rejection_in_result": false
+        },
+        {
+          "trace_id": "9afe12eb-d45c-47d3-b5e4-81af871a9ddc",
+          "name": "save_note",
+          "status": "success",
+          "result_payload_nonempty": true,
+          "explicit_write_rejection_in_result": false
+        }
+      ]
+    }
+  ],
+  "running_trace_count": 0,
+  "close": {
+    "workers_exited_zero": true,
+    "all_graceful": true,
+    "all_leases_released": true,
+    "cleanup_error_count": 0
+  },
+  "limits": [
+    "Settled native transcript pages prove persisted native dialogue, not that all agents' model prompts were captured or that every turn was summarized.",
+    "Inspection pages use the official redacted diagnostic representation. Full page coverage counts message positions and does not imply unredacted or untruncated message strings.",
+    "Ready chunks prove persisted summaries. Applied traces distinguish summary replacement from forced fallback folding; ready alone does not prove a context swap.",
+    "Business-note numbers are narrowly labelled stored claims. Missing extracted values do not imply missing note content; hashes permit independent verification.",
+    "The last persisted LLM exchange is not proof that no later untraced exchange ran. This run may have a separate contract-checker callback coverage gap.",
+    "Terminal status and graceful shutdown are independent. A cancelled task remains cancelled; same-Session continuation must be assessed from its own later task evidence."
+  ]
+}

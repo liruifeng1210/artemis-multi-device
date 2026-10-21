@@ -1,0 +1,19 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "Final screenshot visibly shows the expression 125+75 and result = 200. Execution history records one 清除 tap in Step 1, followed by number and operator entry in Steps 2–7 and 等于 in Step 8; no additional clear tap is recorded.",
+      "item_text": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "no verdict produced for this item",
+      "item_text": "[contract:screen_shows_200] 屏幕显示125+75的结果200，且本任务仅清空了一次。",
+      "kind": "verify",
+      "status": "inconclusive",
+      "suggestion": ""
+    }
+  ]
+}

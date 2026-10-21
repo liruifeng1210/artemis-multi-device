@@ -1,0 +1,41 @@
+{
+  "workflow_id": "56961446-10b2-458b-9cd5-7c874c2b5ede",
+  "goal": "在两台计算器完成连续计算。第一轮A清空一次后125+75=200，B清空一次后48÷6=8，可并发。第二轮各自保持原Session、连接和历史：A接屏幕结果×3期望600，B接屏幕结果+17期望25。禁止清空或重输旧值或旧算式。记住首次结果和当前结果并报告。第一轮失败也不阻止另一Role继续。为每轮每Role安排一个任务，display_name使用initial-A/initial-B/continue-A/continue-B。本次“历史/首次结果保留”指当前Role/Session真实已归档任务结果、步骤、截图和持久notes，不是计算器应用的历史记录界面，不要求打开该界面。首次结果必须来自这些原始执行证据或真实观察；需要报告当前值时重新观察屏幕，不得凭目标中的预填数值推断已完成。",
+  "roles": [
+    {
+      "role_id": "A",
+      "device_id": "21850fc5",
+      "description": "MI6计算器com.miui.calculator；持续Role记忆首次和当前值",
+      "profile": "pro",
+      "app_path": null,
+      "locked_app_package": null
+    },
+    {
+      "role_id": "B",
+      "device_id": "a8acf864",
+      "description": "PJZ110计算器com.coloros.calculator；持续Role记忆首次和当前值",
+      "profile": "pro",
+      "app_path": null,
+      "locked_app_package": null
+    }
+  ],
+  "constraints": [
+    "本次“历史/首次结果保留”指当前Role/Session真实已归档任务结果、步骤、截图和持久notes，不是计算器应用的历史记录界面，不要求打开该界面。首次结果必须来自这些原始执行证据或真实观察；需要报告当前值时重新观察屏幕，不得凭目标中的预填数值推断已完成。",
+    "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+    "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+    "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+    "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。"
+  ],
+  "tasks": [],
+  "expected_cancellations": [],
+  "root": "\\\\?\\<LOCAL_EVIDENCE>/mp-repair-20261021\\acceptance",
+  "max_workflow_seconds": 4500.0,
+  "max_artifact_bytes": 1073741824,
+  "max_attempts_per_task": 1,
+  "startup_timeout_seconds": 180.0,
+  "heartbeat_interval_seconds": 2.0,
+  "heartbeat_timeout_seconds": 10.0,
+  "reconnect_grace_seconds": 15.0,
+  "close_timeout_seconds": 90.0,
+  "fake_worker": false
+}

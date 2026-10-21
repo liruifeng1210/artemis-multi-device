@@ -1,0 +1,32 @@
+{
+  "artifact_refs": [
+    "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract_report.json",
+    "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract-screen.jpg"
+  ],
+  "blocker": null,
+  "checks": [
+    {
+      "evidence": "The attached final screenshot visibly shows 8+17 and 25, but the supplied Final Screen Elements list shows 48÷6 and 8. The notes record first_result: 8, but no captured calculator history view confirms it remains in history.",
+      "evidence_refs": [
+        "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract_report.json",
+        "tasks\\25b901c3-d478-44be-8319-100158733b78\\78ae516c-f48c-465f-9cee-1c071a527761\\contract-screen.jpg"
+      ],
+      "id": "screen_shows_25",
+      "verdict": "inconclusive"
+    }
+  ],
+  "error": null,
+  "observations": [],
+  "observed_at": "2026-10-20T23:03:20.668127+00:00",
+  "outputs": {
+    "result": "首次结果：8；当前结果：25。"
+  },
+  "session_reusable": true,
+  "side_effect_state": "confirmed",
+  "status": "blocked",
+  "step_range": {
+    "first": 8,
+    "last": 12
+  },
+  "suggested_next_actions": []
+}

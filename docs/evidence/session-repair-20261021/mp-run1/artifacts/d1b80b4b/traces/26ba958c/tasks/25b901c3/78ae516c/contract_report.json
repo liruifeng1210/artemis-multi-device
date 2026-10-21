@@ -1,0 +1,12 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "The attached final screenshot visibly shows 8+17 and 25, but the supplied Final Screen Elements list shows 48÷6 and 8. The notes record first_result: 8, but no captured calculator history view confirms it remains in history.",
+      "item_text": "[contract:screen_shows_25] 在B原有会话中将屏幕当前结果加17并按等号，屏幕显示25；首次结果仍保留在B的历史中。",
+      "kind": "verify",
+      "status": "inconclusive",
+      "suggestion": ""
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "attempt_id": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+  "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+  "in_reply_to": null,
+  "kind": "execute",
+  "message_id": "4febe37e-8ff0-4798-93ac-87e7994dd2ee",
+  "payload": {
+    "completion": [
+      {
+        "description": "在原子Session真实观察并记录开始连续加法前的屏幕值。",
+        "id": "baseline",
+        "required": true
+      },
+      {
+        "description": "逐次执行+1并按等号共30次，每次等号后均观察并记录屏幕；不清空或重输旧值/算式。",
+        "id": "thirty_steps",
+        "required": true
+      },
+      {
+        "description": "若完成30次，最终屏幕值与真实观察到的起始值相差30，并记录当前值。",
+        "id": "final_value",
+        "required": true
+      }
+    ],
+    "constraints": [
+      "本次“历史/首次结果保留”指当前Role/Session真实已归档任务结果、步骤、截图和持久notes，不是计算器应用的历史记录界面，不要求打开该界面。首次结果必须来自这些原始执行证据或真实观察；需要报告当前值时重新观察屏幕，不得凭目标中的预填数值推断已完成。",
+      "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+      "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+      "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+      "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+      "仅操作指定设备计算器，不使用shell代替真实点击。",
+      "保持A原有子Session和连接。",
+      "不假设取消会回滚；不重试有不确定副作用的操作。",
+      "每次按等号后都必须观察屏幕。"
+    ],
+    "effect_policy": "verify_before_retry",
+    "execution_timeout_seconds": 900.0,
+    "goal": "在A原有计算器子Session中先真实观察屏幕并记录起始值，然后逐次执行+1、等号共30次，每次等号后观察并记录屏幕值。不得清空或重输旧值/算式。测试员会在正式派发本任务20秒后通过Main.cancel取消它；在取消前持续执行并保留步骤、观察和notes。",
+    "input_sources": {},
+    "inputs": {},
+    "max_steps": 100,
+    "outputs_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object"
+    },
+    "settlement_timeout_seconds": 60.0,
+    "verification_timeout_seconds": 600.0
+  },
+  "protocol_version": 1,
+  "role_id": "A",
+  "sequence": 8,
+  "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+  "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+  "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127"
+}

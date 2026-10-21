@@ -1,0 +1,8 @@
+{
+  "command": "python -u examples/calculator_main_comparison.py --scenario continuity --output <LOCAL_EVIDENCE>/mp-repair-20261021/acceptance",
+  "scenario": "continuity",
+  "scope": "MP only, four-task bounded acceptance; prior run2 retained for cancellation",
+  "recorded_utc": "2026-10-21T00:43:39.9462975Z",
+  "commit": "77e96f198e6dd487cfa3a8970a6f74334d5af4ee",
+  "status": []
+}

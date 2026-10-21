@@ -1,0 +1,51 @@
+{
+  "artifact_refs": [
+    "tasks\\9dcb92ab-b119-4959-88f7-0e8d047ab21d\\4a8fe8c9-a448-4547-b2f8-7e051678a46a\\contract_report.json",
+    "tasks\\9dcb92ab-b119-4959-88f7-0e8d047ab21d\\4a8fe8c9-a448-4547-b2f8-7e051678a46a\\contract-screen.jpg"
+  ],
+  "blocker": null,
+  "checks": [
+    {
+      "evidence": "执行记录显示步骤 1 点击清除、步骤 2 主显示为 0，步骤 10 点击等号；最终截图可见 125+75 和 = 200。",
+      "evidence_refs": [
+        "tasks\\9dcb92ab-b119-4959-88f7-0e8d047ab21d\\4a8fe8c9-a448-4547-b2f8-7e051678a46a\\contract_report.json",
+        "tasks\\9dcb92ab-b119-4959-88f7-0e8d047ab21d\\4a8fe8c9-a448-4547-b2f8-7e051678a46a\\contract-screen.jpg"
+      ],
+      "id": "calculation",
+      "verdict": "passed"
+    },
+    {
+      "evidence": "replay_steps 返回步骤 1–10 的动作记录；当前会话包含计算结果截图，且 read_note 记载归档包含执行历史、按键步骤和截图。",
+      "evidence_refs": [
+        "tasks\\9dcb92ab-b119-4959-88f7-0e8d047ab21d\\4a8fe8c9-a448-4547-b2f8-7e051678a46a\\contract_report.json",
+        "tasks\\9dcb92ab-b119-4959-88f7-0e8d047ab21d\\4a8fe8c9-a448-4547-b2f8-7e051678a46a\\contract-screen.jpg"
+      ],
+      "id": "archive",
+      "verdict": "passed"
+    },
+    {
+      "evidence": "read_note 返回 first_result: \"200\"（注明来自 T+06:22 的计算器截图）和 current_result: \"200\"（注明来自点击等号后 T+07:07 的新观察）。",
+      "evidence_refs": [
+        "tasks\\9dcb92ab-b119-4959-88f7-0e8d047ab21d\\4a8fe8c9-a448-4547-b2f8-7e051678a46a\\contract_report.json",
+        "tasks\\9dcb92ab-b119-4959-88f7-0e8d047ab21d\\4a8fe8c9-a448-4547-b2f8-7e051678a46a\\contract-screen.jpg"
+      ],
+      "id": "memory",
+      "verdict": "passed"
+    }
+  ],
+  "error": null,
+  "observations": [],
+  "observed_at": "2026-10-21T00:58:03.879096+00:00",
+  "outputs": {
+    "current_result": "200",
+    "first_result": "200"
+  },
+  "session_reusable": true,
+  "side_effect_state": "confirmed",
+  "status": "succeeded",
+  "step_range": {
+    "first": 1,
+    "last": 11
+  },
+  "suggested_next_actions": []
+}

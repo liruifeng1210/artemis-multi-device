@@ -1,0 +1,17 @@
+{
+  "archive_state": "ACTIVE_CLEARED",
+  "artifacts": {
+    "tasks\\d1e8a4c7-3b26-4f95-9c03-185274d50605\\0bad0a81-9be7-4f4d-83c2-c4ec08556ea6\\accepted.json": {
+      "sha256": "5077e3d6bea7ae4746a744584ea9ea0954025befe67c03fb6a4e952777e1866b",
+      "size_bytes": 132
+    },
+    "tasks\\d1e8a4c7-3b26-4f95-9c03-185274d50605\\0bad0a81-9be7-4f4d-83c2-c4ec08556ea6\\request.json": {
+      "sha256": "8d5e1380e8ccbe7590e6ea926138629f6035f92453361a0f2bb3d4957a365f8a",
+      "size_bytes": 2157
+    }
+  },
+  "attempt_id": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+  "files": {},
+  "result_hash": "525d62651ec322c2892d71005758991b56d08270cc036342cb80d258d5f0cc7f",
+  "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605"
+}

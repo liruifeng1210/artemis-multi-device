@@ -1,0 +1,6 @@
+- [x] Confirm the first result from B's own archived task outcome and record its evidence in `b_calculator_results`; use no A history
+  - verify: The note identifies the archived B result as 8 and cites its task outcome and step range
+- [x] Re-observe B's current calculator screen and record the displayed value in `b_calculator_results` without changing the calculator state
+  - verify: The recorded current value matches the observed screen, with no clearing or re-entry
+- [x] Report the first and current results in a scalar `result` string; state that the first result cannot be verified if B's archived evidence is insufficient
+  - verify: The output reports both evidence-based values, or explicitly says the first result cannot be verified

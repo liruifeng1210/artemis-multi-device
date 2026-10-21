@@ -1,0 +1,50 @@
+{
+  "attempt_id": "123c7e62-4b09-4bd5-aa8d-22fc8d5598c8",
+  "child_session_id": "d508f3fb-6bf0-4e64-bb70-e11f65c1c112",
+  "in_reply_to": null,
+  "kind": "execute",
+  "message_id": "3ac026de-6f10-4206-96c4-422928e2d5a9",
+  "payload": {
+    "completion": [
+      {
+        "description": "屏幕显示125+75的结果200，且本任务仅清空了一次。",
+        "id": "screen_shows_200",
+        "required": true
+      }
+    ],
+    "constraints": [
+      "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+      "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+      "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+      "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+      "仅操作指定设备计算器；使用真实点击，不用shell计算。",
+      "首次结果和当前结果均记录为屏幕实际显示值。"
+    ],
+    "effect_policy": "verify_before_retry",
+    "execution_timeout_seconds": 900.0,
+    "goal": "在当前A计算器会话中清空一次，输入125+75并按等号。记录首次结果和当前结果。",
+    "input_sources": {},
+    "inputs": {},
+    "max_steps": 100,
+    "outputs_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object"
+    },
+    "settlement_timeout_seconds": 60.0,
+    "verification_timeout_seconds": 600.0
+  },
+  "protocol_version": 1,
+  "role_id": "A",
+  "sequence": 2,
+  "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+  "worker_epoch": "bda263e8-ec0a-4f62-bdec-c89e0f242326",
+  "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb"
+}

@@ -1,0 +1,34 @@
+{
+  "time": "2026-10-21T01:00:54.886301+00:00",
+  "role_id": "B",
+  "session_id": "f8062c70-c5fb-4071-b1b3-7799704c42e0",
+  "pid": 34364,
+  "worker_state": "READY",
+  "source": "official MainSession.inspect before worker close",
+  "pages": [
+    {
+      "path": "page-000.json",
+      "query": {
+        "limit": 100
+      }
+    }
+  ],
+  "complete": true,
+  "max_pages": 20,
+  "timeout_seconds": 20,
+  "observed_messages": 40,
+  "content_truncation_markers": 1,
+  "content_limitations": "Current ledger view may contain compression. Diagnostics redacts credentials/images and truncates individual strings at 8000 characters; complete pagination does not mean lossless content.",
+  "last_terminal": {
+    "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+    "attempt_id": "539c1251-5d51-48c7-9dbf-cfcd78e6ec3b",
+    "observed_at": "2026-10-21T00:57:01.948099+00:00"
+  },
+  "captured_at": "2026-10-21T01:00:54.888854+00:00",
+  "snapshot_id": "63abda3e-8b7f-4d68-8eaf-6edaf4909cf9",
+  "capture_truncated": false,
+  "captured_messages": 40,
+  "total": 40,
+  "has_staged_turn": false,
+  "next_cursor": null
+}

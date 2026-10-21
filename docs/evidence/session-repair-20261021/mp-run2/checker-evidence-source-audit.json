@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "audit_utc": "2026-10-20T23:44:29.542889+00:00",
+  "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+  "source_revision": "2d0d1af",
+  "read_only_live_snapshot": true,
+  "scope": "Actual persisted native FinalChecker LLM inputs. Contract reports are counted separately; their full model inputs were not found in this snapshot and are not claimed inspected.",
+  "privacy": "No complete prompts, reasoning, device identifiers, UI hierarchy, OCR text, note bodies or image bytes included.",
+  "summary": {
+    "native_checker_count": 4,
+    "inspected_llm_input_count": 14,
+    "all_final_screen_sections_exact_screenshot_only_marker": true,
+    "actual_same_image_ocr_path_exercised": false,
+    "ocr_limitation": "OCR was not configured. Same-image OCR remains unit-test coverage, not this real-device run."
+  },
+  "native_checks": [
+    {
+      "checker_trace_id": "79487ae7-5b6f-4ea7-b4d5-98a82839be97",
+      "role_id": "B",
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "4b6e2a91-5c73-4f08-b2d4-713850a20402",
+      "attempt_id": "d1531037-0f45-4b4d-9563-21eb737686e8",
+      "native_normalized_verdict_counts": {
+        "passed": 4
+      },
+      "synthetic_missing_identity_count": 0,
+      "llm_trace_ids": [
+        "01a15ba4-5102-7a03-a879-f5b8cc61383e",
+        "01a15ba4-bffc-7942-8d03-6c04488560a6",
+        "01a15ba5-b8db-7320-a407-b3ed56dc07a9",
+        "01a15ba6-211d-7042-a345-a434a562d0d7",
+        "01a15ba6-9992-77c2-859e-9bc8e11a69f1"
+      ],
+      "inspected_llm_input_count": 5,
+      "source_observation": {
+        "source_markers": [
+          "OCR is not configured; inspect the attached screenshot directly.",
+          "Device hierarchy omitted because its freshness is not guaranteed."
+        ],
+        "section_line_count": 1,
+        "same_human_message_image_count": 1,
+        "section_equals_whitelisted_screenshot_only_message": true
+      },
+      "all_inputs_have_same_source_observation": true
+    },
+    {
+      "checker_trace_id": "275f9a65-c5e7-4854-8105-10c4ff9412eb",
+      "role_id": "A",
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "8f9a3b42-6e17-4d20-a5c1-921730a10401",
+      "attempt_id": "908bf92b-6ca3-4044-a0f6-1d0af701496f",
+      "native_normalized_verdict_counts": {
+        "passed": 3,
+        "inconclusive": 1
+      },
+      "synthetic_missing_identity_count": 0,
+      "inconclusive_reason": "Persistent note already recorded 200; evidence of the later Outputter result:string emission was not yet available at native check time.",
+      "llm_trace_ids": [
+        "01a15ba6-df13-77c3-9154-821ac46bfa90",
+        "01a15ba7-5b8f-71c2-a785-810c2c715a35",
+        "01a15ba8-4da7-7571-9d4c-cdc93e9cd031"
+      ],
+      "inspected_llm_input_count": 3,
+      "source_observation": {
+        "source_markers": [
+          "OCR is not configured; inspect the attached screenshot directly.",
+          "Device hierarchy omitted because its freshness is not guaranteed."
+        ],
+        "section_line_count": 1,
+        "same_human_message_image_count": 1,
+        "section_equals_whitelisted_screenshot_only_message": true
+      },
+      "all_inputs_have_same_source_observation": true
+    },
+    {
+      "checker_trace_id": "a3e614b1-54a0-436c-9c21-910e85037aa0",
+      "role_id": "A",
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "2c7d1e85-9a34-4b60-8f12-526941b30403",
+      "attempt_id": "2cc7af5f-4b61-43d7-8506-e1727b8a0fb8",
+      "native_normalized_verdict_counts": {
+        "passed": 3
+      },
+      "synthetic_missing_identity_count": 0,
+      "llm_trace_ids": [
+        "01a15bae-c22f-7840-acfd-01d3dd12351a",
+        "01a15baf-4729-7502-a4bc-2d3a573d44df",
+        "01a15baf-b401-71b0-87bd-1249b5d8fc32"
+      ],
+      "inspected_llm_input_count": 3,
+      "source_observation": {
+        "source_markers": [
+          "OCR is not configured; inspect the attached screenshot directly.",
+          "Device hierarchy omitted because its freshness is not guaranteed."
+        ],
+        "section_line_count": 1,
+        "same_human_message_image_count": 1,
+        "section_equals_whitelisted_screenshot_only_message": true
+      },
+      "all_inputs_have_same_source_observation": true
+    },
+    {
+      "checker_trace_id": "98c0a78c-6f05-4bce-92ab-cbfad71079d0",
+      "role_id": "B",
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "7a0f3c96-1d52-4e81-a6b9-934762c40504",
+      "attempt_id": "1abee41d-f39a-414d-9e0e-b58b1c97258b",
+      "native_normalized_verdict_counts": {
+        "passed": 4,
+        "inconclusive": 1
+      },
+      "synthetic_missing_identity_count": 1,
+      "identity_audit": {
+        "declared_item_count": 4,
+        "raw_passed_verdict_count": 4,
+        "exact_declared_items_with_passed_verdict": 3,
+        "unmatched_passed_verdict_count": 1,
+        "declared_items_with_synthetic_inconclusive": 1,
+        "difference": "Returned assert item inserted one character into the full declared description. Strict matching retained the missing original item as inconclusive.",
+        "not_a_structured_report_parse_failure": true
+      },
+      "llm_trace_ids": [
+        "01a15baf-656d-7683-8efc-6f4b80012e8c",
+        "01a15baf-b5ac-78b0-91f2-1514724e5388",
+        "01a15bb0-2f66-7270-96a7-302c3b8215cc"
+      ],
+      "inspected_llm_input_count": 3,
+      "source_observation": {
+        "source_markers": [
+          "OCR is not configured; inspect the attached screenshot directly.",
+          "Device hierarchy omitted because its freshness is not guaranteed."
+        ],
+        "section_line_count": 1,
+        "same_human_message_image_count": 1,
+        "section_equals_whitelisted_screenshot_only_message": true
+      },
+      "all_inputs_have_same_source_observation": true
+    }
+  ],
+  "independent_contract_reports": [
+    {
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "4b6e2a91-5c73-4f08-b2d4-713850a20402",
+      "attempt_id": "d1531037-0f45-4b4d-9563-21eb737686e8",
+      "checker_trace_id": "0219085f-d0f0-4533-ada5-ffab5b1417ee",
+      "artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/tasks/4b6e2a91-5c73-4f08-b2d4-713850a20402/d1531037-0f45-4b4d-9563-21eb737686e8/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 2
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_at_end_only_prefix_count": 0
+    },
+    {
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "task_id": "7a0f3c96-1d52-4e81-a6b9-934762c40504",
+      "attempt_id": "1abee41d-f39a-414d-9e0e-b58b1c97258b",
+      "checker_trace_id": "5da078ca-98ae-42ce-807b-8311796e45f0",
+      "artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/tasks/7a0f3c96-1d52-4e81-a6b9-934762c40504/1abee41d-f39a-414d-9e0e-b58b1c97258b/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 2
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_at_end_only_prefix_count": 0
+    },
+    {
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "2c7d1e85-9a34-4b60-8f12-526941b30403",
+      "attempt_id": "2cc7af5f-4b61-43d7-8506-e1727b8a0fb8",
+      "checker_trace_id": "a803c7c6-c7ad-4713-9504-4671830a8248",
+      "artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/628da0c0-9792-4948-b07c-0fc2a960ba67/tasks/2c7d1e85-9a34-4b60-8f12-526941b30403/2cc7af5f-4b61-43d7-8506-e1727b8a0fb8/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 2,
+        "inconclusive": 2
+      },
+      "synthetic_missing_identity_count": 2,
+      "passed_with_at_end_only_prefix_count": 2,
+      "identity_note": "Two returned passed identities contain an unrecognized timing-only prefix. One also inserts a character into the original description; removing the prefix alone would still leave it unmatched. No such transformation was used for acceptance.",
+      "identity_audit_after_removing_timing_prefix_for_diagnosis_only": [
+        {
+          "contract_id": "[contract:continue_calc]",
+          "matches_after_timing_prefix_removed": false,
+          "description_edit_counts": [
+            {
+              "operation": "insert",
+              "original_character_count": 0,
+              "returned_character_count": 1
+            }
+          ]
+        },
+        {
+          "contract_id": "[contract:record_values]",
+          "matches_after_timing_prefix_removed": true,
+          "description_edit_counts": []
+        }
+      ]
+    },
+    {
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "task_id": "8f9a3b42-6e17-4d20-a5c1-921730a10401",
+      "attempt_id": "908bf92b-6ca3-4044-a0f6-1d0af701496f",
+      "checker_trace_id": "aca8aeb2-9fbc-4919-a173-cfe1333cf43d",
+      "artifact": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/628da0c0-9792-4948-b07c-0fc2a960ba67/tasks/8f9a3b42-6e17-4d20-a5c1-921730a10401/908bf92b-6ca3-4044-a0f6-1d0af701496f/contract_report.json",
+      "normalized_verdict_counts": {
+        "passed": 2
+      },
+      "synthetic_missing_identity_count": 0,
+      "passed_with_at_end_only_prefix_count": 0
+    }
+  ],
+  "interpretation": "Raw passed counts must not be equated with declared-item coverage. No changed text or unrecognized identity prefix was accepted merely to make the run pass."
+}

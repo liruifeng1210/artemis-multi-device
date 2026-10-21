@@ -1,0 +1,129 @@
+{
+  "offline_only": true,
+  "replay_note": "Replays the production Scheduler validator against recorded model proposals and terminal results. It creates no workflow, device action, or replacement model decision.",
+  "planner_replay": [
+    {
+      "proposal_index": 1,
+      "base_revision": 1,
+      "tasks": 4,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "accepted"
+    },
+    {
+      "proposal_index": 2,
+      "base_revision": 2,
+      "tasks": 0,
+      "diagnostics": 2,
+      "missing_input": null,
+      "validation": "not applied by production control flow"
+    },
+    {
+      "proposal_index": 3,
+      "base_revision": 2,
+      "tasks": 2,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "accepted"
+    },
+    {
+      "proposal_index": 4,
+      "base_revision": 3,
+      "tasks": 0,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "accepted"
+    }
+  ],
+  "final_task_statuses": {
+    "failed": 1,
+    "succeeded": 1
+  },
+  "bindings": [
+    {
+      "observed_at": "2026-10-21T00:44:46.324302+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+      "attempt_id": "4a8fe8c9-a448-4547-b2f8-7e051678a46a",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "a6ce58da-c831-4b40-9438-24b9f9d37031",
+      "pid": 22128,
+      "display_name": "initial-A"
+    },
+    {
+      "observed_at": "2026-10-21T00:44:46.325310+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+      "attempt_id": "539c1251-5d51-48c7-9dbf-cfcd78e6ec3b",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "f8062c70-c5fb-4071-b1b3-7799704c42e0",
+      "pid": 34364,
+      "display_name": "initial-B"
+    }
+  ],
+  "runtime_interpreters": [
+    {
+      "session_id": "f8062c70-c5fb-4071-b1b3-7799704c42e0",
+      "pid": 39008,
+      "start_time": 1792543434.4891524,
+      "end_time": 1792544454.916793,
+      "status": "cancelled"
+    },
+    {
+      "session_id": "a6ce58da-c831-4b40-9438-24b9f9d37031",
+      "pid": 30992,
+      "start_time": 1792543435.000236,
+      "end_time": 1792544454.9157732,
+      "status": "cancelled"
+    }
+  ],
+  "cancel_request": null,
+  "cancel_ack": null,
+  "request_to_ack_seconds": null,
+  "request_to_task_result_seconds": null,
+  "cancel_task_action_count": null,
+  "cancel_stage": "not exercised",
+  "cancel_overlapping_recorded_spans": [],
+  "cancel_heartbeat_matching_traces": [],
+  "unfinished_trace_records": [],
+  "ownership_conflicts": [],
+  "B_action_records_after_A_cancel": [],
+  "late_actions_after_task_result": [],
+  "action_intervals_ending_after_task_result": [],
+  "actions_without_duration": 0,
+  "boundary_inspections": [
+    {
+      "task_id": "9dcb92ab-b119-4959-88f7-0e8d047ab21d",
+      "display_name": "initial-A",
+      "source": {
+        "workflow_id": "56961446-10b2-458b-9cd5-7c874c2b5ede",
+        "role_id": "A",
+        "child_session_id": "a6ce58da-c831-4b40-9438-24b9f9d37031",
+        "worker_epoch": "a7e8a74d-93f8-4b28-a05e-025fec98d8ea",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "ef8f9094-bced-4cb7-9169-e9d3c6957f81",
+      "display_name": "initial-B",
+      "source": {
+        "workflow_id": "56961446-10b2-458b-9cd5-7c874c2b5ede",
+        "role_id": "B",
+        "child_session_id": "f8062c70-c5fb-4071-b1b3-7799704c42e0",
+        "worker_epoch": "d80e0348-188c-49ae-8973-5c79375dad96",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    }
+  ],
+  "limitations": "Trace ownership uses a complete payload.execution task/attempt pair first, with legacy step metadata fallback only when payload identity is absent. Conflicting or partial identities are excluded from trusted cancellation/action attribution; unfinished rows remain visible. Cancellation spans require the exact requested attempt and finite nonnegative durations. Boundary inspections can already describe the next task. Cancellation stage requires recorded overlapping intervals; queued cancellation is not inferred. Zero late records is bounded by trace coverage."
+}

@@ -1,0 +1,51 @@
+{
+  "artifact_refs": [
+    "tasks\\ef8f9094-bced-4cb7-9169-e9d3c6957f81\\539c1251-5d51-48c7-9dbf-cfcd78e6ec3b\\contract_report.json",
+    "tasks\\ef8f9094-bced-4cb7-9169-e9d3c6957f81\\539c1251-5d51-48c7-9dbf-cfcd78e6ec3b\\contract-screen.jpg"
+  ],
+  "blocker": null,
+  "checks": [
+    {
+      "evidence": "Execution history records two clear taps: Step 1 began with 1 displayed and tapped 清除; Step 2 began with the display already blank and tapped 清除 again. The final screenshot shows 48÷6 and 8.",
+      "evidence_refs": [
+        "tasks\\ef8f9094-bced-4cb7-9169-e9d3c6957f81\\539c1251-5d51-48c7-9dbf-cfcd78e6ec3b\\contract_report.json",
+        "tasks\\ef8f9094-bced-4cb7-9169-e9d3c6957f81\\539c1251-5d51-48c7-9dbf-cfcd78e6ec3b\\contract-screen.jpg"
+      ],
+      "id": "calculation",
+      "verdict": "failed"
+    },
+    {
+      "evidence": "This session contains the Step 1–7 action history and attached screenshots for Steps 1, 2, and 7. The persistent note `calculator_b_result_record` also states that the execution steps, dispatch results, and associated screenshot evidence are in this session.",
+      "evidence_refs": [
+        "tasks\\ef8f9094-bced-4cb7-9169-e9d3c6957f81\\539c1251-5d51-48c7-9dbf-cfcd78e6ec3b\\contract_report.json",
+        "tasks\\ef8f9094-bced-4cb7-9169-e9d3c6957f81\\539c1251-5d51-48c7-9dbf-cfcd78e6ec3b\\contract-screen.jpg"
+      ],
+      "id": "archive",
+      "verdict": "passed"
+    },
+    {
+      "evidence": "The read note `calculator_b_result_record` records `first_result=8` and `current_result=8`, with provenance for the original and fresh screenshots. The final screenshot visibly shows 48÷6 and 8.",
+      "evidence_refs": [
+        "tasks\\ef8f9094-bced-4cb7-9169-e9d3c6957f81\\539c1251-5d51-48c7-9dbf-cfcd78e6ec3b\\contract_report.json",
+        "tasks\\ef8f9094-bced-4cb7-9169-e9d3c6957f81\\539c1251-5d51-48c7-9dbf-cfcd78e6ec3b\\contract-screen.jpg"
+      ],
+      "id": "memory",
+      "verdict": "passed"
+    }
+  ],
+  "error": null,
+  "observations": [],
+  "observed_at": "2026-10-21T00:57:01.948099+00:00",
+  "outputs": {
+    "current_result": "8",
+    "first_result": "8"
+  },
+  "session_reusable": true,
+  "side_effect_state": "confirmed",
+  "status": "failed",
+  "step_range": {
+    "first": 1,
+    "last": 8
+  },
+  "suggested_next_actions": []
+}

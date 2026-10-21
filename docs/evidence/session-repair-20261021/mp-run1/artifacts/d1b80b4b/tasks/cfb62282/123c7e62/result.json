@@ -1,0 +1,32 @@
+{
+  "artifact_refs": [
+    "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract_report.json",
+    "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract-screen.jpg"
+  ],
+  "blocker": null,
+  "checks": [
+    {
+      "evidence": "no verdict produced for this item",
+      "evidence_refs": [
+        "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract_report.json",
+        "tasks\\cfb62282-9e0a-4fe1-a234-27e79b3647a2\\123c7e62-4b09-4bd5-aa8d-22fc8d5598c8\\contract-screen.jpg"
+      ],
+      "id": "screen_shows_200",
+      "verdict": "inconclusive"
+    }
+  ],
+  "error": null,
+  "observations": [],
+  "observed_at": "2026-10-20T22:52:57.467086+00:00",
+  "outputs": {
+    "result": "first_result=200; current_result=200"
+  },
+  "session_reusable": true,
+  "side_effect_state": "confirmed",
+  "status": "blocked",
+  "step_range": {
+    "first": 1,
+    "last": 9
+  },
+  "suggested_next_actions": []
+}

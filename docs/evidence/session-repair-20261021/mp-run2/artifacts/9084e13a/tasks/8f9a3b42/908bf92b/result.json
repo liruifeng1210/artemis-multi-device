@@ -1,0 +1,41 @@
+{
+  "artifact_refs": [
+    "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract_report.json",
+    "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract-screen.jpg"
+  ],
+  "blocker": null,
+  "checks": [
+    {
+      "evidence": "Execution history records one 清除 tap at Step 1, followed by a 退格 correction at Step 6 and no further clear action. Steps 7–10 record tapping +, 7, 5, and 等于. Step 10 records the screen showing 125+75 and = 200; the attached final screenshot also visibly shows 125+75 and = 200.",
+      "evidence_refs": [
+        "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract_report.json",
+        "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract-screen.jpg"
+      ],
+      "id": "initial_calc",
+      "verdict": "passed"
+    },
+    {
+      "evidence": "Read-back of persistent note A_role_first_calc_result contains result=200, the first observation, execution steps, and screenshot/session references. The extracted output is {\"result\":\"200\"}.",
+      "evidence_refs": [
+        "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract_report.json",
+        "tasks\\8f9a3b42-6e17-4d20-a5c1-921730a10401\\908bf92b-6ca3-4044-a0f6-1d0af701496f\\contract-screen.jpg"
+      ],
+      "id": "record_first",
+      "verdict": "passed"
+    }
+  ],
+  "error": null,
+  "observations": [],
+  "observed_at": "2026-10-20T23:34:46.066573+00:00",
+  "outputs": {
+    "result": "200"
+  },
+  "session_reusable": true,
+  "side_effect_state": "confirmed",
+  "status": "succeeded",
+  "step_range": {
+    "first": 1,
+    "last": 11
+  },
+  "suggested_next_actions": []
+}

@@ -1,0 +1,46 @@
+{
+  "completion": [
+    {
+      "description": "取消后重新观察实际屏幕值，直接加10并按等号，观察到并记录真实新屏幕结果。",
+      "id": "add_ten",
+      "required": true
+    },
+    {
+      "description": "仅依据A自身原始执行证据报告首次计算结果；依据真实观察报告当前结果，并更新A的Role持久notes。",
+      "id": "report_values",
+      "required": true
+    }
+  ],
+  "constraints": [
+    "本次“历史/首次结果保留”指当前Role/Session真实已归档任务结果、步骤、截图和持久notes，不是计算器应用的历史记录界面，不要求打开该界面。首次结果必须来自这些原始执行证据或真实观察；需要报告当前值时重新观察屏幕，不得凭目标中的预填数值推断已完成。",
+    "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+    "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+    "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+    "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+    "仅操作指定设备计算器，不使用shell代替真实点击。",
+    "保持A原有子Session和连接。",
+    "不假设取消会回滚；不得清空或重输旧值/算式。",
+    "首次结果必须来自A自身原始执行证据或真实观察，当前结果必须重新观察屏幕。",
+    "不得重试有不确定副作用的操作。"
+  ],
+  "effect_policy": "verify_before_retry",
+  "execution_timeout_seconds": 900.0,
+  "goal": "在A原有子Session中重新读取取消后的实际屏幕值，不能假设取消已回滚。直接在当前值后执行+10并按等号，观察并记录新结果。仅依据A自己的原始任务结果、步骤、截图或持久notes确定首次结果；观察屏幕确定当前结果。将首次值与当前值写入A的Role持久notes并报告。禁止清空或重输旧值/算式。",
+  "input_sources": {},
+  "inputs": {},
+  "max_steps": 100,
+  "outputs_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "result": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "result"
+    ],
+    "type": "object"
+  },
+  "settlement_timeout_seconds": 60.0,
+  "verification_timeout_seconds": 600.0
+}

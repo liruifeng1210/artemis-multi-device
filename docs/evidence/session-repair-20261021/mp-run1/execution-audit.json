@@ -1,0 +1,156 @@
+{
+  "offline_only": true,
+  "replay_note": "Replays the production Scheduler validator against recorded model proposals and terminal results. It creates no workflow, device action, or replacement model decision.",
+  "planner_replay": [
+    {
+      "proposal_index": 1,
+      "base_revision": 1,
+      "tasks": 8,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "accepted"
+    },
+    {
+      "proposal_index": 2,
+      "base_revision": 2,
+      "tasks": 10,
+      "diagnostics": 4,
+      "missing_input": null,
+      "validation": "not applied by production control flow"
+    },
+    {
+      "proposal_index": 3,
+      "base_revision": 3,
+      "tasks": 10,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "rejected",
+      "reason": "Stale plan revision"
+    },
+    {
+      "proposal_index": 4,
+      "base_revision": 3,
+      "tasks": 10,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "rejected",
+      "reason": "Stale plan revision"
+    }
+  ],
+  "final_task_statuses": {
+    "succeeded": 1,
+    "blocked": 2
+  },
+  "bindings": [
+    {
+      "observed_at": "2026-10-20T22:42:00.663156+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+      "attempt_id": "123c7e62-4b09-4bd5-aa8d-22fc8d5598c8",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "d508f3fb-6bf0-4e64-bb70-e11f65c1c112",
+      "pid": 31564,
+      "display_name": "initial-A"
+    },
+    {
+      "observed_at": "2026-10-20T22:42:00.664159+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+      "attempt_id": "b023fbc3-de4d-4c16-9c56-e557a9b3fa2e",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+      "pid": 35736,
+      "display_name": "initial-B"
+    },
+    {
+      "observed_at": "2026-10-20T22:52:18.436514+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "25b901c3-d478-44be-8319-100158733b78",
+      "attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+      "pid": 35736,
+      "display_name": "continue-B"
+    }
+  ],
+  "runtime_interpreters": [
+    {
+      "session_id": "d508f3fb-6bf0-4e64-bb70-e11f65c1c112",
+      "pid": 8976,
+      "start_time": 1792536049.035217,
+      "end_time": 1792537738.2534974,
+      "status": "cancelled"
+    },
+    {
+      "session_id": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+      "pid": 25896,
+      "start_time": 1792536049.5940208,
+      "end_time": 1792537738.2534974,
+      "status": "cancelled"
+    }
+  ],
+  "cancel_request": null,
+  "cancel_ack": null,
+  "request_to_ack_seconds": null,
+  "request_to_task_result_seconds": null,
+  "cancel_task_action_count": null,
+  "cancel_stage": "not exercised",
+  "cancel_overlapping_recorded_spans": [],
+  "cancel_heartbeat_matching_traces": [],
+  "unfinished_trace_records": [],
+  "B_action_records_after_A_cancel": [],
+  "late_actions_after_task_result": [],
+  "action_intervals_ending_after_task_result": [],
+  "actions_without_duration": 0,
+  "boundary_inspections": [
+    {
+      "task_id": "25b901c3-d478-44be-8319-100158733b78",
+      "display_name": "continue-B",
+      "source": {
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb",
+        "role_id": "B",
+        "child_session_id": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+        "worker_epoch": "178b879e-fc18-4654-9a49-a13be1c1147e",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "a78d92a5-49f9-47c5-84cf-e2e4b7161c40",
+      "display_name": "initial-B",
+      "source": {
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb",
+        "role_id": "B",
+        "child_session_id": "26ba958c-bc03-4eb6-8a8d-0db660cb5eb6",
+        "worker_epoch": "178b879e-fc18-4654-9a49-a13be1c1147e",
+        "active_task_id": "25b901c3-d478-44be-8319-100158733b78",
+        "active_attempt_id": "78ae516c-f48c-465f-9cee-1c071a527761"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "cfb62282-9e0a-4fe1-a234-27e79b3647a2",
+      "display_name": "initial-A",
+      "source": {
+        "workflow_id": "d1b80b4b-dafa-47b1-8da5-b6c2428376eb",
+        "role_id": "A",
+        "child_session_id": "d508f3fb-6bf0-4e64-bb70-e11f65c1c112",
+        "worker_epoch": "bda263e8-ec0a-4f62-bdec-c89e0f242326",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    }
+  ],
+  "limitations": "Action-task joins use immutable step metadata and worker Session bindings. Boundary inspections can already describe the next task. Cancellation stage requires recorded overlapping intervals; queued cancellation is not inferred. Zero late records is bounded by trace coverage."
+}

@@ -1,0 +1,517 @@
+{
+  "offline_only": true,
+  "replay_note": "Replays the production Scheduler validator against recorded model proposals and terminal results. It creates no workflow, device action, or replacement model decision.",
+  "planner_replay": [
+    {
+      "proposal_index": 1,
+      "base_revision": 1,
+      "tasks": 8,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "accepted"
+    },
+    {
+      "proposal_index": 2,
+      "base_revision": 2,
+      "tasks": 1,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "accepted"
+    },
+    {
+      "proposal_index": 3,
+      "base_revision": 3,
+      "tasks": 1,
+      "diagnostics": 0,
+      "missing_input": null,
+      "validation": "accepted"
+    }
+  ],
+  "final_task_statuses": {
+    "succeeded": 6,
+    "blocked": 1,
+    "cancelled": 3
+  },
+  "bindings": [
+    {
+      "observed_at": "2026-10-20T23:21:24.621826+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "8f9a3b42-6e17-4d20-a5c1-921730a10401",
+      "attempt_id": "908bf92b-6ca3-4044-a0f6-1d0af701496f",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "pid": 36724,
+      "display_name": "initial-A"
+    },
+    {
+      "observed_at": "2026-10-20T23:21:24.621826+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "4b6e2a91-5c73-4f08-b2d4-713850a20402",
+      "attempt_id": "d1531037-0f45-4b4d-9563-21eb737686e8",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "pid": 33624,
+      "display_name": "initial-B"
+    },
+    {
+      "observed_at": "2026-10-20T23:33:20.676682+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "7a0f3c96-1d52-4e81-a6b9-934762c40504",
+      "attempt_id": "1abee41d-f39a-414d-9e0e-b58b1c97258b",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "pid": 33624,
+      "display_name": "continue-B"
+    },
+    {
+      "observed_at": "2026-10-20T23:34:46.275195+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "2c7d1e85-9a34-4b60-8f12-526941b30403",
+      "attempt_id": "2cc7af5f-4b61-43d7-8506-e1727b8a0fb8",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "pid": 36724,
+      "display_name": "continue-A"
+    },
+    {
+      "observed_at": "2026-10-20T23:44:22.314961+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+      "attempt_id": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "pid": 36724,
+      "display_name": "cancel-A"
+    },
+    {
+      "observed_at": "2026-10-20T23:44:22.316210+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "e2f9b5d8-4c37-40a6-8d14-296385e60706",
+      "attempt_id": "877a12b9-378e-471e-ac45-69d097fb080e",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "pid": 33624,
+      "display_name": "B-current-times-four"
+    },
+    {
+      "observed_at": "2026-10-20T23:44:42.589649+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "f3a0c6e9-5d48-41b7-9e25-307496f70807",
+      "attempt_id": "bb5f982d-02b2-40c8-8680-002831f896b3",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "pid": 36724,
+      "display_name": "post-cancel-A"
+    },
+    {
+      "observed_at": "2026-10-20T23:52:19.364963+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "a4b1d7f0-6e59-42c8-8f36-418507a80908",
+      "attempt_id": "18979a68-0fa0-43e7-a2c0-5bc13fcbb146",
+      "role": "B",
+      "device": "a8acf864",
+      "session": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "pid": 33624,
+      "display_name": "final-report-B"
+    },
+    {
+      "observed_at": "2026-10-21T00:00:00.307244+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "c9a72e31-4f68-4b15-9d03-6e2f1a8c7054",
+      "attempt_id": "e8916065-7d45-4ff3-8279-babfd40a5151",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "pid": 36724,
+      "display_name": "reconcile-continue-A"
+    },
+    {
+      "observed_at": "2026-10-21T00:16:07.935452+00:00",
+      "kind": "dispatch_seen",
+      "task_id": "b62f7e40-9c13-4a81-9d56-2f087b63e209",
+      "attempt_id": "1de9e7f8-babd-4a4e-a02c-2b464a5d4f21",
+      "role": "A",
+      "device": "21850fc5",
+      "session": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "pid": 36724,
+      "display_name": "reconcile-continue-A-final"
+    }
+  ],
+  "runtime_interpreters": [
+    {
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "pid": 21988,
+      "start_time": 1792538217.8614564,
+      "end_time": 1792542711.1080832,
+      "status": "failed"
+    },
+    {
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "pid": 31776,
+      "start_time": 1792538218.3719196,
+      "end_time": 1792542711.1080832,
+      "status": "failed"
+    }
+  ],
+  "cancel_request": {
+    "attempt_id": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+    "kind": "harness_cancel_request",
+    "last_worker_status": {
+      "active_attempt": [
+        "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+        "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6"
+      ],
+      "active_traces": [
+        {
+          "elapsed_seconds": 19.265999999995984,
+          "execution": {
+            "attempt_id": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+            "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+            "device_id": "21850fc5",
+            "role_id": "A",
+            "scope_revision": 1,
+            "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+            "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+            "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+            "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127"
+          },
+          "name": "planner",
+          "trace_id": "d0e453dc-ae10-4df2-9766-bc8aa8ebd3fc",
+          "type": "agent"
+        },
+        {
+          "elapsed_seconds": 18.093999999997322,
+          "execution": {
+            "attempt_id": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+            "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+            "device_id": "21850fc5",
+            "role_id": "A",
+            "scope_revision": 1,
+            "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+            "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+            "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+            "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127"
+          },
+          "name": "CodexChatModel",
+          "trace_id": "01a15bb3-a9db-7d31-91c2-7bd08f7d0c91",
+          "type": "llm_call"
+        }
+      ],
+      "observed_monotonic": 54838.312,
+      "pending_results": 0,
+      "state": "EXECUTING"
+    },
+    "last_worker_status_age_seconds": 0.7190000000045984,
+    "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+    "time": "2026-10-20T23:44:42.324184+00:00",
+    "worker_state": "EXECUTING"
+  },
+  "cancel_ack": {
+    "time": "2026-10-20T23:44:42.332489+00:00",
+    "task": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+    "attempt": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+    "reply": {
+      "accepted": true
+    }
+  },
+  "request_to_ack_seconds": 0.008305,
+  "request_to_task_result_seconds": 0.07255196571350098,
+  "cancel_task_action_count": 0,
+  "cancel_stage": "LLM call interval overlaps request",
+  "cancel_overlapping_recorded_spans": [
+    {
+      "trace_id": "d0e453dc-ae10-4df2-9766-bc8aa8ebd3fc",
+      "timestamp": 1792539862.3292737,
+      "duration": 20.02632737159729,
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "step_id": null,
+      "type": "agent",
+      "name": "planner",
+      "status": "cancelled",
+      "owner_source": "payload.execution",
+      "owner_trusted": true,
+      "step_owner_state": "missing",
+      "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+      "attempt_id": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+      "ownership_conflicts": []
+    },
+    {
+      "trace_id": "01a15bb3-a9db-7d31-91c2-7bd08f7d0c91",
+      "timestamp": 1792539863.5148585,
+      "duration": 18.860000000000582,
+      "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+      "step_id": null,
+      "type": "llm_call",
+      "name": "CodexChatModel",
+      "status": "cancelled",
+      "owner_source": "payload.execution",
+      "owner_trusted": true,
+      "step_owner_state": "missing",
+      "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+      "attempt_id": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+      "ownership_conflicts": []
+    }
+  ],
+  "cancel_heartbeat_matching_traces": [
+    {
+      "elapsed_seconds": 19.265999999995984,
+      "execution": {
+        "attempt_id": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+        "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+        "device_id": "21850fc5",
+        "role_id": "A",
+        "scope_revision": 1,
+        "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+        "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+        "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127"
+      },
+      "name": "planner",
+      "trace_id": "d0e453dc-ae10-4df2-9766-bc8aa8ebd3fc",
+      "type": "agent"
+    },
+    {
+      "elapsed_seconds": 18.093999999997322,
+      "execution": {
+        "attempt_id": "0bad0a81-9be7-4f4d-83c2-c4ec08556ea6",
+        "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+        "device_id": "21850fc5",
+        "role_id": "A",
+        "scope_revision": 1,
+        "session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+        "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+        "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127"
+      },
+      "name": "CodexChatModel",
+      "trace_id": "01a15bb3-a9db-7d31-91c2-7bd08f7d0c91",
+      "type": "llm_call"
+    }
+  ],
+  "unfinished_trace_records": [
+    {
+      "trace_id": "ea7c1565-100e-4815-b760-4e2caa47cbe5",
+      "timestamp": 1792539075.4119093,
+      "duration": null,
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "step_id": null,
+      "type": "llm_call",
+      "name": "llm_retry",
+      "status": "retrying",
+      "owner_source": "payload.execution",
+      "owner_trusted": true,
+      "step_owner_state": "missing",
+      "task_id": "4b6e2a91-5c73-4f08-b2d4-713850a20402",
+      "attempt_id": "d1531037-0f45-4b4d-9563-21eb737686e8",
+      "ownership_conflicts": []
+    }
+  ],
+  "ownership_conflicts": [],
+  "B_action_records_after_A_cancel": [
+    {
+      "trace_id": "0da75510-cadb-46d0-a968-bf8b0dd63473",
+      "timestamp": 1792539947.3981075,
+      "duration": 0.5311479568481445,
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "step_id": "a040b494-bf6b-4305-8394-79a38ae30896",
+      "name": "tap",
+      "owner_source": "payload.execution",
+      "owner_trusted": true,
+      "step_owner_state": "complete",
+      "task_id": "e2f9b5d8-4c37-40a6-8d14-296385e60706",
+      "attempt_id": "877a12b9-378e-471e-ac45-69d097fb080e",
+      "ownership_conflicts": []
+    },
+    {
+      "trace_id": "1936debc-2842-4ce5-bdec-372bd81bb2f2",
+      "timestamp": 1792539982.0293064,
+      "duration": 0.5429980754852295,
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "step_id": "43851c6a-6c19-42b3-8e84-1fc4bef4bfd3",
+      "name": "tap",
+      "owner_source": "payload.execution",
+      "owner_trusted": true,
+      "step_owner_state": "complete",
+      "task_id": "e2f9b5d8-4c37-40a6-8d14-296385e60706",
+      "attempt_id": "877a12b9-378e-471e-ac45-69d097fb080e",
+      "ownership_conflicts": []
+    },
+    {
+      "trace_id": "97dc49c0-75cc-4d91-b284-ce6268a82d47",
+      "timestamp": 1792540011.3036575,
+      "duration": 0.530249834060669,
+      "session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+      "step_id": "c5887c60-8aa8-4bf5-bd13-1ec0a4508452",
+      "name": "tap",
+      "owner_source": "payload.execution",
+      "owner_trusted": true,
+      "step_owner_state": "complete",
+      "task_id": "e2f9b5d8-4c37-40a6-8d14-296385e60706",
+      "attempt_id": "877a12b9-378e-471e-ac45-69d097fb080e",
+      "ownership_conflicts": []
+    }
+  ],
+  "late_actions_after_task_result": [],
+  "action_intervals_ending_after_task_result": [],
+  "actions_without_duration": 0,
+  "boundary_inspections": [
+    {
+      "task_id": "2c7d1e85-9a34-4b60-8f12-526941b30403",
+      "display_name": "continue-A",
+      "source": {
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+        "role_id": "A",
+        "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+        "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "4b6e2a91-5c73-4f08-b2d4-713850a20402",
+      "display_name": "initial-B",
+      "source": {
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+        "role_id": "B",
+        "child_session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+        "worker_epoch": "066dbc1e-3046-4566-ac5e-b8a290e1f058",
+        "active_task_id": "7a0f3c96-1d52-4e81-a6b9-934762c40504",
+        "active_attempt_id": "1abee41d-f39a-414d-9e0e-b58b1c97258b"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "7a0f3c96-1d52-4e81-a6b9-934762c40504",
+      "display_name": "continue-B",
+      "source": {
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+        "role_id": "B",
+        "child_session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+        "worker_epoch": "066dbc1e-3046-4566-ac5e-b8a290e1f058",
+        "active_task_id": "e2f9b5d8-4c37-40a6-8d14-296385e60706",
+        "active_attempt_id": "877a12b9-378e-471e-ac45-69d097fb080e"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "8f9a3b42-6e17-4d20-a5c1-921730a10401",
+      "display_name": "initial-A",
+      "source": {
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+        "role_id": "A",
+        "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+        "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+        "active_task_id": "2c7d1e85-9a34-4b60-8f12-526941b30403",
+        "active_attempt_id": "2cc7af5f-4b61-43d7-8506-e1727b8a0fb8"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "a4b1d7f0-6e59-42c8-8f36-418507a80908",
+      "display_name": "final-report-B",
+      "source": {
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+        "role_id": "B",
+        "child_session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+        "worker_epoch": "066dbc1e-3046-4566-ac5e-b8a290e1f058",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "b62f7e40-9c13-4a81-9d56-2f087b63e209",
+      "display_name": "reconcile-continue-A-final",
+      "source": {
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+        "role_id": "A",
+        "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+        "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "c9a72e31-4f68-4b15-9d03-6e2f1a8c7054",
+      "display_name": "reconcile-continue-A",
+      "source": {
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+        "role_id": "A",
+        "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+        "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "d1e8a4c7-3b26-4f95-9c03-185274d50605",
+      "display_name": "cancel-A",
+      "source": {
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+        "role_id": "A",
+        "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+        "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+        "active_task_id": "f3a0c6e9-5d48-41b7-9e25-307496f70807",
+        "active_attempt_id": "bb5f982d-02b2-40c8-8680-002831f896b3"
+      },
+      "consistency": "stream_checkpoint",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "e2f9b5d8-4c37-40a6-8d14-296385e60706",
+      "display_name": "B-current-times-four",
+      "source": {
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+        "role_id": "B",
+        "child_session_id": "193d35a0-c700-4f9f-a41e-097724abc251",
+        "worker_epoch": "066dbc1e-3046-4566-ac5e-b8a290e1f058",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    },
+    {
+      "task_id": "f3a0c6e9-5d48-41b7-9e25-307496f70807",
+      "display_name": "post-cancel-A",
+      "source": {
+        "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127",
+        "role_id": "A",
+        "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+        "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+        "active_task_id": null,
+        "active_attempt_id": null
+      },
+      "consistency": "settled",
+      "transcript_next_offset": null,
+      "inspection_error": null
+    }
+  ],
+  "limitations": "Trace ownership uses a complete payload.execution task/attempt pair first, with legacy step metadata fallback only when payload identity is absent. Conflicting or partial identities are excluded from trusted cancellation/action attribution; unfinished rows remain visible. Cancellation spans require the exact requested attempt and finite nonnegative durations. Boundary inspections can already describe the next task. Cancellation stage requires recorded overlapping intervals; queued cancellation is not inferred. Zero late records is bounded by trace coverage."
+}

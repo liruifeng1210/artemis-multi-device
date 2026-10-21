@@ -1,0 +1,59 @@
+{
+  "attempt_id": "2cc7af5f-4b61-43d7-8506-e1727b8a0fb8",
+  "child_session_id": "628da0c0-9792-4948-b07c-0fc2a960ba67",
+  "in_reply_to": null,
+  "kind": "execute",
+  "message_id": "9676ea47-466b-47b8-90a3-69fa95210864",
+  "payload": {
+    "completion": [
+      {
+        "description": "在同一子Session观察屏幕后直接将显示值乘3并按等号，屏幕实际显示600；未清空或重输旧值/算式。",
+        "id": "continue_calc",
+        "required": true
+      },
+      {
+        "description": "依据本Role原始执行证据记下首次结果和当前结果，并更新A的Role持久notes。",
+        "id": "record_values",
+        "required": true
+      }
+    ],
+    "constraints": [
+      "本次“历史/首次结果保留”指当前Role/Session真实已归档任务结果、步骤、截图和持久notes，不是计算器应用的历史记录界面，不要求打开该界面。首次结果必须来自这些原始执行证据或真实观察；需要报告当前值时重新观察屏幕，不得凭目标中的预填数值推断已完成。",
+      "仅操作指定设备计算器；不使用shell直接计算替代真实点击。",
+      "任务execution_timeout_seconds=900，verification_timeout_seconds=600，settlement_timeout_seconds=60，max_steps=100。",
+      "使用简单标量outputs_schema，例如result为string，不要嵌套对象。每个任务有明确完成条件。",
+      "不要重试有不确定副作用的操作。预算内诊断失败即可如实停止，后续独立任务仍应安排。",
+      "仅操作指定设备计算器，不使用shell代替真实点击。",
+      "必须保持原子Session和连接；禁止清空、重输旧值或旧算式。",
+      "先观察屏幕；不得仅凭目标或输入绑定推断屏幕当前值。",
+      "首次结果必须来自本Role原始执行证据或真实观察。",
+      "不得重试有不确定副作用的操作。"
+    ],
+    "effect_policy": "verify_before_retry",
+    "execution_timeout_seconds": 900.0,
+    "goal": "在A原有子Session和连接中继续。先观察当前计算器屏幕，直接将屏幕显示的首次结果按×3并按等号，确认实际结果600。禁止清空、重输旧值或旧算式。使用绑定的首次结果及A自己的原始执行证据更新Role持久notes，记录首次值和当前值。",
+    "input_sources": {},
+    "inputs": {},
+    "max_steps": 100,
+    "outputs_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object"
+    },
+    "settlement_timeout_seconds": 60.0,
+    "verification_timeout_seconds": 600.0
+  },
+  "protocol_version": 1,
+  "role_id": "A",
+  "sequence": 4,
+  "task_id": "2c7d1e85-9a34-4b60-8f12-526941b30403",
+  "worker_epoch": "2d1bf8a9-8869-4f5e-a1c9-0aac24aa863b",
+  "workflow_id": "9084e13a-d79f-4e71-a26e-86fde826f127"
+}

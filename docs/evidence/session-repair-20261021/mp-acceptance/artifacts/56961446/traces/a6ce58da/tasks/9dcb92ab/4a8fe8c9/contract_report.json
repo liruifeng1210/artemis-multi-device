@@ -1,0 +1,26 @@
+{
+  "unmet_subgoals": [],
+  "verdicts": [
+    {
+      "evidence": "执行记录显示步骤 1 点击清除、步骤 2 主显示为 0，步骤 10 点击等号；最终截图可见 125+75 和 = 200。",
+      "item_text": "[contract:calculation] 已在指定设备计算器中清空一次并通过真实点击计算 125+75，屏幕观察结果为 200。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "replay_steps 返回步骤 1–10 的动作记录；当前会话包含计算结果截图，且 read_note 记载归档包含执行历史、按键步骤和截图。",
+      "item_text": "[contract:archive] 当前 Role/Session 中保留本任务的原始执行结果、步骤和截图。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    },
+    {
+      "evidence": "read_note 返回 first_result: \"200\"（注明来自 T+06:22 的计算器截图）和 current_result: \"200\"（注明来自点击等号后 T+07:07 的新观察）。",
+      "item_text": "[contract:memory] 当前 Role/Session 的持久 notes 已记录从原始执行证据观察到的首次结果和当前结果。",
+      "kind": "verify",
+      "status": "passed",
+      "suggestion": ""
+    }
+  ]
+}

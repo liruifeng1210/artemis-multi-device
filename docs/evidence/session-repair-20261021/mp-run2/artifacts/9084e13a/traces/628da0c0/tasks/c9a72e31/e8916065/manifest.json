@@ -1,0 +1,26 @@
+{
+  "archive_state": "ACTIVE_CLEARED",
+  "artifacts": {
+    "tasks\\c9a72e31-4f68-4b15-9d03-6e2f1a8c7054\\e8916065-7d45-4ff3-8279-babfd40a5151\\accepted.json": {
+      "sha256": "d35b8262ebc14e97c9024f8ad06e39d0de1857930c1d84359149e9a0a09f44fb",
+      "size_bytes": 132
+    },
+    "tasks\\c9a72e31-4f68-4b15-9d03-6e2f1a8c7054\\e8916065-7d45-4ff3-8279-babfd40a5151\\native\\notes\\task_plan.md": {
+      "sha256": "cc5e2254c56b7bc085604a6cd10fb864e67b9b278ce284e5564442789d541b5e",
+      "size_bytes": 1763
+    },
+    "tasks\\c9a72e31-4f68-4b15-9d03-6e2f1a8c7054\\e8916065-7d45-4ff3-8279-babfd40a5151\\request.json": {
+      "sha256": "8bdc9d2cf2c6249c9c2ac8d9c2998a61d8cec1c5eb260db6cf0a05951a1cd334",
+      "size_bytes": 2231
+    }
+  },
+  "attempt_id": "e8916065-7d45-4ff3-8279-babfd40a5151",
+  "files": {
+    "notes/task_plan.md": {
+      "sha256": "cc5e2254c56b7bc085604a6cd10fb864e67b9b278ce284e5564442789d541b5e",
+      "size_bytes": 1763
+    }
+  },
+  "result_hash": "1756bebbc7fc48ca67b59fad29e8abeaadfa3d993cd1019215296df995ee610b",
+  "task_id": "c9a72e31-4f68-4b15-9d03-6e2f1a8c7054"
+}

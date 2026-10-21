@@ -1,0 +1,46 @@
+{
+  "audit_utc": "2026-10-21T00:34:18.824166+00:00",
+  "closed_run": true,
+  "ownership": {
+    "trace_count": 3352,
+    "complete_payload_task_attempt_count": 3321,
+    "payload_step_or_session_conflicts": [],
+    "limit": "Missing task/attempt on lifecycle/log wrappers is counted separately and is not inferred as a task owner; complete-pair cross-checks do not prove every trace has attribution."
+  },
+  "remaining_nonterminal_records": [
+    {
+      "trace_id": "ea7c1565-100e-4815-b760-4e2caa47cbe5",
+      "type": "llm_call",
+      "name": "llm_retry",
+      "status": "retrying",
+      "owner": {
+        "role_id": "B",
+        "task_id": "4b6e2a91-5c73-4f08-b2d4-713850a20402",
+        "attempt_id": "d1531037-0f45-4b4d-9563-21eb737686e8",
+        "session_id": "193d35a0-c700-4f9f-a41e-097724abc251"
+      }
+    }
+  ],
+  "remaining_record_interpretation": "The remaining llm_retry record is emitted once by _record_llm_retry with status retrying and no paired terminal update. This is a telemetry lifecycle defect; all workers exited, so it does not establish a live model producer after close. Raw status remains unchanged.",
+  "compression": {
+    "record_count": 17,
+    "status_counts": {
+      "success": 16,
+      "terminated": 1
+    },
+    "phase_counts": {
+      "applied": 16,
+      "ready": 1
+    },
+    "summary_replacement_report_count": 12,
+    "fallback_before_ready_report_count": 0
+  },
+  "stored_note_claims": {
+    "B": {
+      "relative_path": "9084e13a-d79f-4e71-a26e-86fde826f127/traces/193d35a0-c700-4f9f-a41e-097724abc251/notes/b_calculator_results.md",
+      "first_result_8_explicit": true,
+      "current_screen_100_explicit": true
+    }
+  },
+  "final_snapshot_limit": "A56/B59 diagnostic message positions are fully paginated, each latest settled snapshot follows its last terminal attempt. Each has one truncated string marker; these are current compressed ledgers, not lossless original dialogue. A latest ready summaries end at step25 vs recorded step32; B end at11 vs17. No claim that the final dialogue is entirely summarized or applied."
+}

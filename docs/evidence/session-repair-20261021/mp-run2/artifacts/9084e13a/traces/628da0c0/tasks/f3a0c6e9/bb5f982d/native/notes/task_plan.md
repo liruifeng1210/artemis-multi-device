@@ -1,0 +1,11 @@
+- [x] In A's existing calculator child session, re-observe and record the live value after cancellation, then directly add 10 and press equals without clearing or re-entering any prior value or expression; the supplied screenshot currently shows 200×3 = 600, but verify live before acting.
+  - [x] Re-observe actual screen after cancellation: it shows = 600 (T+29:32).
+  - [x] Directly add 10 and press equals without clearing or re-entering the old value or expression.
+    - [x] Tap plus to continue from the observed current value.
+    - [x] Tap 1 to begin entering +10.
+    - [x] Tap 0 to complete entering +10.
+    - [x] Tap equals to commit +10.
+  - verify: The post-equals screen shows the actual result reached by adding 10 to the freshly observed live value, with no clear or old-value/expression re-entry in the recorded steps.
+  - assert: 取消后重新观察实际屏幕值，直接加10并按等号，观察到并记录真实新屏幕结果。
+- [x] Update A's Role persistent notes `A_role_calc_continuation` and `A_role_calc_add10_result` with the first result (200) and its original-evidence source, the live pre-add observation, and the actual post-add screen result; report the first and current values.
+  - verify: Both values are recorded in A's Role notes, the first value is grounded in A's original task evidence, and the current value is grounded in the fresh post-equals screen observation.
