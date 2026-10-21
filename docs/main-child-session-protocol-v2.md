@@ -46,18 +46,19 @@ Main 管理任务、依赖和输入来源；每个 Role 对应一个常驻子进
 
 会话级消息的 task_id、attempt_id 同时为 null。一个子 Session 同时最多执行一个 attempt；后续任务复用该 Session 的上下文。
 
-首次连接沿用启动认证与 hello 握手；ready 表示初始化成功。新进程使用新身份，不冒用旧进程继续未完成的 attempt。
+Main 启动子进程后，先通过 stdin 发送一条 init。子进程从 init 取得连接和会话配置，再通过 TCP 完成 hello/ack 认证，初始化成功后返回 ready。后续任务和状态消息使用 TCP。新进程使用新身份，不冒用旧进程继续未完成的 attempt。
 
 ## 2 消息类型
 
 | 方向 | kind | 含义 |
 | --- | --- | --- |
+| 主 → 子 | init | 通过启动 stdin 交付连接配置、设备和 Role 初始资料 |
 | 子 → 主 | hello / ready | 连接认证 / 已准备接任务 |
 | 主 → 子 | execute | 派发一个任务 attempt |
 | 子 → 主 | accepted / rejected | 已持久化接收 / 尚未执行并拒绝 |
 | 子 → 主 | started | 开始执行，仅作为进度通知 |
 | 子 → 主 | result | 已收尾并持久化的任务终态 |
-| 主 → 子 | ack | Main 已持久化收到的 result |
+| 主 → 子 | ack | 确认连接握手或已持久化收到的 result，由 in_reply_to 区分 |
 | 主 → 子 | cancel_task | 取消指定 task_id 和 attempt_id |
 | 子 → 主 | cancel_received | 取消请求是否被接受 |
 | 子 → 主 | heartbeat / session_status | 进程活性与会话当前状态 |
@@ -67,11 +68,109 @@ Main 管理任务、依赖和输入来源；每个 Role 对应一个常驻子进
 | 子 → 主 | inspection / observation | 查询或观察的结果 |
 | 双向 | error | 控制或协议错误 |
 
-正常任务流程：execute → accepted → started → result → ack。
+会话启动流程：启动子进程 → init（stdin）→ hello/ack（TCP）→ 初始化 → ready（TCP）。
+
+正常任务流程：execute → accepted → started → result → ack。同一个子 Session 可以连续执行多个任务。
 
 accepted、started、ack 均不代表任务业务验收通过。Main 校验 result 后决定是否解锁下游任务；继续向该 Role 派任务还需要它处于 READY。
 
-## 3 任务内容
+## 3 初始化协议和示例
+
+init 是会话级消息，task_id、attempt_id 为 null。每个 Session 初始化一次；它准备设备和常驻执行环境，登录仍通过后续 execute 完成。
+
+| init.payload 字段 | 用途 |
+| --- | --- |
+| connection | 框架生成的 Main 地址、端口和启动认证 token |
+| device_id | 该 Role 绑定的设备序列号 |
+| profile | 原生执行配置，默认 pro |
+| description | Role 的职责说明 |
+| session_inputs | 该 Role 连续任务共用的业务资料，默认 {} |
+| app_path / locked_app_package | 可选的应用安装路径、锁定应用包名，按需提供 |
+
+connection 仅供进程连接使用，不放入执行模型的业务上下文。session_inputs 的字段由业务决定，例如账号、目标应用；账号标识本身不代表登录密码或验证码已具备，认证所需信息仍需明确提供。
+
+Main → host，完整 init 示例。设备序列号和 token 均为占位值，connection.port 由 Main 实际监听端口决定：
+
+```json
+{
+  "protocol_version": 2,
+  "kind": "init",
+  "message_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "in_reply_to": null,
+  "sequence": 1,
+  "workflow_id": "11111111-1111-4111-8111-111111111111",
+  "role_id": "host",
+  "child_session_id": "22222222-2222-4222-8222-222222222222",
+  "worker_epoch": "33333333-3333-4333-8333-333333333333",
+  "task_id": null,
+  "attempt_id": null,
+  "payload": {
+    "connection": {
+      "host": "127.0.0.1",
+      "port": 48000,
+      "token": "FRAMEWORK_GENERATED_STARTUP_TOKEN"
+    },
+    "device_id": "DEVICE_SERIAL_A",
+    "profile": "pro",
+    "description": "会议主持人A",
+    "session_inputs": {
+      "account": "测试账号A",
+      "app_name": "目标会议应用"
+    }
+  }
+}
+```
+
+子进程校验配置、完成连接认证、获取设备锁、创建常驻 Artemis Session，并保存 session_inputs。以后每次执行任务，由程序将 session_inputs 与本次 inputs 一起组装进执行上下文，不只依赖模型记住启动时的提示词。同名参数出现不同值时拒绝派发，由 Main 显式处理；任务不能悄悄更换设备或绑定账号。
+
+host → Main，初始化成功后返回 ready，in_reply_to 关联 init.message_id：
+
+```json
+{
+  "protocol_version": 2,
+  "kind": "ready",
+  "message_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+  "in_reply_to": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "sequence": 2,
+  "workflow_id": "11111111-1111-4111-8111-111111111111",
+  "role_id": "host",
+  "child_session_id": "22222222-2222-4222-8222-222222222222",
+  "worker_epoch": "33333333-3333-4333-8333-333333333333",
+  "task_id": null,
+  "attempt_id": null,
+  "payload": {
+    "state": "READY"
+  }
+}
+```
+
+ready 表示运行环境可以接任务，不表示已完成业务登录。若连接认证已完成，但设备初始化失败，返回会话级 error，例如：
+
+```json
+{
+  "protocol_version": 2,
+  "kind": "error",
+  "message_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  "in_reply_to": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "sequence": 2,
+  "workflow_id": "11111111-1111-4111-8111-111111111111",
+  "role_id": "host",
+  "child_session_id": "22222222-2222-4222-8222-222222222222",
+  "worker_epoch": "33333333-3333-4333-8333-333333333333",
+  "task_id": null,
+  "attempt_id": null,
+  "payload": {
+    "code": "init_failed",
+    "description": "无法连接指定设备。"
+  }
+}
+```
+
+若尚未连接到 Main，无法发送上述 error；Main 通过进程退出、stderr 或启动超时识别初始化失败，并负责回收进程。收到 ready 前不派发业务任务。
+
+同一 Session 重复收到相同 init 时，不重复获取设备或重建上下文，只补当前初始化状态；初始化已完成则重发原 ready。相同身份但配置不同，返回 init_conflict。初始化超时或失败后，不复用未确认清理完成的进程；先确认退出，再用新的 child_session_id、worker_epoch 重新 init。
+
+## 4 任务内容
 
 execute.payload 使用下列字段：
 
@@ -105,7 +204,7 @@ completion 每项固定为 id、description、required。id 在该任务内唯�
 
 inputs 只携带值。上游结果引用、数据来源、有效期和失效关系由 Main 内部保存并在派发前解析，不发送 input_sources。
 
-## 4 结果内容
+## 5 结果内容
 
 result.payload 使用下列字段：
 
@@ -143,18 +242,16 @@ observations 可按需提供 key、value 两个字段，例如 {"key": "waiting_
 
 error 仅保留 code 和 description。需要用户补充信息时也使用 error，不再单独设置 blocker。
 
-## 5 登录示例
+## 6 登录示例
 
-以下例子展示消息的 payload。外层 Envelope 按消息类型和实际身份填写。登录、创建会议是不同 task；同一个 host 子 Session 连续执行，保留应用登录状态和上下文。
+以下例子展示消息的 payload。外层 Envelope 按消息类型和实际身份填写。该 host 已完成前面的 init，session_inputs 中绑定测试账号A。登录、创建会议是不同 task；同一个 host 子 Session 连续执行，保留应用登录状态和上下文。
 
 Main → host，execute.payload：
 
 ```json
 {
-  "goal": "登录指定账号，并停留在登录后的首页。",
-  "inputs": {
-    "account": "测试账号A"
-  },
+  "goal": "登录当前Role绑定的账号，并停留在登录后的首页。",
+  "inputs": {},
   "output_requirements": {},
   "completion": [
     {
@@ -164,7 +261,7 @@ Main → host，execute.payload：
     },
     {
       "id": "account_match",
-      "description": "当前实际登录的账号与指定账号一致。",
+      "description": "当前实际登录的账号与Role绑定账号一致。",
       "required": true
     }
   ],
@@ -210,7 +307,7 @@ host → Main，result.payload。证据文字用于说明格式，实际内容�
 
 登录成功通过 checks 表达，不再重复返回 logged_in: true。如果后续任务确实需要用户 ID，只需将 output_requirements 改为 {"user_id": "当前实际登录账号的用户ID"}，并在 outputs 中返回 user_id。登录成功和账号正确这两项检查仍然保留。
 
-## 6 创建会议和交接编号示例
+## 7 创建会议和交接编号示例
 
 Main → host，execute.payload。此任务依赖登录成功，依赖关系由 Main 管理：
 
@@ -262,7 +359,7 @@ host → Main，result.payload：
 }
 ```
 
-Main 验收成功后，把具体编号放入 guest 任务的 inputs。下面展示需要主持人审批时的任务边界：guest 提交申请后先返回，不悬挂等待 host 审批。
+Main 验收成功后，把具体编号放入 guest 任务的 inputs。guest 需要先使用自己的设备、账号和 Session 身份完成 init 和登录。下面展示需要主持人审批时的任务边界：guest 提交申请后先返回，不悬挂等待 host 审批。
 
 Main → guest，execute.payload：
 
@@ -291,7 +388,7 @@ Main → guest，execute.payload：
 
 guest 按同一 result 格式返回 join_requested 的检查结果。Main 再给 host 派“批准B入会”，然后给 guest 派“核验已经入会”。不需要审批的会议可以直接把完成条件设为“B已进入目标会议”。
 
-## 7 取消和故障
+## 8 取消和故障
 
 三个预算分别约束：执行 → 收尾 → 独立验收 → 收尾。每次收尾单独计时。执行超时触发停止请求，必须等待实际操作、后台任务和写入收尾，不能立即认为设备已空闲。
 
@@ -346,7 +443,7 @@ blocked 任务已经结束；Main 取得所需信息后另派任务，子 Sessio
 
 取消、超时或进程丢失后，不自动重新执行业务任务。Main 先观察或派核验任务，确认现场，再决定下一步。进程重建时更换 Session 身份，并使依赖旧 Session 的状态失效；历史结果保留，不把旧成功状态直接用于新进程。
 
-## 8 会话状态和结果确认
+## 9 会话状态和结果确认
 
 子 Session 状态包括 STARTING、READY、EXECUTING、VERIFYING、SETTLING、COMMITTING、FAULTED、CLOSING、CLOSED。
 
@@ -362,7 +459,7 @@ blocked 任务已经结束；Main 取得所需信息后另派任务，子 Sessio
 
 READY 表示当前没有 active attempt，原生操作和任务写入已完成收尾。收尾失败进入 FAULTED。Main 对该 Role 停止派发，确认旧进程退出后才能启动替换进程。
 
-子进程先把 result 和证据保存到本地，再发送 result。Main 保存收到的结果后发送 ack，in_reply_to 指向 result.message_id，payload 为 {}。ACK 只确认收到并保存该结果，不代表业务验收通过，也不表示传输了文件。
+子进程先把 result 和证据保存到本地，再发送 result。Main 保存收到的结果后发送 ack，in_reply_to 指向 result.message_id，payload 为 {}。任务结果 ACK 只确认收到并保存该结果，不代表业务验收通过，也不表示传输了文件。hello 的握手 ACK 沿用连接认证所需字段，按 in_reply_to 区分，不要求其 payload 为 {}。
 
 ACK 丢失时补发原 result；Main 按身份和消息 ID 去重。相同 attempt 的请求内容不可改变，冲突则拒绝。重发只覆盖仍在等待结果的原请求；Main 已超时或放弃的 attempt 不重发业务指令。
 
@@ -372,10 +469,11 @@ close_session 请求停止准入并取消、收尾当前任务；closed 报告�
 
 inspect_session 和 observe_session 沿用现有只读诊断能力。需要导航、点击或其他业务操作时，仍派 execute。诊断快照用于辅助判断，不直接替代某个任务的成功验收。
 
-## 9 与当前实现的对应
+## 10 与当前实现的对应
 
 | 项目 | 简化协议 |
 | --- | --- |
+| init / session_inputs | 将启动配置正式定义为 init，增加 Role 固定资料与 ready/error 关联 |
 | outputs_schema | 替换为 output_requirements，自然语言描述所需字段 |
 | input_sources | 从消息删除，Main 内部保存来源与失效关系 |
 | effect_policy | 删除，统一采用先核验再决定后续任务的恢复规则 |
